@@ -3,7 +3,8 @@ project(opengl_core)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Application application.cpp)
+add_executable(Application helpers.cpp application2.cpp)
+# add_executable(Application  application.cpp)
     target_include_directories(Application PRIVATE include)
 
 
