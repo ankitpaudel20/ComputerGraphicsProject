@@ -3,9 +3,8 @@ project(opengl_core)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Application application.cpp)
-    target_include_directories(Application PRIVATE include)
-
+add_executable(Application src/application.cpp src/vendor/tinyobj/tiny_obj_loader.cc)
+target_include_directories(Application PRIVATE src/vendor/tinyobj src/vendor src/include)
 
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -16,7 +15,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     message("Linked to windows using MSVC")
 else()
     if (CMAKE_SYSTEM_NAME STREQUAL Linux)          
-        target_link_libraries(Application PRIVATE GLEW glfw GL GLU)
+        target_link_libraries(Application PRIVATE GLEW glfw GL)
         message("Linked to Linux")
 
     elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)       
