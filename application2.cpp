@@ -11,8 +11,9 @@
 mat4 translate3d;
 mat4 scale3d;
 camera cam;
+float dummy = 1;
 neupane::Camera camera = neupane::Camera(
-    vec3(0.0f, 0.0f, 20.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+    vec3(0.0f, 0.0f, 5.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 static void error_callback(int error, const char *description) {
   fprintf(stderr, "GLFW Error: %s\n", description);
@@ -23,30 +24,22 @@ static int mx, my;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
-  auto dir = cam.center - cam.eye;
-  // const float cameraSpeed = 2.5 * s.deltatime;
-  vec3 left = vec3::cross(cam.up, dir);
-  switch (action) {
-  case GLFW_PRESS:
-    switch (key) {
-    case GLFW_KEY_ESCAPE:
-      glfwSetWindowShouldClose(window, true);
-      break;
-    case GLFW_KEY_1:
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-      captured = false;
-      break;
-    case GLFW_KEY_2:
-      glfwSetCursorPos(window, mx, my);
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-      captured = true;
-      break;
-    case GLFW_KEY_W:
-      camera.moveForeward();
-    default:
-      break;
-    }
-    break;
+
+  std::cout << "camera pos" << camera.getPosition() << std::endl;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    camera.moveForeward();
+  } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    camera.moveBack();
+  } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    camera.moveLeft();
+  } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    camera.moveRight();
+  } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+    camera.moveUp();
+  } else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+    camera.moveDown();
+  } else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+    dummy += 1;
   }
 }
 
@@ -161,7 +154,6 @@ int main(int argc, char **argv) {
   int yval = 0;
 
   // const bool moveCamera = false;
-  float dummy = 1;
 
   std::vector<std::vector<float>> vertices;
   std::vector<std::vector<float>> indices;
@@ -215,19 +207,33 @@ int main(int argc, char **argv) {
     mat4 prespective_mat =
         my_PerspectiveFOV(45.0f, 640.0f / 480.0f, 0.1f, 200.0f);
 
-    mat4 a = prespective_mat * view_matrix * scaling_matrix ;
+    mat4 a = prespective_mat * view_matrix * scaling_matrix;
     std::vector<vec4> final;
+
+    mat4 b;
+    for (int i = 0; i < a.dimensions().x; i++) {
+      for (int j = 0; j < a.dimensions().y; j++) {
+        b(i, j) = a(j, i);
+      }
+    }
 
     for (int i = 0; i < cube_matix[0].size(); i++) {
       auto t = a * vec4(cube_matix[0][i], cube_matix[1][i], cube_matix[2][i],
                         cube_matix[3][i]);
-      final.push_back(a * vec4(t));
+      final.push_back(t);
     }
 
     vec3_T<float> brescolor(1, 0, 0);
 
     graphicsEngine->clear();
     // graphicsEngine->drawLines(final_axes);
+
+    // std::cout << "--------------------------\n";
+    // for (auto item : final) {
+    //   std::cout << item;
+    // }
+    // std::cout << "--------------------------\n";
+
     graphicsEngine->draw(final, edgeMatrix, camera);
     // graphicsEngine->drawLines(final_cube, brescolor, cube_indices);
     // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1, 0,

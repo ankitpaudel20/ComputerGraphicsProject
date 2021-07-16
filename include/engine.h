@@ -162,35 +162,49 @@ struct engine {
       vec4 vertex2 = cube[item[1] - 1];
       vec4 vertex3 = cube[item[2] - 1];
 
-      if (vertex1.z < 1 or vertex3.z < 1 or vertex2.z < 1) {
-        continue;
+      int filter = 1;
+      if (filter or (item[0] == 1 and item[1] == 3 and item[2] == 4)) {
+
+        /* camera vanda paxadi paro vane aile lai puraai traingle nai display
+         * nagarne */
+        if (vertex1.z < 1 or vertex3.z < 1 or vertex2.z < 1) {
+          continue;
+        }
+
+        vec3 normal =
+            calculateNormal(vec3(vertex1), vec3(vertex2), vec3(vertex3));
+
+        auto dir = camera.getDirection();
+
+        auto temp = vec3::dot(normal, dir);
+
+        if (!filter) {
+          std::cout << "normal=" << normal;
+          std::cout << "dot=" << temp << std::endl;
+          std::cout << "camera dir=" << dir;
+        }
+
+        if (temp > 0) {
+          continue;
+        }
+
+        /* calculate the normal here and if the normal and camera direction dot
+         * product gives positive the trangle should not be drawn */
+
+        assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
+        /* just simple test trying to not draw traingle that are behind the
+         * camera
+         */
+
+        draw_bresenham_adjusted(vertex1.x / vertex1.w, vertex1.y / vertex1.w,
+                                vertex2.x / vertex2.w, vertex2.y / vertex2.w);
+
+        draw_bresenham_adjusted(vertex2.x / vertex2.w, vertex2.y / vertex2.w,
+                                vertex3.x / vertex3.w, vertex3.y / vertex3.w);
+
+        draw_bresenham_adjusted(vertex1.x / vertex1.w, vertex1.y / vertex1.w,
+                                vertex3.x / vertex3.w, vertex3.y / vertex3.w);
       }
-
-      vec3 normal =
-          calculateNormal(vec3(vertex1), vec3(vertex2), vec3(vertex3));
-
-      auto dir = camera.getDirection();
-
-      auto temp = vec3::dot(normal, dir);
-      if (temp > 0) {
-        continue;
-      }
-
-      /* calculate the normal here and if the normal and camera direction dot
-       * product gives positive the trangle should not be drawn */
-
-      assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
-      /* just simple test trying to not draw traingle that are behind the camera
-       */
-
-      draw_bresenham_adjusted(vertex1.x / vertex1.w, vertex1.y / vertex1.w,
-                              vertex2.x / vertex2.w, vertex2.y / vertex2.w);
-
-      draw_bresenham_adjusted(vertex2.x / vertex2.w, vertex2.y / vertex2.w,
-                              vertex3.x / vertex3.w, vertex3.y / vertex3.w);
-
-      draw_bresenham_adjusted(vertex1.x / vertex1.w, vertex1.y / vertex1.w,
-                              vertex3.x / vertex3.w, vertex3.y / vertex3.w);
     }
   }
 };
