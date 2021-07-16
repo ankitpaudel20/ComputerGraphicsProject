@@ -15,7 +15,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     message("Linked to windows using MSVC")
 else()
     if (CMAKE_SYSTEM_NAME STREQUAL Linux)          
-        target_link_libraries(Application PRIVATE GLEW glfw GL)
+        target_link_libraries(Application PRIVATE GLEW glfw GL GLU)
         message("Linked to Linux")
 
     elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)       
