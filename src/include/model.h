@@ -23,7 +23,7 @@
 static std::string directory;
 static std::vector<std::string> textures_loaded;
 static std::unordered_map<std::string, node> models_loaded;
-static std::unordered_map<std::string, node*> models_loaded_path;
+static std::unordered_map<std::string, node *> models_loaded_path;
 static std::unordered_map<std::string, Mesh> meshes_loaded;
 
 namespace Model {
@@ -223,14 +223,13 @@ node *loadModel(std::string const &path, const std::string &name, bool flipUV = 
     // process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene, temp.meshes, 0);
 
-   
     models_loaded[name] = std::move(temp);
     models_loaded_path[path] = &models_loaded[name];
     return &models_loaded[name];
 }
 #endif
 
-void calculate_tangent(Vertex *triangle) {
+/*void calculate_tangent(Vertex *triangle) {
 
     const vec3 &pos1 = triangle->position;
     const vec3 &pos2 = (triangle + 1)->position;
@@ -299,7 +298,7 @@ void calculate_tangent2(Vertex *triangle) {
     triangle->bitangent.normalize();
     (triangle + 1)->bitangent = (triangle)->bitangent;
     (triangle + 2)->bitangent = (triangle)->bitangent;
-}
+}*/
 
 node *loadModel_obj(std::string const &path, const std::string &name, bool flipUV = false) {
 
@@ -458,9 +457,9 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                 m1->m_indices.push_back(current_index++);
             }
 
-            if (!m1->material.normalMap.empty()) {
-                calculate_tangent2((&m1->m_vertices.back()) - 2);
-            }
+            // if (!m1->material.normalMap.empty()) {
+            //     calculate_tangent2((&m1->m_vertices.back()) - 2);
+            // }
             index_offset += fv;
         }
 

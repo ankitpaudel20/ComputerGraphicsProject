@@ -131,7 +131,7 @@ void processHoldEvent(GLFWwindow *window) {
         cam.eye -= (cam.getUp() * cameraSpeed);
     }
 
-    float factor = 100;
+    float factor = 10;
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         cam.DelPitch(cam.sensitivity * deltatime);
@@ -272,12 +272,12 @@ int main(int argc, char **argv) {
 
         std::vector<vec4> temp_cube;
         for (auto &p : cube) {
-            auto temp = ob * view * scale3d * translate3d * p;
+            auto temp = per * view * scale3d * translate3d * p;
             final_cube.emplace_back((int)round(temp.x / (fabs(temp.w) < epsilon ? epsilon : temp.w)), (int)round(temp.y / (fabs(temp.w) < epsilon ? epsilon : temp.w)));
         }
 
         for (auto &p : axes_endpoints) {
-            auto temp = ob * view * scale3d * p;
+            auto temp = per * view * scale3d * p;
             final_axes.emplace_back((int)round(temp.x / (fabs(temp.w) < epsilon ? epsilon : temp.w)), (int)round(temp.y / (fabs(temp.w) < epsilon ? epsilon : temp.w)));
         }
 
