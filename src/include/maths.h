@@ -7,6 +7,20 @@
 #include <array>
 #include "glm/glm.hpp"
 
+#ifdef _MSC_VER
+#define DEBUG_BREAK __debugbreak()
+
+#ifdef _DEBUG
+#define MDEBUG
+#endif
+#else
+#define DEBUG_BREAK __builtin_trap()
+
+#ifndef NDEBUG
+#define MDEBUG
+#endif
+#endif
+
 constexpr float radian = 3.14159265 / 180;
 constexpr float epsilon = 1e-4f;
 constexpr float pi = 3.14159265;
@@ -619,11 +633,10 @@ class mat {
         return ret;
     }
 
-    vec3_T<Type> operator*(const vec3_T<Type> &in) {
+    vec3_T<Type> operator*(const vec3_T<Type> &in)const {
         // assert(x_dim == 3 && y_dim == 3);
         if (x_dim != 3 || y_dim != 3) {
-            __debugbreak();
-            /* code */
+            DEBUG_BREAK;
         }
 
         vec3_T<Type> ret;
@@ -636,7 +649,7 @@ class mat {
         return ret;
     }
 
-    vec2_T<Type> operator*(const vec2_T<Type> &in) {
+    vec2_T<Type> operator*(const vec2_T<Type> &in)const {
         assert(x_dim == 2 && y_dim == 2);
         vec2_T<Type> ret;
         ret.x = operator()(0, 0) * in.x + operator()(0, 1) * in.y;
@@ -644,7 +657,7 @@ class mat {
         return ret;
     }
 
-    vec4_T<Type> operator*(const vec4_T<Type> &in) {
+    vec4_T<Type> operator*(const vec4_T<Type> &in)const {
         assert(x_dim == 4 && y_dim == 4);
         vec4_T<Type> ret;
         ret.x = operator()(0, 0) * in.x + operator()(0, 1) * in.y + operator()(0, 2) * in.z + operator()(0, 3) * in.w;

@@ -32,6 +32,59 @@ const std::string pathDelemeter("/");
 #endif
 #endif
 
+#ifdef MDEBUG
+#define GLcall_P(y, x) \
+    GLClearError();    \
+    y = x;             \
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#define GLcall(x)   \
+    GLClearError(); \
+    x;              \
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#else
+#define GLcall(x) x
+#define GLcall_P(y, x) y = x
+#endif
+
+//#define NEWRENDERMETHOD
+
+inline void GLClearError() {
+    while (glGetError() != GL_NO_ERROR)
+        ;
+}
+
+inline bool GLLogCall(const char *function, const char *file, int line) {
+    while (GLenum errorcode = glGetError()) {
+        std::string error;
+        switch (errorcode) {
+        case GL_INVALID_ENUM:
+            error = "INVALID_ENUM";
+            break;
+        case GL_INVALID_VALUE:
+            error = "INVALID_VALUE";
+            break;
+        case GL_INVALID_OPERATION:
+            error = "INVALID_OPERATION";
+            break;
+        case GL_STACK_OVERFLOW:
+            error = "STACK_OVERFLOW";
+            break;
+        case GL_STACK_UNDERFLOW:
+            error = "STACK_UNDERFLOW";
+            break;
+        case GL_OUT_OF_MEMORY:
+            error = "OUT_OF_MEMORY";
+            break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            error = "INVALID_FRAMEBUFFER_OPERATION";
+            break;
+        }
+        std::cout << "[Opengl Error] ( Error code :" << errorcode << " : " << error << " )" << function << " " << file << " : " << line << std::endl;
+        return false;
+    }
+    return true;
+}
+
 //#define _DEBUG
 
 #define ASSERT(x)      \
@@ -51,12 +104,20 @@ struct Vertex {
     vec3 position = vec3(0);
     vec3 normal = vec3(0);
     vec2 texCoord = vec2(0);
-    vec3 tangent = vec3(0);
-    vec3 bitangent = vec3(0);
 
-    Vertex(const vec3 &pos, const vec3 &nor = vec3(0), const vec2 &texcoord = vec2(0), const vec3 &tangent = vec3(0), const vec3 &bitangent = vec3(0), const float texid = 0)
-        : position(pos), normal(nor), tangent(tangent), bitangent(bitangent), texCoord(texcoord) {}
+    Vertex(const vec3 &pos, const vec3 &nor = vec3(0), const vec2 &texcoord = vec2(0))
+        : position(pos), normal(nor), texCoord(texcoord) {}
     Vertex() {}
+
+    Vertex operator-(const Vertex &in) const {
+        return Vertex(position - in.position, normal - in.normal, texCoord - in.texCoord);
+    }
+    Vertex operator+(const Vertex &in) const {
+        return Vertex(position + in.position, normal + in.normal, texCoord + in.texCoord);
+    }
+    Vertex operator*(const float &in) const {
+        return Vertex(position * in, normal * in, texCoord * in);
+    }
 };
 
 struct dirLight {

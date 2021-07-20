@@ -15,9 +15,9 @@ public:
 	float nearPoint{ 0.01 }, farPoint{ 1000.0 };
 	float FOV{ 90 };
 	float sensitivity = 0.000005;
-	float speed = 0.001;
+	float speed = 0.0001;
 
-	camera() : viewDir(0.0f, 0.0f, -1.0f), eye(0.0f, 0.0f, 0.0f), up(0.0f, -1.0f, 0.0f), pitchAngle(0) {
+	camera() : viewDir(0.0f, 0.0f, -1.0f), eye(0.0f, 0.0f, 665.439), up(0.0f, -1.0f, 0.0f), pitchAngle(0) {
 		checkCorrectness();
 	}
 

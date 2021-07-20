@@ -1,94 +1,297 @@
 #pragma once
-//#include"core.h"
+#include "core.h"
 #include <utility>
-//#include "GL/glew.h"
+#include <list>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
-//template <class T>
-//static void swap(T &a, T &b) {
-//    auto temp = a;
-//    a = b;
-//    b = temp;
-//}
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
+struct color {
+    uint32_t col;
+    color() : col(0) {
+        int y = 1;
+        //printf("defaultused\n");
+    }
+    color(uint8_t r) : color(r, r, r) {
+        int y = 1;
+    }
+    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {
+        int y = 1;
+        //printf("nondefaultused\n");
+    }
+    vec4 getcolor() {
+        auto temp = (uint8_t *)&col;
+        return vec4(temp[0], temp[1], temp[2], temp[3]) / 255;
+    }
+    uint8_t &r() {
+        return ((uint8_t *)&col)[0];
+    }
+    uint8_t &g() {
+        return ((uint8_t *)&col)[1];
+    }
+    uint8_t &b() {
+        return ((uint8_t *)&col)[2];
+    }
+    uint8_t &a() {
+        return ((uint8_t *)&col)[3];
+    }
+};
 
 struct framebuffer {
-    bool* grid;
-    vec3* color;
-    uint32_t x_size, y_size;
-    framebuffer(const uint32_t& x, const uint32_t& y) : x_size(x), y_size(y) {
+    bool *grid;
+    color *colorlayer;
+    unsigned int x_size, y_size;
+    framebuffer(const unsigned int &x, const unsigned int &y) : x_size(x), y_size(y) {
         grid = new bool[x_size * y_size];
-        color = new vec3[x_size * y_size];
-        clear();       
+        colorlayer = new color[x_size * y_size];
+        clear();
     }
 
     ~framebuffer() {
         delete[] grid;
-        delete[] color;
+        delete[] colorlayer;
     }
 
     inline void clear() {
-        for (uint32_t x = 0; x < x_size * y_size; ++x) {
+        for (unsigned int x = 0; x < x_size * y_size; ++x) {
             grid[x] = false;
-            color[x] = 0;
+            colorlayer[x] = color(0, 0, 0, 255);
         }
     }
 };
 
 struct engine {
 
+    bool written = false;
     framebuffer *fboCPU;
+    float xlim, ylim;
+
+#ifdef NEWRENDERMETHOD
+    unsigned int vao, vbo, ibo, tex, shader;
+
+    const char *vertexShaderSource = R"(#version 330 core
+    layout (location = 0) in vec3 aPos;
+    out vec2 f_texCoord;
+    void main()
+    {
+       	gl_Position = vec4(aPos.xyz, 1.0);
+		f_texCoord=aPos.xy;
+    }
+    )";
+
+    const char *fragmentShaderSource = R"(#version 330 core
+    out vec4 FragColor;
+    in vec2 f_texCoord;
+    uniform sampler2D tex;
+    void main()
+    {
+       FragColor = texture(tex,f_texCoord);
+       //FragColor = vec4(f_texCoord.x,f_texCoord.y,0,0);
+    }
+    )";
+
+    float vertices[12] = {
+        //    x      y      z
+        -1.0f, -1.0f, -0.0f, 1.0f, 1.0f, -0.0f,
+        -1.0f, 1.0f, -0.0f, 1.0f, -1.0f, -0.0f};
+
+    unsigned int indices[6] = {
+        //  2---,1
+        //  | .' |
+        //  0'---3
+        0, 1, 2, 0, 3, 1};
+#endif
+
+    // std::vector<drawable<Vertex>*> draw_queue;
 
     typedef void (*TransFunc)();
 
-    engine(const uint32_t &x, const uint32_t &y) {
+    engine(const unsigned int &x, const unsigned int &y) {
         fboCPU = new framebuffer(x, y);
+        xlim = fboCPU->x_size / 2;
+        ylim = fboCPU->y_size / 2;
+
+#ifdef NEWRENDERMETHOD
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+        glGenBuffers(1, &ibo);
+
+        glBindVertexArray(vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        GLcall(glGenTextures(1, &tex));
+        // GLcall(glActiveTexture(GL_TEXTURE0 ));
+        GLcall(glBindTexture(GL_TEXTURE_2D, tex));
+        stbi_set_flip_vertically_on_load(1);
+        int m_width, m_height, m_BPP;
+
+#ifdef _MSC_VER
+        unsigned char *m_LocalBuffer = stbi_load("output.bmp", &m_width, &m_height, &m_BPP, 3);
+#else
+        unsigned char *m_LocalBuffer = stbi_load("../res/container2.png", &m_width, &m_height, &m_BPP, 4);
+#endif // MSVER
+        if (!m_LocalBuffer) {
+            std::cout << "texture file unable to load" << std::endl;
+            ASSERT(false);
+        }
+
+        GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_LocalBuffer));
+        stbi_image_free(m_LocalBuffer);
+        //GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, fboCPU->x_size, fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, (uint8_t*)fboCPU->colorlayer));
+
+        glGenerateMipmap(GL_TEXTURE_2D);
+        GLcall(glBindTexture(GL_TEXTURE_2D, 0));
+
+        // build and compile our shader program
+        // ------------------------------------
+        // vertex shader
+        unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+        glCompileShader(vertexShader);
+        // check for shader compile errors
+        int success;
+        char infoLog[512];
+        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+                      << infoLog << std::endl;
+        }
+        // fragment shader
+        unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+        glCompileShader(fragmentShader);
+        // check for shader compile errors
+        glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
+                      << infoLog << std::endl;
+        }
+        // link shaders
+        shader = glCreateProgram();
+        glAttachShader(shader, vertexShader);
+        glAttachShader(shader, fragmentShader);
+        glLinkProgram(shader);
+        // check for linking errors
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shader, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+                      << infoLog << std::endl;
+        }
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        glUseProgram(shader);
+
+        auto location = glGetUniformLocation(shader, "tex");
+        if (location == -1)
+            std::cout << "Warning: uniform tex does not exist !" << std::endl;
+        glUniform1i(location, 1);
+        glUseProgram(0);
+
+#else
         glViewport(0, 0, fboCPU->x_size, fboCPU->y_size);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluOrtho2D(0.0, fboCPU->x_size, 0.0, fboCPU->y_size);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+#endif // NEWRENDERMETHOD
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
     }
 
     ~engine() {
         delete fboCPU;
+#ifdef NEWRENDERMETHOD
+        GLcall(glDeleteBuffers(1, &vbo));
+        GLcall(glDeleteVertexArrays(1, &vao));
+        GLcall(glDeleteTextures(1, &tex));
+        GLcall(glDeleteProgram(shader));
+#endif
     }
-    
 
     void clear() {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         fboCPU->clear();
     }
 
     void draw() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#ifdef NEWRENDERMETHOD
+        if (!written) {
+            if (!stbi_write_bmp("output.bmp", fboCPU->x_size, fboCPU->y_size, 4, fboCPU->colorlayer)) {
+                printf("write unsueccessful\n");
+            };
+            written = true;
+        }
+        GLcall(glUseProgram(shader));
+        GLcall(glUniform1i(glGetUniformLocation(shader, "tex"), 0));
+        GLcall(glActiveTexture(GL_TEXTURE0));
+        GLcall(glBindTexture(GL_TEXTURE_2D, tex));
+        //		if (!stbi_write_bmp("output.bmp", fboCPU->x_size, fboCPU->y_size, 4, fboCPU->colorlayer)) {
+        //			printf("write unsueccessful\n");
+        //		};
+        //		int m_width, m_height, m_BPP;
+        //#ifdef _MSC_VER
+        //		unsigned char* m_LocalBuffer = stbi_load("output.bmp", &m_width, &m_height, &m_BPP, 4);
+        //#else
+        //		unsigned char* m_LocalBuffer = stbi_load("../res/container2.png", &m_width, &m_height, &m_BPP, 4);
+        //#endif // MSVER
+        //		if (!m_LocalBuffer) {
+        //			std::cout << "texture file unable to load" << std::endl;
+        //			ASSERT(false);
+        //		}
+        /*	glDeleteTextures(1, &tex);
+					glGenTextures(1, &tex);
+					GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, fboCPU->x_size, fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_INT, fboCPU->colorlayer));*/
+        //GLcall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fboCPU->x_size, fboCPU->y_size, GL_RGB, GL_UNSIGNED_BYTE, m_LocalBuffer));
+        //stbi_image_free(m_LocalBuffer);
+        GLcall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fboCPU->x_size, fboCPU->y_size, GL_RGBA, GL_UNSIGNED_BYTE, (uint8_t *)fboCPU->colorlayer));
+        GLcall(glBindVertexArray(vao));
+        GLcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+#else
         glBegin(GL_POINTS);
         for (GLint x = 0; x < fboCPU->x_size; ++x) {
             for (GLint y = 0; y < fboCPU->y_size; ++y) {
                 if (fboCPU->grid[x + y * fboCPU->x_size]) {
-                    vec3 &c = fboCPU->color[x + y * fboCPU->x_size];
-                    glColor3f(c.x, c.y, c.z);
+                    glColor4ubv((unsigned char *)(&fboCPU->colorlayer[x + y * fboCPU->x_size].col));
                     glVertex2i(x, y);
                 }
             }
         }
         glEnd();
         glFlush();
+#endif
     }
 
-    void putpixel(int x, int y, const vec3 &col = 1) {
+    inline void putpixel(int x, int y, const color &col = 255) {
         if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0) {
-            fboCPU->color[x + y * fboCPU->x_size] = col;
+            fboCPU->colorlayer[x + y * fboCPU->x_size] = col;
             fboCPU->grid[x + y * fboCPU->x_size] = true;
         }
     }
 
-    void putpixel_adjusted(int x, int y, const vec3_T<float> &col = 0) {
+    inline void putpixel_adjusted(int x, int y, const color &col = 255) {
         putpixel(x + fboCPU->x_size / 2, y + fboCPU->y_size / 2, col);
     }
 
-    void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const vec3 &color = 0) {
+    void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &color = 255) {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
 
@@ -122,7 +325,7 @@ struct engine {
         }
     }
 
-    void drawLines(const std::vector<vec2_T<int>> &points, const vec3_T<float> &color = 1, const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
+    void drawLines(const std::vector<vec2_T<int>> &points, const color &color = 255, const std::vector<unsigned int> &indices = std::vector<unsigned int>()) {
         if (indices.empty()) {
             for (size_t i = 0; i < points.size(); i += 2) {
                 draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, color);
@@ -135,23 +338,183 @@ struct engine {
         }
     }
 
-    void drawLinestrip(const std::vector<vec2_T<int>> &points, const vec3_T<float> &color = 1, const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
+    void drawLinestrip(const std::vector<vec2_T<int>> &points, const color &color = 255, const std::vector<unsigned int> &indices = std::vector<unsigned int>()) {
         for (size_t i = 0; i < points.size(); i++) {
-            draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, color);
+            draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x,
+                                    points[i + 1].y, color);
         }
     }
 
-    //     void drawTriangles3d(const std::vector<vec3> &points, const vec3 &color = 1, const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-    //         if (indices.empty()) {
-    //             for (size_t i = 0; i < points.size(); i += 3) {
-    //                 indices.push_back(i);
-    //                 indices.push_back(i + 1);
-    //                 indices.push_back(i + 2);
-    //             }
-    //             return;
-    //         }
-    //         for (size_t i = 0; i < indices.size(); i += 2) {
-    //             draw_bresenham_adjusted(points[indices[i]].x, points[indices[i]].y, points[indices[i + 1]].x, points[indices[i + 1]].y, color);
-    //         }
-    //     }
+    struct Vertex2 {
+        Vertex v;
+        vec3 fragpos;
+    };
+    std::list<std::array<Vertex2, 3>> triangles;
+    mat4 viewproj = mat4();
+
+    // Defining region codes
+    const int INSIDE = 0; // 0000
+    const int LEFT = 1;   // 0001
+    const int RIGHT = 2;  // 0010
+    const int BOTTOM = 4; // 0100
+    const int TOP = 8;    // 1000
+
+    // Function to compute region code for a point(x, y)
+    int computeCode(double x, double y) {
+        // initialized as being inside
+        int code = INSIDE;
+
+        if (x < (-xlim)) // to the left of rectangle
+            code |= LEFT;
+        else if (x > xlim) // to the right of rectangle
+            code |= RIGHT;
+        if (y < (-ylim)) // below the rectangle
+            code |= BOTTOM;
+        else if (y > ylim) // above the rectangle
+            code |= TOP;
+
+        return code;
+    }
+
+    // Implementing Cohen-Sutherland algorithm
+    // Clipping a line from P1 = (x2, y2) to P2 = (x2, y2)
+    bool cohenSutherlandClip(float &x1, float &y1, float &x2, float &y2, bool *changed) {
+        // Compute region codes for P1, P2
+        int code1 = computeCode(x1, y1);
+        int code2 = computeCode(x2, y2);
+        float oldx1 = x1, oldy1 = y1, oldx2 = x2, oldy2 = y2;
+        // Initialize line as outside the rectangular window
+        // bool accept = false;
+        changed[0] = false;
+        changed[1] = false;
+        while (true) {
+            if ((code1 == 0) && (code2 == 0)) {
+                // If both endpoints lie within rectangle
+                // accept = true;
+                if (oldx1 != x1 || oldy1 != y1)
+                    changed[0] = true;
+                if (oldx2 != x1 || oldy2 != y1)
+                    changed[1] = true;
+
+                return true;
+            } else if (code1 & code2) {
+                // If both endpoints are outside rectangle,
+                // in same region
+                return false;
+            } else {
+                // Some segment of line lies within the
+                // rectangle
+                int code_out;
+                double x, y;
+
+                // At least one endpoint is outside the
+                // rectangle, pick it.
+                if (code1 != 0)
+                    code_out = code1;
+                else
+                    code_out = code2;
+
+                // Find intersection point;
+                // using formulas y = y1 + slope * (x - x1),
+                // x = x1 + (1 / slope) * (y - y1)
+                if (code_out & TOP) {
+                    // point is above the clip rectangle
+                    x = x1 + (x2 - x1) * (ylim - y1) / (y2 - y1);
+                    y = ylim;
+                } else if (code_out & BOTTOM) {
+                    // point is below the rectangle
+                    x = x1 + (x2 - x1) * ((-ylim) - y1) / (y2 - y1);
+                    y = (-ylim);
+                } else if (code_out & RIGHT) {
+                    // point is to the right of rectangle
+                    y = y1 + (y2 - y1) * (xlim - x1) / (x2 - x1);
+                    x = xlim;
+                } else if (code_out & LEFT) {
+                    // point is to the left of rectangle
+                    y = y1 + (y2 - y1) * ((-xlim) - x1) / (x2 - x1);
+                    x = (-xlim);
+                }
+
+                // Now intersection point x, y is found
+                // We replace point outside rectangle
+                // by intersection point
+                if (code_out == code1) {
+                    x1 = x;
+                    y1 = y;
+                    code1 = computeCode(x1, y1);
+                } else {
+                    x2 = x;
+                    y2 = y;
+                    code2 = computeCode(x2, y2);
+                }
+                // changed = true;
+            }
+        }
+    }
+
+    Vertex2 subVertex2(const Vertex2 &fir, const Vertex2 &sec) {
+        Vertex2 temp;
+        temp.v = fir.v - sec.v;
+        temp.fragpos = fir.fragpos - sec.fragpos;
+        return std::move(temp);
+    }
+    void interpolateVertex(const Vertex2 &fir, const Vertex2 &sec, Vertex2 &mid) {
+        auto u = (mid.v.position.x - fir.v.position.x) / (sec.v.position.x - fir.v.position.x);
+        // mid.v.position.z = fir.v.position.z + u * (sec.v.position.z - fir.v.position.z);
+        mid.fragpos = fir.fragpos + (sec.fragpos - fir.fragpos) * u;
+        mid.v = fir.v + (sec.v - fir.v) * u;
+    }
+
+    void drawTriangles3d(const std::vector<Vertex> &points, const std::vector<unsigned int> &indices, const mat4 &model = mat4()) {
+        std::array<Vertex2, 3> temp;
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            auto test = model * points[indices[i]].normal;
+            if (test.z < 0)
+                continue;
+            temp[0].v = points[indices[i]];
+            temp[0].fragpos = model * temp[0].v.position;
+            temp[0].v.position = viewproj * temp[0].fragpos;
+            temp[0].v.normal = test;
+            temp[1].v = points[indices[i + 1]];
+            temp[1].fragpos = model * temp[1].v.position;
+            temp[1].v.position = viewproj * temp[1].fragpos;
+            temp[1].v.normal = temp[0].v.normal;
+            temp[2].v = points[indices[i + 2]];
+            temp[2].fragpos = model * temp[2].v.position;
+            temp[2].v.position = viewproj * temp[2].fragpos;
+            temp[2].v.normal = temp[0].v.normal;
+            triangles.emplace_back(temp);
+        }
+
+        std::list<std::array<Vertex2, 3>>::iterator i = triangles.begin();
+        std::list<std::array<Vertex2, 3>> newTriangles;
+    }
+
+    bool sameside(const vec3 &p1, const vec3 &p2, const vec3 &a, const vec3 &b) {
+        auto cp1 = vec3::cross(b - a, p1 - a);
+        auto cp2 = vec3::cross(b - a, p2 - a);
+        if (vec3::dot(cp1, cp2) >= 0)
+            return true;
+        return false;
+    }
+    bool PointInTriangle(const vec3 &p, const vec3 &a, const vec3 &b, const vec3 &c) {
+        if (sameside(p, a, b, c) && sameside(p, b, a, c) && sameside(p, c, a, b))
+            return true;
+        return false;
+    }
+
+    std::vector<Vertex> rasterizeTriangle(const std::array<Vertex2, 3> &t) {
+        const Vertex *top = &t[0].v, *middle = &t[1].v, *bottom = &t[2].v;
+        if (middle->position.y < bottom->position.y)
+            std::swap(middle, bottom);
+        if (top->position.y < middle->position.y)
+            std::swap(top, middle);
+        if (middle->position.y < bottom->position.y)
+            std::swap(middle, bottom);
+    }
+
+    std::vector<Vertex> rasterizedPoints;
+    void flushTriangles() {
+        std::vector<std::array<Vertex2, 3>> triangles;
+    }
 };
