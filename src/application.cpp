@@ -124,6 +124,7 @@ std::string searchRes() {
     return std::string();
 }
 
+bool pause = false;
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
     // auto dir = cam.center - cam.eye;
@@ -143,6 +144,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
             glfwSetCursorPos(window, mx, my);
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             captured = true;
+            break;
+        case GLFW_KEY_SPACE:
+            pause = !pause;
             break;
         default:
             break;
@@ -297,7 +301,10 @@ int main(int argc, char **argv) {
 
         glfwPollEvents();
         processHoldEvent(window);
-        rotation_angle += 1;
+        if (!pause) {
+
+            rotation_angle += 1;
+        }
         view_angle += 0.1;
         if (rotation_angle > 360) {
             rotation_angle = 0;
@@ -309,8 +316,11 @@ int main(int argc, char **argv) {
         // printf("zprp=%f\n", zprp);
 
         // translate3d = trans::translation(vec3(-1, -1, -1));
-        scale3d = trans::scaling3d(vec3(xy_scale, xy_scale, z_scale));
+        scale3d = trans::scaling3d(vec3(0.3, 0.3, 0.3));
+        auto t1 = trans::translation(vec3(1, 0, 0));
+        auto t2 = trans::translation(vec3(-1.0, 0, 0));
         auto rotate_y = trans::y_rotation(rotation_angle);
+        auto rotate_x = trans::x_rotation(rotation_angle);
         std::vector<vec2_T<int>> final_cube, final_axes;
 
         std::cout << "camera Eye: " << cam.eye << std::endl;
@@ -338,9 +348,13 @@ int main(int argc, char **argv) {
         auto per = trans::my_PerspectiveFOV(45.0f, window_width / window_height,
                                             nearPlane, farPlane);
         std::vector<vec4> vertices;
+        std::vector<vec4> vertices2;
         for (auto &p : cube) {
-            auto temp = per * view * scale3d * p;
+            auto temp = per * view * t1 * scale3d * rotate_y * p;
+            auto temp2 = per * view * scale3d * rotate_x * rotate_y * p;
             vertices.push_back(temp);
+            vertices2.push_back(temp2);
+
             final_cube.emplace_back(
                 /* TODO: epsilon wala expression thyo yaa maile hataideko xa
              chainxa vane halnu parne xa */
@@ -368,7 +382,9 @@ int main(int argc, char **argv) {
         graphicsEngine->clear();
         // graphicsEngine->drawLines(final_axes);
         // graphicsEngine->drawLines(final_cube, brescolor, cube_indices);
+        // graphicsEngine->rasterize(vertices, cube_indices, cam.viewDir);
         graphicsEngine->drawTraingles(vertices, cube_indices, cam.viewDir);
+        graphicsEngine->rasterize(vertices2, cube_indices, cam.viewDir);
 
         // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1,
         // 0, 0));

@@ -2,6 +2,7 @@
 //#include"core.h"
 #include "GL/glu.h"
 #include <utility>
+#include <algorithm>
 //#include "GL/glew.h"
 
 // template <class T>
@@ -10,7 +11,7 @@
 //    a = b;
 //    b = temp;
 //}
-
+bool sortcol(const vec2 &v1, const vec2 &v2) { return v1.y < v2.y; }
 struct framebuffer {
     bool *grid;
     vec3 *color;
@@ -162,14 +163,15 @@ struct engine {
                     continue;
                 }
 
-                vec3 normal = vec3::cross(vec3(vertex2 - vertex1),
-                                          vec3(vertex3 - vertex1));
+                vec3 normal = vec3::normalize(vec3::cross(
+                    vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
 
                 /* calculate the normal here and if the normal and camera
                  * direction dot product gives positive the trangle should not
                  * be drawn */
-                auto temp = vec3::dot(normal, dir);
-                if (temp > 0) {
+                auto temp = vec3::dot(normal, vertex1);
+
+                if (temp <= 0) {
                     continue;
                 }
 
@@ -236,6 +238,160 @@ struct engine {
         for (size_t i = 0; i < points.size(); i++) {
             draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x,
                                     points[i + 1].y, color);
+        }
+    }
+    struct traingle {
+        vec2 x;
+        vec3 y;
+    };
+
+    void fillBottomFlatTriangle(vec3 v1, vec3 v2, vec3 v3, vec3 &color) {
+        float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
+        float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+
+        float currentx1 = v1.x;
+        float currentx2 = v1.x;
+
+        for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
+            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
+                                    scanlineY, color);
+            currentx1 += invslope1;
+            currentx2 += invslope2;
+        }
+    }
+
+    void fillTopFlatTriangle(vec3 v1, vec3 v2, vec3 v3, const vec3 &color) {
+        float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
+        float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+
+        float currentx1 = v3.x;
+        float currentx2 = v3.x;
+
+        for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
+            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
+                                    scanlineY, color);
+            currentx1 -= invslope1;
+            currentx2 -= invslope2;
+        }
+    }
+    vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
+        return src + (dst - src) * alpha;
+    }
+    void rasterize(const std::vector<vec4> cube,
+                   const std::vector<uint32_t> &indices, vec3 dir) {
+
+        for (int i = 0; i < indices.size(); i += 3) {
+            /* subtracting 1 because indices are 1 indexd not zero indexed */
+            vec4 vertex1 = cube[indices[i] - 1];
+            vec4 vertex2 = cube[indices[i + 1] - 1];
+            vec4 vertex3 = cube[indices[i + 2] - 1];
+
+            /* this if condition is completely for testing purpose, it helps to
+             * check how each traingle are drawn */
+            int filter = 1;
+            if (filter or (indices[i] == 7 and indices[i + 1] == 6 and
+                           indices[i + 2] == 8)) {
+
+                /* camera vanda paxadi paro vane aile lai puraai traingle nai
+                 * display nagarne */
+                if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
+                    vertex2.z / vertex2.w > 1) {
+                    continue;
+                }
+
+                vec3 normal = vec3::normalize(vec3::cross(
+                    vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
+
+                // normal=
+
+                /* calculate the normal here and if the normal and camera
+                 * direction dot product gives positive the trangle should not
+                 * be drawn */
+                auto temp = vec3::dot(normal, vertex1);
+                if (temp <= 0) {
+                    continue;
+                }
+
+                /*  for testing */
+                if (!filter) {
+                    std::cout << "normal=" << normal;
+                    std::cout << "dot=" << temp << std::endl;
+                    std::cout << "camera dir=" << dir;
+                }
+
+                assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
+
+                float window_width = 640;
+                float window_height = 480;
+
+                std::vector<vec2> traingle = std::vector<vec2>(3);
+                traingle[0] = vec2((int)round(((vertex1.x / vertex1.w) + 1) *
+                                                  window_width / 2 -
+                                              window_width / 2),
+                                   (int)round(((vertex1.y / vertex1.w) + 1) *
+                                                  window_height / 2 -
+                                              window_height / 2));
+
+                traingle[1] = vec2((int)round(((vertex2.x / vertex2.w) + 1) *
+                                                  window_width / 2 -
+                                              window_width / 2),
+                                   (int)round(((vertex2.y / vertex2.w) + 1) *
+                                                  window_height / 2 -
+                                              window_height / 2));
+
+                traingle[2] = vec2((int)round(((vertex3.x / vertex3.w) + 1) *
+                                                  window_width / 2 -
+                                              window_width / 2),
+                                   (int)round(((vertex3.y / vertex3.w) + 1) *
+                                                  window_height / 2 -
+                                              window_height / 2));
+
+                auto color = vec3(1, 0, 0);
+                if (i % 2 == 0) {
+                    color = vec3(0, 1, 0);
+                }
+
+                sort(traingle.begin(), traingle.end(), sortcol);
+                if (traingle[0].y == traingle[1].y) // natural flat top
+                {
+                    // sorting top vertices by x
+                    if (traingle[1].x < traingle[0].x)
+                        std::swap(traingle[0], traingle[1]);
+
+                    fillTopFlatTriangle(traingle[0], traingle[1], traingle[2],
+                                        color);
+                } else if (traingle[1].y ==
+                           traingle[2].y) // natural flat bottom
+                {
+                    // sorting bottom vertices by x
+                    if (traingle[2].x < traingle[1].x)
+                        std::swap(traingle[1], traingle[2]);
+
+                    fillBottomFlatTriangle(traingle[0], traingle[1],
+                                           traingle[2], color);
+                } else // general triangle
+                {
+                    // find splitting vertex interpolant
+                    const float alphaSplit = (traingle[1].y - traingle[0].y) /
+                                             (traingle[2].y - traingle[0].y);
+                    const auto vi = interpolate(vec2(traingle[0]),
+                                                vec2(traingle[2]), alphaSplit);
+
+                    if (traingle[1].x < vi.x) // major right
+                    {
+                        fillBottomFlatTriangle(traingle[0], traingle[1], vi,
+                                               color);
+                        fillTopFlatTriangle(traingle[1], vi, traingle[2],
+                                            color);
+                    } else // major left
+                    {
+                        fillBottomFlatTriangle(traingle[0], vi, traingle[1],
+                                               color);
+                        fillTopFlatTriangle(vi, traingle[1], traingle[2],
+                                            color);
+                    }
+                }
+            }
         }
     }
 
