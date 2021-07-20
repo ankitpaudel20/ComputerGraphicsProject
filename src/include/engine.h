@@ -12,36 +12,43 @@
 //    b = temp;
 //}
 bool sortcol(const vec2 &v1, const vec2 &v2) { return v1.y < v2.y; }
-struct framebuffer {
+struct framebuffer
+{
     bool *grid;
     vec3 *color;
     uint32_t x_size, y_size;
-    framebuffer(const uint32_t &x, const uint32_t &y) : x_size(x), y_size(y) {
+    framebuffer(const uint32_t &x, const uint32_t &y) : x_size(x), y_size(y)
+    {
         grid = new bool[x_size * y_size];
         color = new vec3[x_size * y_size];
         clear();
     }
 
-    ~framebuffer() {
+    ~framebuffer()
+    {
         delete[] grid;
         delete[] color;
     }
 
-    inline void clear() {
-        for (uint32_t x = 0; x < x_size * y_size; ++x) {
+    inline void clear()
+    {
+        for (uint32_t x = 0; x < x_size * y_size; ++x)
+        {
             grid[x] = false;
             color[x] = 0;
         }
     }
 };
 
-struct engine {
+struct engine
+{
 
     framebuffer *fboCPU;
 
     typedef void (*TransFunc)();
 
-    engine(const uint32_t &x, const uint32_t &y) {
+    engine(const uint32_t &x, const uint32_t &y)
+    {
         fboCPU = new framebuffer(x, y);
         glViewport(0, 0, fboCPU->x_size, fboCPU->y_size);
         glMatrixMode(GL_PROJECTION);
@@ -53,18 +60,23 @@ struct engine {
 
     ~engine() { delete fboCPU; }
 
-    void clear() {
+    void clear()
+    {
         glClear(GL_COLOR_BUFFER_BIT);
         fboCPU->clear();
     }
 
-    void draw() {
+    void draw()
+    {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBegin(GL_POINTS);
-        for (GLint x = 0; x < fboCPU->x_size; ++x) {
-            for (GLint y = 0; y < fboCPU->y_size; ++y) {
-                if (fboCPU->grid[x + y * fboCPU->x_size]) {
+        for (GLint x = 0; x < fboCPU->x_size; ++x)
+        {
+            for (GLint y = 0; y < fboCPU->y_size; ++y)
+            {
+                if (fboCPU->grid[x + y * fboCPU->x_size])
+                {
                     vec3 &c = fboCPU->color[x + y * fboCPU->x_size];
                     glColor3f(c.x, c.y, c.z);
                     glVertex2i(x, y);
@@ -75,19 +87,22 @@ struct engine {
         glFlush();
     }
 
-    void putpixel(int x, int y, const vec3 &col = 1) {
-        if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0) {
+    void putpixel(int x, int y, const vec3 &col = 1)
+    {
+        if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0)
+        {
             fboCPU->color[x + y * fboCPU->x_size] = col;
             fboCPU->grid[x + y * fboCPU->x_size] = true;
         }
     }
-
-    void putpixel_adjusted(int x, int y, const vec3_T<float> &col = 0) {
+    void putpixel_adjusted(int x, int y, const vec3_T<float> &col = 0)
+    {
         putpixel(x + fboCPU->x_size / 2, y + fboCPU->y_size / 2, col);
     }
 
     void draw_bresenham_adjusted(int x1, int y1, int x2, int y2,
-                                 const vec3 &color = vec3(1, 0, 0)) {
+                                 const vec3 &color = vec3(1, 0, 0))
+    {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
 
@@ -97,23 +112,28 @@ struct engine {
         int x = x1, y = y1;
         bool changed = false;
 
-        if (dx <= dy) {
+        if (dx <= dy)
+        {
             changed = true;
             std::swap(dx, dy);
             std::swap(lx, ly);
             std::swap(x, y);
         }
         int p = 2 * dy - dx;
-        for (int k = 0; k <= dx; k++) {
+        for (int k = 0; k <= dx; k++)
+        {
             if (!changed)
                 putpixel_adjusted(x, y, color);
             else
                 putpixel_adjusted(y, x, color);
 
-            if (p < 0) {
+            if (p < 0)
+            {
                 x += lx;
                 p += 2 * dy;
-            } else {
+            }
+            else
+            {
                 x += lx;
                 y += ly;
                 p += 2 * dy - 2 * dx;
@@ -124,9 +144,12 @@ struct engine {
     void
     drawLines(const std::vector<vec2_T<int>> &points,
               const vec3_T<float> &color = 1,
-              const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-        if (indices.empty()) {
-            for (size_t i = 0; i < points.size(); i += 2) {
+              const std::vector<uint32_t> &indices = std::vector<uint32_t>())
+    {
+        if (indices.empty())
+        {
+            for (size_t i = 0; i < points.size(); i += 2)
+            {
                 draw_bresenham_adjusted(points[i].x, points[i].y,
                                         points[i + 1].x, points[i + 1].y,
                                         color);
@@ -134,7 +157,8 @@ struct engine {
             return;
         }
 
-        for (size_t i = 0; i < indices.size(); i += 2) {
+        for (size_t i = 0; i < indices.size(); i += 2)
+        {
             draw_bresenham_adjusted(points[indices[i]].x, points[indices[i]].y,
                                     points[indices[i + 1]].x,
                                     points[indices[i + 1]].y, color);
@@ -142,9 +166,11 @@ struct engine {
     }
 
     void drawTraingles(const std::vector<vec4> cube,
-                       const std::vector<uint32_t> &indices, vec3 dir) {
+                       const std::vector<uint32_t> &indices, vec3 dir)
+    {
 
-        for (int i = 0; i < indices.size(); i += 3) {
+        for (int i = 0; i < indices.size(); i += 3)
+        {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
             vec4 vertex1 = cube[indices[i] - 1];
             vec4 vertex2 = cube[indices[i + 1] - 1];
@@ -154,12 +180,14 @@ struct engine {
              * check how each traingle are drawn */
             int filter = 1;
             if (filter or (indices[i] == 3 and indices[i + 1] == 8 and
-                           indices[i + 2] == 4)) {
+                           indices[i + 2] == 4))
+            {
 
                 /* camera vanda paxadi paro vane aile lai puraai traingle nai
                  * display nagarne */
                 if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
-                    vertex2.z / vertex2.w > 1) {
+                    vertex2.z / vertex2.w > 1)
+                {
                     continue;
                 }
 
@@ -171,12 +199,14 @@ struct engine {
                  * be drawn */
                 auto temp = vec3::dot(normal, vertex1);
 
-                if (temp <= 0) {
+                if (temp <= 0)
+                {
                     continue;
                 }
 
                 /*  for testing */
-                if (!filter) {
+                if (!filter)
+                {
                     std::cout << "normal=" << normal;
                     std::cout << "dot=" << temp << std::endl;
                     std::cout << "camera dir=" << dir;
@@ -234,25 +264,30 @@ struct engine {
 
     void drawLinestrip(
         const std::vector<vec2_T<int>> &points, const vec3_T<float> &color = 1,
-        const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-        for (size_t i = 0; i < points.size(); i++) {
+        const std::vector<uint32_t> &indices = std::vector<uint32_t>())
+    {
+        for (size_t i = 0; i < points.size(); i++)
+        {
             draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x,
                                     points[i + 1].y, color);
         }
     }
-    struct traingle {
+    struct traingle
+    {
         vec2 x;
         vec3 y;
     };
 
-    void fillBottomFlatTriangle(vec3 v1, vec3 v2, vec3 v3, vec3 &color) {
+    void fillBottomFlatTriangle(vec3 v1, vec3 v2, vec3 v3, vec3 &color)
+    {
         float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
         float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
 
         float currentx1 = v1.x;
         float currentx2 = v1.x;
 
-        for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
+        for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++)
+        {
             draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
                                     scanlineY, color);
             currentx1 += invslope1;
@@ -260,137 +295,252 @@ struct engine {
         }
     }
 
-    void fillTopFlatTriangle(vec3 v1, vec3 v2, vec3 v3, const vec3 &color) {
+    void fillTopFlatTriangle(vec3 v1, vec3 v2, vec3 v3, const vec3 &color)
+    {
         float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
         float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
 
         float currentx1 = v3.x;
         float currentx2 = v3.x;
 
-        for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
+        for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--)
+        {
             draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
                                     scanlineY, color);
             currentx1 -= invslope1;
             currentx2 -= invslope2;
         }
     }
-    vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
+    vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha)
+    {
         return src + (dst - src) * alpha;
     }
-    void rasterize(const std::vector<vec4> cube,
-                   const std::vector<uint32_t> &indices, vec3 dir) {
 
-        for (int i = 0; i < indices.size(); i += 3) {
+    void sanitize(vec4 &vertex1)
+    {
+        // return;
+        float epsilon = 0.001f;
+
+        if (fabs(vertex1.w) < epsilon)
+        {
+            vertex1.w = epsilon * (1 * (vertex1.w > 0) + -1 * (vertex1.w < 0));
+        }
+    }
+
+    void drawtriangle(vec4 &vertex1, vec4 &vertex2, vec4 &vertex3, int i = 0)
+    {
+        float window_width = 640;
+        float window_height = 480;
+
+        std::vector<vec2> traingle = std::vector<vec2>(3);
+        sanitize(vertex1);
+        sanitize(vertex2);
+        sanitize(vertex3);
+        traingle[0] = vec2((int)round(((vertex1.x / vertex1.w) + 1) *
+                                          window_width / 2 -
+                                      window_width / 2),
+                           (int)round(((vertex1.y / vertex1.w) + 1) *
+                                          window_height / 2 -
+                                      window_height / 2));
+
+        traingle[1] = vec2((int)round(((vertex2.x / vertex2.w) + 1) *
+                                          window_width / 2 -
+                                      window_width / 2),
+                           (int)round(((vertex2.y / vertex2.w) + 1) *
+                                          window_height / 2 -
+                                      window_height / 2));
+
+        traingle[2] = vec2((int)round(((vertex3.x / vertex3.w) + 1) *
+                                          window_width / 2 -
+                                      window_width / 2),
+                           (int)round(((vertex3.y / vertex3.w) + 1) *
+                                          window_height / 2 -
+                                      window_height / 2));
+
+        auto color = vec3(1, 0, 0);
+        if (i % 2 == 0)
+        {
+            color = vec3(0, 1, 0);
+        }
+
+        sort(traingle.begin(), traingle.end(), sortcol);
+        if (traingle[0].y == traingle[1].y) // natural flat top
+        {
+            // sorting top vertices by x
+            if (traingle[1].x < traingle[0].x)
+                std::swap(traingle[0], traingle[1]);
+
+            fillTopFlatTriangle(traingle[0], traingle[1], traingle[2],
+                                color);
+        }
+        else if (traingle[1].y ==
+                 traingle[2].y) // natural flat bottom
+        {
+            // sorting bottom vertices by x
+            if (traingle[2].x < traingle[1].x)
+                std::swap(traingle[1], traingle[2]);
+
+            fillBottomFlatTriangle(traingle[0], traingle[1],
+                                   traingle[2], color);
+        }
+        else // general triangle
+        {
+            // find splitting vertex interpolant
+            const float alphaSplit = (traingle[1].y - traingle[0].y) /
+                                     (traingle[2].y - traingle[0].y);
+            const auto vi = interpolate(vec2(traingle[0]),
+                                        vec2(traingle[2]), alphaSplit);
+
+            if (traingle[1].x < vi.x) // major right
+            {
+                fillBottomFlatTriangle(traingle[0], traingle[1], vi,
+                                       color);
+                fillTopFlatTriangle(traingle[1], vi, traingle[2],
+                                    color);
+            }
+            else // major left
+            {
+                fillBottomFlatTriangle(traingle[0], vi, traingle[1],
+                                       color);
+                fillTopFlatTriangle(vi, traingle[1], traingle[2],
+                                    color);
+            }
+        }
+    }
+
+    vec4 interpolate(const vec4 &src, const vec4 &dst, float alpha)
+    {
+        return src + (dst - src) * alpha;
+    }
+
+    void clip1(vec4 &vertex1, vec4 &vertex2, vec4 &vertex3)
+    {
+        float alpha1 = (-vertex1.z) / (vertex2.z - vertex1.z);
+        float alpha2 = (-vertex1.z) / (vertex3.z - vertex1.z);
+        vec4 nVertex1 = interpolate(vertex1, vertex2, alpha1);
+        vec4 nVertex2 = interpolate(vertex1, vertex3, alpha2);
+        drawtriangle(nVertex1, vertex2, vertex3);
+        drawtriangle(nVertex2, nVertex2, vertex3);
+        return;
+    }
+
+    void clip2(vec4 &vertex1, vec4 &vertex2, vec4 &vertex3)
+    {
+        float alpha1 = (-vertex1.z) / (vertex3.z - vertex1.z);
+        float alpha2 = (-vertex2.z) / (vertex3.z - vertex2.z);
+        vec4 nVertex1 = interpolate(vertex1, vertex3, alpha1);
+        vec4 nVertex2 = interpolate(vertex2, vertex3, alpha2);
+        drawtriangle(nVertex2, nVertex1, vertex3);
+        return;
+    }
+
+    bool clipping(vec4 &vertex1, vec4 &vertex2, vec4 &vertex3)
+    {
+        // which z vaule is outside bounds
+        bool first = (vertex1.z / vertex1.w > 1), second = (vertex2.z / vertex2.w > 1), third = (vertex3.z / vertex3.w > 1);
+        // std::cout << first << second << third << std::endl;
+        // if all vertices are outside then do nothing and exit
+        // if (first && second && third)
+        //     return true;
+
+        // if any z vertex is outside bounds we need to clip
+        if (first || second || third)
+        {
+            if (first)
+            {
+                if (second)
+                {
+                    clip2(vertex1, vertex2, vertex3);
+                }
+                else
+                {
+                    if (third)
+                    {
+                        clip2(vertex1, vertex3, vertex2);
+                    }
+                    clip1(vertex1, vertex2, vertex3);
+                }
+            }
+            else
+            {
+                if (second)
+                {
+                    if (third)
+                    {
+                        clip2(vertex2, vertex3, vertex1);
+                    }
+                    else
+                    {
+                        clip1(vertex2, vertex1, vertex3);
+                    }
+                }
+                else
+                {
+                    clip1(vertex3, vertex1, vertex2);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    void rasterize(const std::vector<vec4> cube,
+                   const std::vector<uint32_t> &indices, vec3 dir)
+    {
+
+        for (int i = 0; i < indices.size(); i += 3)
+        {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
             vec4 vertex1 = cube[indices[i] - 1];
             vec4 vertex2 = cube[indices[i + 1] - 1];
             vec4 vertex3 = cube[indices[i + 2] - 1];
 
+            if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
+                vertex2.z / vertex2.w > 1)
+            {
+                printf("here mf \n");
+                ;
+            }
+
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
             int filter = 1;
-            if (filter or (indices[i] == 7 and indices[i + 1] == 6 and
-                           indices[i + 2] == 8)) {
-
-                /* camera vanda paxadi paro vane aile lai puraai traingle nai
-                 * display nagarne */
-                if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
-                    vertex2.z / vertex2.w > 1) {
-                    continue;
-                }
+            if (filter or (indices[i] == 3 and indices[i + 1] == 8 and
+                           indices[i + 2] == 4))
+            {
 
                 vec3 normal = vec3::normalize(vec3::cross(
                     vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
-
-                // normal=
 
                 /* calculate the normal here and if the normal and camera
                  * direction dot product gives positive the trangle should not
                  * be drawn */
                 auto temp = vec3::dot(normal, vertex1);
-                if (temp <= 0) {
+                if (temp <= 0)
+                {
+                    if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
+                        vertex2.z / vertex2.w > 1)
+                    {
+                        printf(" mf \n");
+                    }
                     continue;
-                }
-
-                /*  for testing */
-                if (!filter) {
-                    std::cout << "normal=" << normal;
-                    std::cout << "dot=" << temp << std::endl;
-                    std::cout << "camera dir=" << dir;
                 }
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
 
-                float window_width = 640;
-                float window_height = 480;
-
-                std::vector<vec2> traingle = std::vector<vec2>(3);
-                traingle[0] = vec2((int)round(((vertex1.x / vertex1.w) + 1) *
-                                                  window_width / 2 -
-                                              window_width / 2),
-                                   (int)round(((vertex1.y / vertex1.w) + 1) *
-                                                  window_height / 2 -
-                                              window_height / 2));
-
-                traingle[1] = vec2((int)round(((vertex2.x / vertex2.w) + 1) *
-                                                  window_width / 2 -
-                                              window_width / 2),
-                                   (int)round(((vertex2.y / vertex2.w) + 1) *
-                                                  window_height / 2 -
-                                              window_height / 2));
-
-                traingle[2] = vec2((int)round(((vertex3.x / vertex3.w) + 1) *
-                                                  window_width / 2 -
-                                              window_width / 2),
-                                   (int)round(((vertex3.y / vertex3.w) + 1) *
-                                                  window_height / 2 -
-                                              window_height / 2));
-
-                auto color = vec3(1, 0, 0);
-                if (i % 2 == 0) {
-                    color = vec3(0, 1, 0);
+                /*  for testing */
+                if (!filter)
+                {
+                    // std::cout << "normal=" << normal;
+                    // std::cout << "dot=" << temp << std::endl;
+                    // std::cout << "camera dir=" << dir;
                 }
 
-                sort(traingle.begin(), traingle.end(), sortcol);
-                if (traingle[0].y == traingle[1].y) // natural flat top
-                {
-                    // sorting top vertices by x
-                    if (traingle[1].x < traingle[0].x)
-                        std::swap(traingle[0], traingle[1]);
+                // if clipping needs to be done, clipping function will clip and render it otherwise continue as usual
+                if (clipping(vertex1, vertex2, vertex3))
+                    continue;
 
-                    fillTopFlatTriangle(traingle[0], traingle[1], traingle[2],
-                                        color);
-                } else if (traingle[1].y ==
-                           traingle[2].y) // natural flat bottom
-                {
-                    // sorting bottom vertices by x
-                    if (traingle[2].x < traingle[1].x)
-                        std::swap(traingle[1], traingle[2]);
-
-                    fillBottomFlatTriangle(traingle[0], traingle[1],
-                                           traingle[2], color);
-                } else // general triangle
-                {
-                    // find splitting vertex interpolant
-                    const float alphaSplit = (traingle[1].y - traingle[0].y) /
-                                             (traingle[2].y - traingle[0].y);
-                    const auto vi = interpolate(vec2(traingle[0]),
-                                                vec2(traingle[2]), alphaSplit);
-
-                    if (traingle[1].x < vi.x) // major right
-                    {
-                        fillBottomFlatTriangle(traingle[0], traingle[1], vi,
-                                               color);
-                        fillTopFlatTriangle(traingle[1], vi, traingle[2],
-                                            color);
-                    } else // major left
-                    {
-                        fillBottomFlatTriangle(traingle[0], vi, traingle[1],
-                                               color);
-                        fillTopFlatTriangle(vi, traingle[1], traingle[2],
-                                            color);
-                    }
-                }
+                drawtriangle(vertex1, vertex2, vertex3, i);
             }
         }
     }
