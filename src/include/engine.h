@@ -5,24 +5,28 @@
 
 bool sortcol(const vec2 &v1, const vec2 &v2) { return v1.y < v2.y; }
 struct framebuffer {
+    float *zBuffer;
     bool *grid;
     vec3 *color;
     uint32_t x_size, y_size;
     framebuffer(const uint32_t &x, const uint32_t &y) : x_size(x), y_size(y) {
         grid = new bool[x_size * y_size];
         color = new vec3[x_size * y_size];
+        zBuffer = new float[x_size * y_size];
         clear();
     }
 
     ~framebuffer() {
         delete[] grid;
         delete[] color;
+        delete[] zBuffer;
     }
 
     inline void clear() {
         for (uint32_t x = 0; x < x_size * y_size; ++x) {
             grid[x] = false;
             color[x] = 0;
+            zBuffer[x] = 1000;
         }
     }
 };
@@ -30,19 +34,24 @@ struct framebuffer {
 class engine {
   private:
     framebuffer *fboCPU;
-    void putpixel(int x, int y, const vec3 &col = 1) {
+    void putpixel(int x, int y, const float &zValue, const vec3 &col = 1) {
         if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0) {
-            fboCPU->color[x + y * fboCPU->x_size] = col;
+            if (zValue < fboCPU->zBuffer[x + y * fboCPU->x_size]) {
+                fboCPU->color[x + y * fboCPU->x_size] = col;
+                fboCPU->zBuffer[x + y * fboCPU->x_size] = zValue;
+            }
+
             fboCPU->grid[x + y * fboCPU->x_size] = true;
         }
     }
 
-    void putpixel_adjusted(int x, int y, const vec3_T<float> &col = 0) {
-        putpixel(x + fboCPU->x_size / 2, y + fboCPU->y_size / 2, col);
+    void putpixel_adjusted(int x, int y, const float &zValue,
+                           const vec3_T<float> &col = 0) {
+        putpixel(x + fboCPU->x_size / 2, y + fboCPU->y_size / 2, zValue, col);
     }
 
     void draw_bresenham_adjusted(const int &x1, const int &y1, const int &x2,
-                                 const int &y2,
+                                 const int &y2, const float &zValue,
                                  const vec3 &color = vec3(1, 0, 0)) {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
@@ -62,9 +71,9 @@ class engine {
         int p = 2 * dy - dx;
         for (int k = 0; k <= dx; k++) {
             if (!changed)
-                putpixel_adjusted(x, y, color);
+                putpixel_adjusted(x, y, zValue, color);
             else
-                putpixel_adjusted(y, x, color);
+                putpixel_adjusted(y, x, zValue, color);
 
             if (p < 0) {
                 x += lx;
@@ -77,7 +86,7 @@ class engine {
         }
     }
     void fillBottomFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
-                                const vec3 &color) {
+                                const float &zValue, const vec3 &color) {
         float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
         float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
 
@@ -86,14 +95,14 @@ class engine {
 
         for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
             draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
-                                    scanlineY, color);
+                                    scanlineY, zValue, color);
             currentx1 += invslope1;
             currentx2 += invslope2;
         }
     }
 
     void fillTopFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
-                             const vec3 &color) {
+                             const float &zValue, const vec3 &color) {
         float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
         float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
 
@@ -102,7 +111,7 @@ class engine {
 
         for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
             draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
-                                    scanlineY, color);
+                                    scanlineY, zValue, color);
             currentx1 -= invslope1;
             currentx2 -= invslope2;
         }
@@ -160,6 +169,8 @@ class engine {
             vec4 vertex2 = cube[indices[i + 1]];
             vec4 vertex3 = cube[indices[i + 2]];
 
+            auto zValue = vertex1.z;
+
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
             int filter = 1;
@@ -168,8 +179,7 @@ class engine {
 
                 /* camera vanda paxadi paro vane aile lai puraai traingle nai
                  * display nagarne */
-                if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
-                    vertex2.z / vertex2.w > 1) {
+                if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
                     continue;
                 }
 
@@ -208,7 +218,8 @@ class engine {
                                window_width / 2),
                     (int)round(((vertex2.y / vertex2.w) + 1) * window_height /
                                    2 -
-                               window_height / 2));
+                               window_height / 2),
+                    zValue);
 
                 draw_bresenham_adjusted(
                     (int)round(((vertex2.x / vertex2.w) + 1) * window_width /
@@ -222,7 +233,8 @@ class engine {
                                window_width / 2),
                     (int)round(((vertex3.y / vertex3.w) + 1) * window_height /
                                    2 -
-                               window_height / 2));
+                               window_height / 2),
+                    zValue);
 
                 draw_bresenham_adjusted(
                     (int)round(((vertex1.x / vertex1.w) + 1) * window_width /
@@ -236,7 +248,8 @@ class engine {
                                window_width / 2),
                     (int)round(((vertex3.y / vertex3.w) + 1) * window_height /
                                    2 -
-                               window_height / 2));
+                               window_height / 2),
+                    zValue);
             }
         }
     }
@@ -250,6 +263,8 @@ class engine {
             vec4 vertex2 = cube[indices[i + 1]];
             vec4 vertex3 = cube[indices[i + 2]];
 
+            auto zValue = vertex1.w;
+
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
             int filter = 1;
@@ -258,8 +273,7 @@ class engine {
 
                 /* camera vanda paxadi paro vane aile lai puraai traingle nai
                  * display nagarne */
-                if (vertex1.z / vertex1.w > 1 or vertex3.z / vertex3.w > 1 or
-                    vertex2.z / vertex2.w > 1) {
+                if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
                     continue;
                 }
 
@@ -307,10 +321,18 @@ class engine {
                                                   window_height / 2 -
                                               window_height / 2));
 
-                auto color = vec3(1, 0, 0);
-                if (i % 2 == 0) {
-                    color = vec3(0, 1, 0);
+                auto color = vec3(1, 1, 1);
+                auto lightPos = vec3(0, 0, 0);
+                auto lightDir = vec3::normalize(vec3(vertex1) - lightPos);
+                // auto a=normal;
+                auto intensity = lightDir * normal;
+                if (intensity < 0) {
+                    intensity = 0;
                 }
+                color = color * intensity;
+                // if (i % 2 == 0) {
+                //     color = vec3(0, 1, 0);
+                // }
 
                 sort(traingle.begin(), traingle.end(), sortcol);
                 if (traingle[0].y == traingle[1].y) // natural flat top
@@ -320,7 +342,7 @@ class engine {
                         std::swap(traingle[0], traingle[1]);
 
                     fillTopFlatTriangle(traingle[0], traingle[1], traingle[2],
-                                        color);
+                                        vertex1.z, color);
                 } else if (traingle[1].y ==
                            traingle[2].y) // natural flat bottom
                 {
@@ -329,7 +351,7 @@ class engine {
                         std::swap(traingle[1], traingle[2]);
 
                     fillBottomFlatTriangle(traingle[0], traingle[1],
-                                           traingle[2], color);
+                                           traingle[2], zValue, color);
                 } else // general triangle
                 {
                     // find splitting vertex interpolant
@@ -341,15 +363,15 @@ class engine {
                     if (traingle[1].x < vi.x) // major right
                     {
                         fillBottomFlatTriangle(traingle[0], traingle[1], vi,
-                                               color);
+                                               zValue, color);
                         fillTopFlatTriangle(traingle[1], vi, traingle[2],
-                                            color);
-                    } else // major left
+                                            zValue, color);
+                    } else // major leftzValue,
                     {
                         fillBottomFlatTriangle(traingle[0], vi, traingle[1],
-                                               color);
+                                               zValue, color);
                         fillTopFlatTriangle(vi, traingle[1], traingle[2],
-                                            color);
+                                            zValue, color);
                     }
                 }
             }

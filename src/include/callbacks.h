@@ -15,6 +15,7 @@ void processHoldEvent(GLFWwindow *window);
 camera cam;
 bool captured = false;
 bool pause = false;
+bool performRasterization = false;
 int mx, my;
 
 uint32_t deltatime;
@@ -45,6 +46,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
             break;
         case GLFW_KEY_SPACE:
             pause = !pause;
+            break;
+        case GLFW_KEY_U:
+            performRasterization = !performRasterization;
             break;
         default:
             break;

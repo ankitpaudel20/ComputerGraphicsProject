@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
     }
 
     mat4 mvp_matrix;
+    mat4 mvp_matrix2;
     float fov = 45.0f; // in degree
     /* to specify the near point we specify the distance of near plane from
      * camera we know near plane is always assumed to be in negative z axis
@@ -113,7 +114,7 @@ int main(int argc, char **argv) {
      * distance(i.e positive value) same goes with farPlane
      */
     float nearPlane = 0.1f;
-    float farPlane = 100.0f;
+    float farPlane = 10.0f;
     while (!glfwWindowShouldClose(window)) {
 
         deltatime = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -133,6 +134,8 @@ int main(int argc, char **argv) {
             rotation_angle = 0;
         }
         // translate3d = trans::translation(vec3(-1, -1, -1));
+
+        auto translate = trans::translation(vec3(3, 0, 0));
 
         mvp_matrix = trans::scaling3d(vec3(0.3, 0.3, 0.3)) *
                      trans::y_rotation(rotation_angle);
@@ -163,13 +166,22 @@ int main(int argc, char **argv) {
         for (auto &p : vertices) {
             // auto temp = per * view * scale3d * p;
             auto temp = mvp_matrix * p;
+            // auto temp2 = mvp_matrix * translate * p;
             // auto temp2 = per * view * scale3d * p;
             vertices1.push_back(temp);
+            // vertices2.push_back(temp2);
             // vertices2.push_back(temp2);
         }
         graphicsEngine->clear();
         // graphicsEngine->rasterize(vertices, cube_indices);
-        graphicsEngine->drawTraingles(vertices1, indices);
+        if (performRasterization) {
+            graphicsEngine->rasterize(vertices1, indices);
+            // graphicsEngine->rasterize(vertices2, indices);
+
+        } else {
+            graphicsEngine->drawTraingles(vertices1, indices);
+            // graphicsEngine->drawTraingles(vertices2, indices);
+        }
         // graphicsEngine->rasterize(vertices2, indices);
         graphicsEngine->draw();
         glfwSwapBuffers(window);
