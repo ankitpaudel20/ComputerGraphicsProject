@@ -3,7 +3,9 @@ project(opengl_core)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Application src/application.cpp src/vendor/tinyobj/tiny_obj_loader.cc)
+# add_executable(Application tests/modelLoading.cpp src/vendor/tinyobj/tiny_obj_loader.cc)
+# add_executable(Application src/application.cpp src/vendor/tinyobj/tiny_obj_loader.cc)
+add_executable(Application src/application.cpp src/helpers.cpp  src/vendor/tinyobj/tiny_obj_loader.cc)
 target_include_directories(Application PRIVATE src/vendor/tinyobj src/vendor src/include)
 
 

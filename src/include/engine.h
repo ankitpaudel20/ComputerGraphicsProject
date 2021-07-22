@@ -1,16 +1,8 @@
 #pragma once
-//#include"core.h"
 #include "GL/glu.h"
 #include <utility>
 #include <algorithm>
-//#include "GL/glew.h"
 
-// template <class T>
-// static void swap(T &a, T &b) {
-//    auto temp = a;
-//    a = b;
-//    b = temp;
-//}
 bool sortcol(const vec2 &v1, const vec2 &v2) { return v1.y < v2.y; }
 struct framebuffer {
     bool *grid;
@@ -35,46 +27,9 @@ struct framebuffer {
     }
 };
 
-struct engine {
-
+class engine {
+  private:
     framebuffer *fboCPU;
-
-    typedef void (*TransFunc)();
-
-    engine(const uint32_t &x, const uint32_t &y) {
-        fboCPU = new framebuffer(x, y);
-        glViewport(0, 0, fboCPU->x_size, fboCPU->y_size);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluOrtho2D(0.0, fboCPU->x_size, 0.0, fboCPU->y_size);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-    }
-
-    ~engine() { delete fboCPU; }
-
-    void clear() {
-        glClear(GL_COLOR_BUFFER_BIT);
-        fboCPU->clear();
-    }
-
-    void draw() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBegin(GL_POINTS);
-        for (GLint x = 0; x < fboCPU->x_size; ++x) {
-            for (GLint y = 0; y < fboCPU->y_size; ++y) {
-                if (fboCPU->grid[x + y * fboCPU->x_size]) {
-                    vec3 &c = fboCPU->color[x + y * fboCPU->x_size];
-                    glColor3f(c.x, c.y, c.z);
-                    glVertex2i(x, y);
-                }
-            }
-        }
-        glEnd();
-        glFlush();
-    }
-
     void putpixel(int x, int y, const vec3 &col = 1) {
         if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0) {
             fboCPU->color[x + y * fboCPU->x_size] = col;
@@ -86,7 +41,8 @@ struct engine {
         putpixel(x + fboCPU->x_size / 2, y + fboCPU->y_size / 2, col);
     }
 
-    void draw_bresenham_adjusted(int x1, int y1, int x2, int y2,
+    void draw_bresenham_adjusted(const int &x1, const int &y1, const int &x2,
+                                 const int &y2,
                                  const vec3 &color = vec3(1, 0, 0)) {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
@@ -120,35 +76,89 @@ struct engine {
             }
         }
     }
+    void fillBottomFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
+                                const vec3 &color) {
+        float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
+        float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
 
-    void
-    drawLines(const std::vector<vec2_T<int>> &points,
-              const vec3_T<float> &color = 1,
-              const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-        if (indices.empty()) {
-            for (size_t i = 0; i < points.size(); i += 2) {
-                draw_bresenham_adjusted(points[i].x, points[i].y,
-                                        points[i + 1].x, points[i + 1].y,
-                                        color);
-            }
-            return;
-        }
+        float currentx1 = v1.x;
+        float currentx2 = v1.x;
 
-        for (size_t i = 0; i < indices.size(); i += 2) {
-            draw_bresenham_adjusted(points[indices[i]].x, points[indices[i]].y,
-                                    points[indices[i + 1]].x,
-                                    points[indices[i + 1]].y, color);
+        for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
+            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
+                                    scanlineY, color);
+            currentx1 += invslope1;
+            currentx2 += invslope2;
         }
     }
 
-    void drawTraingles(const std::vector<vec4> cube,
-                       const std::vector<uint32_t> &indices, vec3 dir) {
+    void fillTopFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
+                             const vec3 &color) {
+        float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
+        float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+
+        float currentx1 = v3.x;
+        float currentx2 = v3.x;
+
+        for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
+            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
+                                    scanlineY, color);
+            currentx1 -= invslope1;
+            currentx2 -= invslope2;
+        }
+    }
+    vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
+        return src + (dst - src) * alpha;
+    }
+
+  public:
+    engine(const uint32_t &x, const uint32_t &y) {
+        fboCPU = new framebuffer(x, y);
+        glViewport(0, 0, fboCPU->x_size, fboCPU->y_size);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluOrtho2D(0.0, fboCPU->x_size, 0.0, fboCPU->y_size);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+    }
+
+    ~engine() { delete fboCPU; }
+
+    void clear() {
+        glClear(GL_COLOR_BUFFER_BIT);
+        fboCPU->clear();
+    }
+
+    void resizeFrameBuffer(int width, int height) {
+        delete fboCPU;
+        fboCPU = new framebuffer(width, height);
+    }
+
+    void draw() {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBegin(GL_POINTS);
+        for (GLint x = 0; x < fboCPU->x_size; ++x) {
+            for (GLint y = 0; y < fboCPU->y_size; ++y) {
+                if (fboCPU->grid[x + y * fboCPU->x_size]) {
+                    vec3 &c = fboCPU->color[x + y * fboCPU->x_size];
+                    glColor3f(c.x, c.y, c.z);
+                    glVertex2i(x, y);
+                }
+            }
+        }
+        glEnd();
+        glFlush();
+    }
+
+    void drawTraingles(const std::vector<vec4> &cube,
+                       const std::vector<uint32_t> &indices) {
 
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
-            vec4 vertex1 = cube[indices[i] - 1];
-            vec4 vertex2 = cube[indices[i + 1] - 1];
-            vec4 vertex3 = cube[indices[i + 2] - 1];
+            vec4 vertex1 = cube[indices[i]];
+            vec4 vertex2 = cube[indices[i + 1]];
+            vec4 vertex3 = cube[indices[i + 2]];
 
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
@@ -179,7 +189,6 @@ struct engine {
                 if (!filter) {
                     std::cout << "normal=" << normal;
                     std::cout << "dot=" << temp << std::endl;
-                    std::cout << "camera dir=" << dir;
                 }
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
@@ -232,59 +241,14 @@ struct engine {
         }
     }
 
-    void drawLinestrip(
-        const std::vector<vec2_T<int>> &points, const vec3_T<float> &color = 1,
-        const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-        for (size_t i = 0; i < points.size(); i++) {
-            draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x,
-                                    points[i + 1].y, color);
-        }
-    }
-    struct traingle {
-        vec2 x;
-        vec3 y;
-    };
-
-    void fillBottomFlatTriangle(vec3 v1, vec3 v2, vec3 v3, vec3 &color) {
-        float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
-        float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
-
-        float currentx1 = v1.x;
-        float currentx2 = v1.x;
-
-        for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
-            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
-                                    scanlineY, color);
-            currentx1 += invslope1;
-            currentx2 += invslope2;
-        }
-    }
-
-    void fillTopFlatTriangle(vec3 v1, vec3 v2, vec3 v3, const vec3 &color) {
-        float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
-        float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
-
-        float currentx1 = v3.x;
-        float currentx2 = v3.x;
-
-        for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
-            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
-                                    scanlineY, color);
-            currentx1 -= invslope1;
-            currentx2 -= invslope2;
-        }
-    }
-    vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
-        return src + (dst - src) * alpha;
-    }
-    void rasterize(const std::vector<vec4> cube,
-                   const std::vector<uint32_t> &indices, vec3 dir) {
+    void rasterize(const std::vector<vec4> &cube,
+                   const std::vector<uint32_t> &indices) {
 
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
-            vec4 vertex1 = cube[indices[i] - 1];
-            vec4 vertex2 = cube[indices[i + 1] - 1];
-            vec4 vertex3 = cube[indices[i + 2] - 1];
+            vec4 vertex1 = cube[indices[i]];
+            vec4 vertex2 = cube[indices[i + 1]];
+            vec4 vertex3 = cube[indices[i + 2]];
 
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
@@ -302,8 +266,6 @@ struct engine {
                 vec3 normal = vec3::normalize(vec3::cross(
                     vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
 
-                // normal=
-
                 /* calculate the normal here and if the normal and camera
                  * direction dot product gives positive the trangle should not
                  * be drawn */
@@ -316,7 +278,6 @@ struct engine {
                 if (!filter) {
                     std::cout << "normal=" << normal;
                     std::cout << "dot=" << temp << std::endl;
-                    std::cout << "camera dir=" << dir;
                 }
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
@@ -394,22 +355,4 @@ struct engine {
             }
         }
     }
-
-    //     void drawTriangles3d(const std::vector<vec3> &points, const vec3
-    //     &color = 1, const std::vector<uint32_t> &indices =
-    //     std::vector<uint32_t>()) {
-    //         if (indices.empty()) {
-    //             for (size_t i = 0; i < points.size(); i += 3) {
-    //                 indices.push_back(i);
-    //                 indices.push_back(i + 1);
-    //                 indices.push_back(i + 2);
-    //             }
-    //             return;
-    //         }
-    //         for (size_t i = 0; i < indices.size(); i += 2) {
-    //             draw_bresenham_adjusted(points[indices[i]].x,
-    //             points[indices[i]].y, points[indices[i + 1]].x,
-    //             points[indices[i + 1]].y, color);
-    //         }
-    //     }
 };
