@@ -25,6 +25,8 @@ engine *graphicsEngine;
 float xy_scale = 1;
 float z_scale = 1;
 
+extern bool gouraud_test = false;
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
                   int mods) {
@@ -49,6 +51,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
             break;
         case GLFW_KEY_U:
             performRasterization = !performRasterization;
+            break;
+        case GLFW_KEY_Y:
+            gouraud_test = !gouraud_test;
             break;
         default:
             break;

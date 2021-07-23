@@ -2,8 +2,18 @@
 #include "GL/glu.h"
 #include <utility>
 #include <algorithm>
+#include "globals.h"
+#include "core.h"
 
-bool sortcol(const vec2 &v1, const vec2 &v2) { return v1.y < v2.y; }
+struct MyVertex {
+    vec4 position;
+    vec3 normal;
+    vec3 color;
+};
+
+bool sortcol(const MyVertex &v1, const MyVertex &v2) {
+    return v1.position.y < v2.position.y;
+}
 struct framebuffer {
     float *zBuffer;
     bool *grid;
@@ -34,7 +44,7 @@ struct framebuffer {
 class engine {
   private:
     framebuffer *fboCPU;
-    void putpixel(int x, int y, const float &zValue, const vec3 &col = 1) {
+    void putpixel(int x, int y, const float zValue, const vec3 &col = 1) {
         if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0) {
             if (zValue < fboCPU->zBuffer[x + y * fboCPU->x_size]) {
                 fboCPU->color[x + y * fboCPU->x_size] = col;
@@ -45,7 +55,7 @@ class engine {
         }
     }
 
-    void putpixel_adjusted(int x, int y, const float &zValue,
+    void putpixel_adjusted(int x, int y, const float zValue,
                            const vec3_T<float> &col = 0) {
         putpixel(x + fboCPU->x_size / 2, y + fboCPU->y_size / 2, zValue, col);
     }
@@ -85,39 +95,90 @@ class engine {
             }
         }
     }
-    void fillBottomFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
-                                const std::vector<float> &zValue,
-                                const std::vector<vec3> &color) {
-        float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
-        float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+    void fillBottomFlatTriangle(const MyVertex &v1, const MyVertex &v2,
+                                const MyVertex &v3) {
 
-        float zValueSlope1 = (zValue[1] - zValue[0]) / (v2.y - v1.y);
-        float zValueSlope2 = (zValue[2] - zValue[0]) / (v3.y - v1.y);
+        int window_width = 640;
+        int window_height = 480;
 
-        vec3 colorSlope1 = (color[1] - color[0]) / (v2.y - v1.y);
-        vec3 colorSlope2 = (color[2] - color[0]) / (v3.y - v1.y);
+        auto color = vec3(1, 1, 1);
+        auto lightPos = vec3(0, 0, 0);
 
-        float currentx1 = v1.x;
-        float currentx2 = v1.x;
+        auto lightDir1 = vec3::normalize(vec3(v1.position) - lightPos);
+        auto lightDir2 = vec3::normalize(vec3(v2.position) - lightPos);
+        auto lightDir3 = vec3::normalize(vec3(v3.position) - lightPos);
 
-        float currentz1 = zValue[0];
-        float currentz2 = zValue[0];
+        auto v1Intensity = lightDir1 * v1.normal;
+        auto v2Intensity = lightDir2 * v2.normal;
+        auto v3Intensity = lightDir3 * v3.normal;
 
-        vec3 color1 = color[0];
-        vec3 color2 = color[0];
+        // auto v1Intensity = lightDir1 * normal;
+        // auto v2Intensity = lightDir2 * normal;
+        // auto v3Intensity = lightDir3 * normal;
+
+        vec3 v1Color = color * 1;
+        vec3 v2Color = color * 1;
+        vec3 v3Color = color * 1;
+
+        float v1x =
+            round(((v1.position.x / v1.position.w) + 1) * window_width / 2 -
+                  window_width / 2);
+        float v1y =
+            round(((v1.position.y / v1.position.w) + 1) * window_height / 2 -
+                  window_height / 2);
+
+        float v2x =
+            round(((v2.position.x / v2.position.w) + 1) * window_width / 2 -
+                  window_width / 2);
+        float v2y =
+            round(((v2.position.y / v2.position.w) + 1) * window_height / 2 -
+                  window_height / 2);
+        ;
+
+        float v3x =
+            round(((v3.position.x / v3.position.w) + 1) * window_width / 2 -
+                  window_width / 2);
+        float v3y =
+            round(((v3.position.y / v3.position.w) + 1) * window_height / 2 -
+                  window_height / 2);
+
+        float invslope1 = (v2x - v1x) / (v2y - v1y);
+        float invslope2 = (v3x - v1x) / (v3y - v1y);
+
+        float zValueSlope1 = (v2.position.z - v1.position.z) / (v2y - v1y);
+        float zValueSlope2 = (v3.position.z - v1.position.z) / (v3y - v1y);
+
+        vec3 colorSlope1 = (v2Color - v1Color) / (v2y - v1y);
+        vec3 colorSlope2 = (v3Color - v1Color) / (v3y - v1y);
+
+        float currentx1 = v1x;
+        float currentx2 = v1x;
+
+        float currentz1 = v1.position.z;
+        float currentz2 = v1.position.z;
+
+        vec3 currentColor1 = v1Color;
+        vec3 currentColor2 = v1Color;
 
         float alpha = 0;
         vec3 color_alpha = vec3(0);
-        for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
+        for (int scanlineY = v1y; scanlineY <= v2y; scanlineY++) {
             if (currentx2 != currentx1) {
-                alpha = (currentz2 - currentz1) / (currentx2 - currentx1);
-                color_alpha = (color2 - color1) / (currentx2 - currentx1);
+                alpha =
+                    (currentz2 - currentz1) / ((int)currentx2 - (int)currentx1);
+                color_alpha =
+                    (currentColor2 - currentColor1) / (currentx2 - currentx1);
             }
 
             for (int i = (int)currentx1; i <= (int)currentx2; i++) {
-                putpixel_adjusted(i, scanlineY, currentz1 + i * alpha,
-                                  color1 + color_alpha * i);
-                // putpixel_adjusted(i, scanlineY, zValue[0], color[0]);
+                if (gouraud_test) {
+                    putpixel_adjusted(
+                        i, scanlineY, currentz1 + alpha * (i - (int)currentx1),
+                        currentColor1 + color_alpha * (i - (int)currentx1));
+                } else {
+                    putpixel_adjusted(i, scanlineY, v1.position.z,
+                                      currentColor1);
+                }
             }
             // draw_bresenham_adjusted((int)currentx1, scanlineY,
             // (int)currentx2,
@@ -128,61 +189,106 @@ class engine {
             currentz1 += zValueSlope1;
             currentz2 += zValueSlope2;
 
-            color1 += colorSlope1;
-            color2 += colorSlope2;
+            currentColor1 += colorSlope1;
+            currentColor2 += colorSlope2;
         }
     }
 
-    void fillTopFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
-                             const std::vector<float> &zValue,
-                             const std::vector<vec3> &color) {
+    void fillTopFlatTriangle(const MyVertex &v1, const MyVertex &v2,
+                             const MyVertex &v3
 
-        float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
-        float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+    ) {
+        float window_width = 640;
+        float window_height = 480;
 
-        float zValueSlope1 = (zValue[2] - zValue[0]) / (v3.y - v1.y);
-        float zValueSlope2 = (zValue[2] - zValue[1]) / (v3.y - v2.y);
+        auto color = vec3(1, 1, 1);
+        auto lightPos = vec3(0, 0, 0);
 
-        vec3 colorSlope1 = (color[2] - color[0]) / (v3.y - v1.y);
-        vec3 colorSlope2 = (color[2] - color[1]) / (v3.y - v2.y);
+        auto lightDir1 = vec3::normalize(vec3(v1.position) - lightPos);
+        auto lightDir2 = vec3::normalize(vec3(v2.position) - lightPos);
+        auto lightDir3 = vec3::normalize(vec3(v3.position) - lightPos);
 
-        float currentx1 = v3.x;
-        float currentx2 = v3.x;
+        auto v1Intensity = lightDir1 * v1.normal;
+        auto v2Intensity = lightDir2 * v2.normal;
+        auto v3Intensity = lightDir3 * v3.normal;
 
-        float currentz1 = zValue[2];
-        float currentz2 = zValue[2];
+        vec3 v1Color = color * 1;
+        vec3 v2Color = color * 1;
+        vec3 v3Color = color * 1;
 
-        vec3 color1 = color[2];
-        vec3 color2 = color[2];
+        float v1x =
+            round(((v1.position.x / v1.position.w) + 1) * window_width / 2 -
+                  window_width / 2);
+        float v1y =
+            round(((v1.position.y / v1.position.w) + 1) * window_height / 2 -
+                  window_height / 2);
+
+        float v2x =
+            round(((v2.position.x / v2.position.w) + 1) * window_width / 2 -
+                  window_width / 2);
+        float v2y =
+            round(((v2.position.y / v2.position.w) + 1) * window_height / 2 -
+                  window_height / 2);
+        float v3x =
+            round(((v3.position.x / v3.position.w) + 1) * window_width / 2 -
+                  window_width / 2);
+        float v3y =
+            round(((v3.position.y / v3.position.w) + 1) * window_height / 2 -
+                  window_height / 2);
+
+        float invslope1 = (v3x - v1x) / (v3y - v1y);
+        float invslope2 = (v3x - v2x) / (v3y - v2y);
+
+        float zValueSlope1 = (v3.position.z - v1.position.z) / (v3y - v1y);
+        float zValueSlope2 = (v3.position.z - v2.position.z) / (v3y - v2y);
+
+        vec3 colorSlope1 = (v3Color - v1Color) / (v3y - v1y);
+        vec3 colorSlope2 = (v3Color - v2Color) / (v3y - v2y);
+
+        float currentx1 = v3x;
+        float currentx2 = v3x;
+
+        float currentz1 = v3.position.z;
+        float currentz2 = v3.position.z;
+
+        vec3 currentColor1 = v3Color;
+        vec3 currentColor2 = v3Color;
 
         float alpha = 0;
         vec3 color_alpha = vec3(0);
 
-        for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
+        for (int scanlineY = v3y; scanlineY > v1y; scanlineY--) {
             if (currentx2 != currentx1) {
                 alpha = (currentz2 - currentz1) / (currentx2 - currentx1);
-                color_alpha = (color2 - color1) / (currentx2 - currentx1);
+                color_alpha =
+                    (currentColor2 - currentColor1) / (currentx2 - currentx1);
             }
             for (int i = (int)currentx1; i <= (int)currentx2; i++) {
-                putpixel_adjusted(i, scanlineY, currentz1 + i * alpha,
-                                  color1 + color_alpha * i);
-                // putpixel_adjusted(i, scanlineY, zValue[0], color[0]);
+                if (gouraud_test) {
+                    putpixel_adjusted(
+                        i, scanlineY, currentz1 + alpha * (i - (int)currentx1),
+                        currentColor1 + color_alpha * (i - (int)currentx1));
+                } else {
+
+                    putpixel_adjusted(i, scanlineY, v1.position.z,
+                                      currentColor1);
+                }
             }
-            // draw_bresenham_adjusted((int)currentx1, scanlineY,
-            // (int)currentx2,
-            //                         scanlineY, zValue, color);
             currentx1 -= invslope1;
             currentx2 -= invslope2;
 
             currentz1 -= zValueSlope1;
             currentz2 -= zValueSlope2;
 
-            color1 -= colorSlope1;
-            color2 -= colorSlope2;
+            currentColor1 -= colorSlope1;
+            currentColor2 -= colorSlope2;
         }
     }
-    vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
-        return src + (dst - src) * alpha;
+    void interpolate(const MyVertex &src, const MyVertex &dst, float alpha,
+                     MyVertex &temp) {
+        temp.position = src.position + (dst.position - src.position) * alpha;
+        // temp.normal = src.normal;
+        // temp.normal = src.normal + (dst.normal - src.normal) * alpha;
     }
 
   public:
@@ -320,19 +426,16 @@ class engine {
     }
 
     void rasterize(const std::vector<vec4> &cube,
-                   const std::vector<uint32_t> &indices) {
+                   const std::vector<uint32_t> &indices,
+                   const std::vector<vec4> &normals) {
 
-        std::vector<float> zValue(3);
         std::vector<vec3> color(3);
+        std::vector<MyVertex> traingle = std::vector<MyVertex>(3);
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
             vec4 vertex1 = cube[indices[i]];
             vec4 vertex2 = cube[indices[i + 1]];
             vec4 vertex3 = cube[indices[i + 2]];
-
-            zValue[0] = vertex1.w;
-            zValue[1] = vertex2.w;
-            zValue[2] = vertex3.w;
 
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
@@ -348,6 +451,8 @@ class engine {
 
                 vec3 normal = vec3::normalize(vec3::cross(
                     vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
+
+                // vec3 normal(normals[indices[i]]);
 
                 /* calculate the normal here and if the normal and camera
                  * direction dot product gives positive the trangle should not
@@ -365,88 +470,57 @@ class engine {
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
 
-                float window_width = 640;
-                float window_height = 480;
+                traingle[0].position = vertex1;
+                traingle[1].position = vertex2;
+                traingle[2].position = vertex3;
 
-                std::vector<vec2> traingle = std::vector<vec2>(3);
-                traingle[0] = vec2((int)round(((vertex1.x / vertex1.w) + 1) *
-                                                  window_width / 2 -
-                                              window_width / 2),
-                                   (int)round(((vertex1.y / vertex1.w) + 1) *
-                                                  window_height / 2 -
-                                              window_height / 2));
+                traingle[0].normal = normals[indices[i]];
+                traingle[1].normal = normals[indices[i + 1]];
+                traingle[2].normal = normals[indices[i + 2]];
 
-                traingle[1] = vec2((int)round(((vertex2.x / vertex2.w) + 1) *
-                                                  window_width / 2 -
-                                              window_width / 2),
-                                   (int)round(((vertex2.y / vertex2.w) + 1) *
-                                                  window_height / 2 -
-                                              window_height / 2));
-
-                traingle[2] = vec2((int)round(((vertex3.x / vertex3.w) + 1) *
-                                                  window_width / 2 -
-                                              window_width / 2),
-                                   (int)round(((vertex3.y / vertex3.w) + 1) *
-                                                  window_height / 2 -
-                                              window_height / 2));
-
-                auto color1 = vec3(1, 1, 1);
-                auto lightPos = vec3(0, 0, 0);
-                auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
-                auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
-                auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
-                // auto a=normal;
-                auto intensity1 = lightDir1 * normal;
-                auto intensity2 = lightDir2 * normal;
-                auto intensity3 = lightDir3 * normal;
-                // if (intensity < 0) {
-                //     intensity = 0;
-                // }
-                color[0] = color1 * intensity1;
-                color[1] = color1 * intensity2;
-                color[2] = color1 * intensity3;
-                // if (i % 2 == 0) {
-                //     color = vec3(0, 1, 0);
-                // }
+                // traingle[0].normal = normal;
+                // traingle[1].normal = normal;
+                // traingle[2].normal = normal;
 
                 sort(traingle.begin(), traingle.end(), sortcol);
-                if (traingle[0].y == traingle[1].y) // natural flat top
+
+                if (traingle[0].position.y ==
+                    traingle[1].position.y) // natural flat top
                 {
                     // sorting top vertices by x
-                    if (traingle[1].x < traingle[0].x)
+                    if (traingle[1].position.x < traingle[0].position.x)
                         std::swap(traingle[0], traingle[1]);
 
-                    fillTopFlatTriangle(traingle[0], traingle[1], traingle[2],
-                                        zValue, color);
-                } else if (traingle[1].y ==
-                           traingle[2].y) // natural flat bottom
+                    fillTopFlatTriangle(traingle[0], traingle[1], traingle[2]);
+                } else if (traingle[1].position.y ==
+                           traingle[2].position.y) // natural flat bottom
                 {
                     // sorting bottom vertices by x
-                    if (traingle[2].x < traingle[1].x)
+                    if (traingle[2].position.x < traingle[1].position.x)
                         std::swap(traingle[1], traingle[2]);
 
                     fillBottomFlatTriangle(traingle[0], traingle[1],
-                                           traingle[2], zValue, color);
+                                           traingle[2]);
                 } else // general triangle
                 {
                     // find splitting vertex interpolant
-                    const float alphaSplit = (traingle[1].y - traingle[0].y) /
-                                             (traingle[2].y - traingle[0].y);
-                    const auto vi = interpolate(vec2(traingle[0]),
-                                                vec2(traingle[2]), alphaSplit);
+                    const float alphaSplit =
+                        (traingle[1].position.y - traingle[0].position.y) /
+                        (traingle[2].position.y - traingle[0].position.y);
 
-                    if (traingle[1].x < vi.x) // major right
+                    MyVertex vi;
+                    interpolate(traingle[0], traingle[2], alphaSplit, vi);
+
+                    if (traingle[1].position.x < vi.position.x) // major right
                     {
-                        fillBottomFlatTriangle(traingle[0], traingle[1], vi,
-                                               zValue, color);
-                        fillTopFlatTriangle(traingle[1], vi, traingle[2],
-                                            zValue, color);
+
+                        fillBottomFlatTriangle(traingle[0], traingle[1], vi);
+                        fillTopFlatTriangle(traingle[1], vi, traingle[2]);
                     } else // major leftzValue,
                     {
-                        fillBottomFlatTriangle(traingle[0], vi, traingle[1],
-                                               zValue, color);
-                        fillTopFlatTriangle(vi, traingle[1], traingle[2],
-                                            zValue, color);
+
+                        fillBottomFlatTriangle(traingle[0], vi, traingle[1]);
+                        fillTopFlatTriangle(vi, traingle[1], traingle[2]);
                     }
                 }
             }

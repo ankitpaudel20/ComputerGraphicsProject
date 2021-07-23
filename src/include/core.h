@@ -34,10 +34,10 @@ const std::string pathDelemeter("/");
 
 //#define _DEBUG
 
-#define ASSERT(x)      \
-    if (!(x)) {        \
-        DEBUG_BREAK;   \
-        assert(false); \
+#define ASSERT(x)                                                              \
+    if (!(x)) {                                                                \
+        DEBUG_BREAK;                                                           \
+        assert(false);                                                         \
     }
 
 typedef unsigned int uint;
@@ -54,8 +54,11 @@ struct Vertex {
     vec3 tangent = vec3(0);
     vec3 bitangent = vec3(0);
 
-    Vertex(const vec3 &pos, const vec3 &nor = vec3(0), const vec2 &texcoord = vec2(0), const vec3 &tangent = vec3(0), const vec3 &bitangent = vec3(0), const float texid = 0)
-        : position(pos), normal(nor), tangent(tangent), bitangent(bitangent), texCoord(texcoord) {}
+    Vertex(const vec3 &pos, const vec3 &nor = vec3(0),
+           const vec2 &texcoord = vec2(0), const vec3 &tangent = vec3(0),
+           const vec3 &bitangent = vec3(0), const float texid = 0)
+        : position(pos), normal(nor), tangent(tangent), bitangent(bitangent),
+          texCoord(texcoord) {}
     Vertex() {}
 };
 
@@ -64,5 +67,7 @@ struct dirLight {
     float intensity;
     vec3 color;
 
-    dirLight(const vec3 &dir = vec3::normalize(vec3(1)), const float &intensity = 1, const vec3 &diffcol = vec3(1)) : direction(dir), color(diffcol), intensity(intensity) {}
+    dirLight(const vec3 &dir = vec3::normalize(vec3(1)),
+             const float &intensity = 1, const vec3 &diffcol = vec3(1))
+        : direction(dir), color(diffcol), intensity(intensity) {}
 };

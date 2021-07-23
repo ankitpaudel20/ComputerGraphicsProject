@@ -94,15 +94,20 @@ int main(int argc, char **argv) {
     float rotation_angle = 0;
     auto lastframe = std::chrono::high_resolution_clock::now();
 
-    auto cube = Model::loadModel_obj(path + "/cyborg.obj", "cyborg");
+    auto cube = Model::loadModel_obj(path + "/cube.obj", "cyborg");
     std::vector<vec4> vertices;
     std::vector<uint32_t> indices;
+    std::vector<vec4> normals;
     for (int i = 0; i < cube->meshes[0]->m_indices.size(); i++) {
         indices.push_back(cube->meshes[0]->m_indices[i]);
     }
     for (int i = 0; i < cube->meshes[0]->m_vertices.size(); i++) {
         auto vertex = cube->meshes[0]->m_vertices[i].position;
         vertices.push_back(vec4(vertex.x, vertex.y, vertex.z, 1));
+    }
+    for (int i = 0; i < cube->meshes[0]->m_vertices.size(); i++) {
+        auto normal = cube->meshes[0]->m_vertices[i].normal;
+        normals.push_back(vec4(normal.x, normal.y, normal.z, 1));
     }
 
     mat4 mvp_matrix;
@@ -175,7 +180,7 @@ int main(int argc, char **argv) {
         graphicsEngine->clear();
         // graphicsEngine->rasterize(vertices, cube_indices);
         if (performRasterization) {
-            graphicsEngine->rasterize(vertices1, indices);
+            graphicsEngine->rasterize(vertices1, indices, normals);
             // graphicsEngine->rasterize(vertices2, indices);
 
         } else {
