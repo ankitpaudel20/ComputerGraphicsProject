@@ -86,34 +86,99 @@ class engine {
         }
     }
     void fillBottomFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
-                                const float &zValue, const vec3 &color) {
+                                const std::vector<float> &zValue,
+                                const std::vector<vec3> &color) {
         float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
         float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+
+        float zValueSlope1 = (zValue[1] - zValue[0]) / (v2.y - v1.y);
+        float zValueSlope2 = (zValue[2] - zValue[0]) / (v3.y - v1.y);
+
+        vec3 colorSlope1 = (color[1] - color[0]) / (v2.y - v1.y);
+        vec3 colorSlope2 = (color[2] - color[0]) / (v3.y - v1.y);
 
         float currentx1 = v1.x;
         float currentx2 = v1.x;
 
+        float currentz1 = zValue[0];
+        float currentz2 = zValue[0];
+
+        vec3 color1 = color[0];
+        vec3 color2 = color[0];
+
+        float alpha = 0;
+        vec3 color_alpha = vec3(0);
         for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++) {
-            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
-                                    scanlineY, zValue, color);
+            if (currentx2 != currentx1) {
+                alpha = (currentz2 - currentz1) / (currentx2 - currentx1);
+                color_alpha = (color2 - color1) / (currentx2 - currentx1);
+            }
+
+            for (int i = (int)currentx1; i <= (int)currentx2; i++) {
+                putpixel_adjusted(i, scanlineY, currentz1 + i * alpha,
+                                  color1 + color_alpha * i);
+                // putpixel_adjusted(i, scanlineY, zValue[0], color[0]);
+            }
+            // draw_bresenham_adjusted((int)currentx1, scanlineY,
+            // (int)currentx2,
+            //                         scanlineY, zValue, color);
             currentx1 += invslope1;
             currentx2 += invslope2;
+
+            currentz1 += zValueSlope1;
+            currentz2 += zValueSlope2;
+
+            color1 += colorSlope1;
+            color2 += colorSlope2;
         }
     }
 
     void fillTopFlatTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3,
-                             const float &zValue, const vec3 &color) {
+                             const std::vector<float> &zValue,
+                             const std::vector<vec3> &color) {
+
         float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
         float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+
+        float zValueSlope1 = (zValue[2] - zValue[0]) / (v3.y - v1.y);
+        float zValueSlope2 = (zValue[2] - zValue[1]) / (v3.y - v2.y);
+
+        vec3 colorSlope1 = (color[2] - color[0]) / (v3.y - v1.y);
+        vec3 colorSlope2 = (color[2] - color[1]) / (v3.y - v2.y);
 
         float currentx1 = v3.x;
         float currentx2 = v3.x;
 
+        float currentz1 = zValue[2];
+        float currentz2 = zValue[2];
+
+        vec3 color1 = color[2];
+        vec3 color2 = color[2];
+
+        float alpha = 0;
+        vec3 color_alpha = vec3(0);
+
         for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--) {
-            draw_bresenham_adjusted((int)currentx1, scanlineY, (int)currentx2,
-                                    scanlineY, zValue, color);
+            if (currentx2 != currentx1) {
+                alpha = (currentz2 - currentz1) / (currentx2 - currentx1);
+                color_alpha = (color2 - color1) / (currentx2 - currentx1);
+            }
+            for (int i = (int)currentx1; i <= (int)currentx2; i++) {
+                putpixel_adjusted(i, scanlineY, currentz1 + i * alpha,
+                                  color1 + color_alpha * i);
+                // putpixel_adjusted(i, scanlineY, zValue[0], color[0]);
+            }
+            // draw_bresenham_adjusted((int)currentx1, scanlineY,
+            // (int)currentx2,
+            //                         scanlineY, zValue, color);
             currentx1 -= invslope1;
             currentx2 -= invslope2;
+
+            currentz1 -= zValueSlope1;
+            currentz2 -= zValueSlope2;
+
+            color1 -= colorSlope1;
+            color2 -= colorSlope2;
         }
     }
     vec3 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
@@ -257,13 +322,17 @@ class engine {
     void rasterize(const std::vector<vec4> &cube,
                    const std::vector<uint32_t> &indices) {
 
+        std::vector<float> zValue(3);
+        std::vector<vec3> color(3);
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
             vec4 vertex1 = cube[indices[i]];
             vec4 vertex2 = cube[indices[i + 1]];
             vec4 vertex3 = cube[indices[i + 2]];
 
-            auto zValue = vertex1.w;
+            zValue[0] = vertex1.w;
+            zValue[1] = vertex2.w;
+            zValue[2] = vertex3.w;
 
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
@@ -321,15 +390,21 @@ class engine {
                                                   window_height / 2 -
                                               window_height / 2));
 
-                auto color = vec3(1, 1, 1);
+                auto color1 = vec3(1, 1, 1);
                 auto lightPos = vec3(0, 0, 0);
-                auto lightDir = vec3::normalize(vec3(vertex1) - lightPos);
+                auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
+                auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
+                auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
                 // auto a=normal;
-                auto intensity = lightDir * normal;
-                if (intensity < 0) {
-                    intensity = 0;
-                }
-                color = color * intensity;
+                auto intensity1 = lightDir1 * normal;
+                auto intensity2 = lightDir2 * normal;
+                auto intensity3 = lightDir3 * normal;
+                // if (intensity < 0) {
+                //     intensity = 0;
+                // }
+                color[0] = color1 * intensity1;
+                color[1] = color1 * intensity2;
+                color[2] = color1 * intensity3;
                 // if (i % 2 == 0) {
                 //     color = vec3(0, 1, 0);
                 // }
