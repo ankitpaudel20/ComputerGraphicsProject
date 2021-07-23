@@ -342,7 +342,7 @@ class engine {
                         std::swap(traingle[0], traingle[1]);
 
                     fillTopFlatTriangle(traingle[0], traingle[1], traingle[2],
-                                        vertex1.z, color);
+                                        zValue, color);
                 } else if (traingle[1].y ==
                            traingle[2].y) // natural flat bottom
                 {
