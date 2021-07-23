@@ -6,8 +6,7 @@
 #include "core.h"
 
 struct MyVertex {
-    vec4 position;
-    vec3 normal;
+    vec3 position;
     vec3 color;
 };
 
@@ -98,71 +97,34 @@ class engine {
     void fillBottomFlatTriangle(const MyVertex &v1, const MyVertex &v2,
                                 const MyVertex &v3) {
 
-        int window_width = 640;
-        int window_height = 480;
+        float invslope1 =
+            (v2.position.x - v1.position.x) / (v2.position.y - v1.position.y);
+        float invslope2 =
+            (v3.position.x - v1.position.x) / (v3.position.y - v1.position.y);
 
-        auto color = vec3(1, 1, 1);
-        auto lightPos = vec3(0, 0, 0);
+        float zValueSlope1 =
+            (v2.position.z - v1.position.z) / (v2.position.y - v1.position.y);
+        float zValueSlope2 =
+            (v3.position.z - v1.position.z) / (v3.position.y - v1.position.y);
 
-        auto lightDir1 = vec3::normalize(vec3(v1.position) - lightPos);
-        auto lightDir2 = vec3::normalize(vec3(v2.position) - lightPos);
-        auto lightDir3 = vec3::normalize(vec3(v3.position) - lightPos);
+        vec3 colorSlope1 =
+            (v2.color - v1.color) / (v2.position.y - v1.position.y);
+        vec3 colorSlope2 =
+            (v3.color - v1.color) / (v3.position.y - v1.position.y);
 
-        auto v1Intensity = lightDir1 * v1.normal;
-        auto v2Intensity = lightDir2 * v2.normal;
-        auto v3Intensity = lightDir3 * v3.normal;
-
-        // auto v1Intensity = lightDir1 * normal;
-        // auto v2Intensity = lightDir2 * normal;
-        // auto v3Intensity = lightDir3 * normal;
-
-        vec3 v1Color = color * 1;
-        vec3 v2Color = color * 1;
-        vec3 v3Color = color * 1;
-
-        float v1x =
-            round(((v1.position.x / v1.position.w) + 1) * window_width / 2 -
-                  window_width / 2);
-        float v1y =
-            round(((v1.position.y / v1.position.w) + 1) * window_height / 2 -
-                  window_height / 2);
-
-        float v2x =
-            round(((v2.position.x / v2.position.w) + 1) * window_width / 2 -
-                  window_width / 2);
-        float v2y =
-            round(((v2.position.y / v2.position.w) + 1) * window_height / 2 -
-                  window_height / 2);
-        ;
-
-        float v3x =
-            round(((v3.position.x / v3.position.w) + 1) * window_width / 2 -
-                  window_width / 2);
-        float v3y =
-            round(((v3.position.y / v3.position.w) + 1) * window_height / 2 -
-                  window_height / 2);
-
-        float invslope1 = (v2x - v1x) / (v2y - v1y);
-        float invslope2 = (v3x - v1x) / (v3y - v1y);
-
-        float zValueSlope1 = (v2.position.z - v1.position.z) / (v2y - v1y);
-        float zValueSlope2 = (v3.position.z - v1.position.z) / (v3y - v1y);
-
-        vec3 colorSlope1 = (v2Color - v1Color) / (v2y - v1y);
-        vec3 colorSlope2 = (v3Color - v1Color) / (v3y - v1y);
-
-        float currentx1 = v1x;
-        float currentx2 = v1x;
+        float currentx1 = v1.position.x;
+        float currentx2 = v1.position.x;
 
         float currentz1 = v1.position.z;
         float currentz2 = v1.position.z;
 
-        vec3 currentColor1 = v1Color;
-        vec3 currentColor2 = v1Color;
+        vec3 currentColor1 = v1.color;
+        vec3 currentColor2 = v1.color;
 
         float alpha = 0;
         vec3 color_alpha = vec3(0);
-        for (int scanlineY = v1y; scanlineY <= v2y; scanlineY++) {
+        for (int scanlineY = v1.position.y; scanlineY <= v2.position.y;
+             scanlineY++) {
             if (currentx2 != currentx1) {
                 alpha =
                     (currentz2 - currentz1) / ((int)currentx2 - (int)currentx1);
@@ -198,66 +160,36 @@ class engine {
                              const MyVertex &v3
 
     ) {
-        float window_width = 640;
-        float window_height = 480;
 
-        auto color = vec3(1, 1, 1);
-        auto lightPos = vec3(0, 0, 0);
+        float invslope1 =
+            (v3.position.x - v1.position.x) / (v3.position.y - v1.position.y);
+        float invslope2 =
+            (v3.position.x - v2.position.x) / (v3.position.y - v2.position.y);
 
-        auto lightDir1 = vec3::normalize(vec3(v1.position) - lightPos);
-        auto lightDir2 = vec3::normalize(vec3(v2.position) - lightPos);
-        auto lightDir3 = vec3::normalize(vec3(v3.position) - lightPos);
+        float zValueSlope1 =
+            (v3.position.z - v1.position.z) / (v3.position.y - v1.position.y);
+        float zValueSlope2 =
+            (v3.position.z - v2.position.z) / (v3.position.y - v2.position.y);
 
-        auto v1Intensity = lightDir1 * v1.normal;
-        auto v2Intensity = lightDir2 * v2.normal;
-        auto v3Intensity = lightDir3 * v3.normal;
+        vec3 colorSlope1 =
+            (v3.color - v1.color) / (v3.position.y - v1.position.y);
+        vec3 colorSlope2 =
+            (v3.color - v2.color) / (v3.position.y - v2.position.y);
 
-        vec3 v1Color = color * 1;
-        vec3 v2Color = color * 1;
-        vec3 v3Color = color * 1;
-
-        float v1x =
-            round(((v1.position.x / v1.position.w) + 1) * window_width / 2 -
-                  window_width / 2);
-        float v1y =
-            round(((v1.position.y / v1.position.w) + 1) * window_height / 2 -
-                  window_height / 2);
-
-        float v2x =
-            round(((v2.position.x / v2.position.w) + 1) * window_width / 2 -
-                  window_width / 2);
-        float v2y =
-            round(((v2.position.y / v2.position.w) + 1) * window_height / 2 -
-                  window_height / 2);
-        float v3x =
-            round(((v3.position.x / v3.position.w) + 1) * window_width / 2 -
-                  window_width / 2);
-        float v3y =
-            round(((v3.position.y / v3.position.w) + 1) * window_height / 2 -
-                  window_height / 2);
-
-        float invslope1 = (v3x - v1x) / (v3y - v1y);
-        float invslope2 = (v3x - v2x) / (v3y - v2y);
-
-        float zValueSlope1 = (v3.position.z - v1.position.z) / (v3y - v1y);
-        float zValueSlope2 = (v3.position.z - v2.position.z) / (v3y - v2y);
-
-        vec3 colorSlope1 = (v3Color - v1Color) / (v3y - v1y);
-        vec3 colorSlope2 = (v3Color - v2Color) / (v3y - v2y);
-
-        float currentx1 = v3x;
-        float currentx2 = v3x;
+        float currentx1 = v3.position.x;
+        float currentx2 = v3.position.x;
 
         float currentz1 = v3.position.z;
         float currentz2 = v3.position.z;
 
-        vec3 currentColor1 = v3Color;
-        vec3 currentColor2 = v3Color;
+        vec3 currentColor1 = v3.color;
+        vec3 currentColor2 = v3.color;
 
         float alpha = 0;
         vec3 color_alpha = vec3(0);
 
-        for (int scanlineY = v3y; scanlineY > v1y; scanlineY--) {
+        for (int scanlineY = v3.position.y; scanlineY > v1.position.y;
+             scanlineY--) {
             if (currentx2 != currentx1) {
                 alpha = (currentz2 - currentz1) / (currentx2 - currentx1);
                 color_alpha =
@@ -274,6 +206,11 @@ class engine {
                                       currentColor1);
                 }
             }
+            // draw_bresenham_adjusted((int)currentx1, scputpixel_adjusted(i,
+            // scanlineY, currentz1 + i * alpha,
+            //                   color[0]);anlineY,
+            // (int)currentx2,
+            //                         scanlineY, zValue, color);
             currentx1 -= invslope1;
             currentx2 -= invslope2;
 
@@ -287,7 +224,8 @@ class engine {
     void interpolate(const MyVertex &src, const MyVertex &dst, float alpha,
                      MyVertex &temp) {
         temp.position = src.position + (dst.position - src.position) * alpha;
-        // temp.normal = src.normal;
+        temp.color = src.color + (dst.color - src.color) * alpha;
+
         // temp.normal = src.normal + (dst.normal - src.normal) * alpha;
     }
 
@@ -470,17 +408,55 @@ class engine {
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
 
-                traingle[0].position = vertex1;
-                traingle[1].position = vertex2;
-                traingle[2].position = vertex3;
+                float window_width = 640;
+                float window_height = 480;
 
-                traingle[0].normal = normals[indices[i]];
-                traingle[1].normal = normals[indices[i + 1]];
-                traingle[2].normal = normals[indices[i + 2]];
+                traingle[0].position =
+                    vec3((int)round(((vertex1.x / vertex1.w) + 1) *
+                                        window_width / 2 -
+                                    window_width / 2),
+                         (int)round(((vertex1.y / vertex1.w) + 1) *
+                                        window_height / 2 -
+                                    window_height / 2),
+                         vertex1.w);
 
-                // traingle[0].normal = normal;
-                // traingle[1].normal = normal;
-                // traingle[2].normal = normal;
+                traingle[1].position =
+                    vec3((int)round(((vertex2.x / vertex2.w) + 1) *
+                                        window_width / 2 -
+                                    window_width / 2),
+                         (int)round(((vertex2.y / vertex2.w) + 1) *
+                                        window_height / 2 -
+                                    window_height / 2),
+                         vertex2.w);
+
+                traingle[2].position =
+                    vec3((int)round(((vertex3.x / vertex3.w) + 1) *
+                                        window_width / 2 -
+                                    window_width / 2),
+                         (int)round(((vertex3.y / vertex3.w) + 1) *
+                                        window_height / 2 -
+                                    window_height / 2),
+                         vertex3.w);
+
+                auto color1 = vec3(0, 1, 0);
+                auto lightPos = vec3(0, 0, 0);
+
+                auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
+                auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
+                auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
+                // auto a=normal;
+
+                // auto intensity1 = lightDir1 * normal;
+                // auto intensity2 = lightDir2 * normal;
+                // auto intensity3 = lightDir3 * normal;
+
+                auto intensity1 = lightDir1 * normals[indices[i]];
+                auto intensity2 = lightDir2 * normals[indices[i + 1]];
+                auto intensity3 = lightDir3 * normals[indices[i + 2]];
+
+                traingle[0].color = color1 * intensity1;
+                traingle[1].color = color1 * intensity2;
+                traingle[2].color = color1 * intensity3;
 
                 sort(traingle.begin(), traingle.end(), sortcol);
 

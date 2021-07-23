@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     float rotation_angle = 0;
     auto lastframe = std::chrono::high_resolution_clock::now();
 
-    auto cube = Model::loadModel_obj(path + "/cube.obj", "cyborg");
+    auto cube = Model::loadModel_obj(path + "/cyborg.obj", "cyborg");
     std::vector<vec4> vertices;
     std::vector<uint32_t> indices;
     std::vector<vec4> normals;
