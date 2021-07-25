@@ -53,16 +53,17 @@ namespace trans
         return rot_matrix;
     }
 
-    // mat4f rotation3D(float angle, const vec3& dir) {
+    //mat4f rotation3D(float angle, const vec3& dir) {
     //    auto a = dir.x;
     //    auto b = dir.y;
     //    auto c = dir.z;
     //    auto d = sqrtf(b * b + c * c);
     //    auto l = sqrtf(a * a + d * d);
-    //    mat4 result({ 1, 0, 0, 0, 0, c / d, -b / d, 0, 0, b / d, c / d, 0, 0, 0,
-    //    0, 1 }); result = mat4({ d / l, 0, -a / l, 0, 0, 1, 0, 0, a / l, 0, d / l,
-    //    0, 0, 0, 0, 1 }) * result; auto mid = result; result = z_rotation(angle) *
-    //    result; return mid.inverse() * result;
+    //    mat4 result({ 1, 0, 0, 0, 0, c / d, -b / d, 0, 0, b / d, c / d, 0, 0, 0, 0, 1 });
+    //    result = mat4({ d / l, 0, -a / l, 0, 0, 1, 0, 0, a / l, 0, d / l, 0, 0, 0, 0, 1 }) * result;
+    //    auto mid = result;
+    //    result = z_rotation(angle) * result;
+    //    return mid.inverse() * result;
     //}
 
     mat4 rotation(float angle, const vec3 &v)
@@ -101,8 +102,7 @@ namespace trans
         return translation(about) * rot_matrix * translation(-about);
     }
 
-    mat3f scaling(const vec2 &value, const vec2 &about = 0,
-                  const float &angle_offset = 0)
+    mat3f scaling(const vec2 &value, const vec2 &about = 0, const float &angle_offset = 0)
     {
         mat3f scale;
         scale(0, 0) = value.x;
@@ -139,7 +139,7 @@ namespace trans
         return shear;
     }
 
-    // input a line in the form of y=mx+c
+    //input a line in the form of y=mx+c
     mat3f reflection(const float &m, const float &c)
     {
         float angle = std::atan(m);
@@ -156,59 +156,42 @@ namespace trans
 
     mat4 lookAt(const vec3 &eye, const vec3 &center, const vec3 &up)
     {
-        vec3 z = (center - eye).normalize();
-        const vec3 x = vec3::cross(z, up).normalize();
-        vec3 y = vec3::cross(x, z).normalize();
-
-        return mat4({x.x, x.y, x.z, -vec3::dot(x, eye), y.x, y.y, y.z,
-                     -vec3::dot(y, eye), -z.x, -z.y, -z.z, vec3::dot(z, eye), 0, 0, 0,
-                     1});
+        const vec3 z = (eye - center).normalize();
+        const vec3 y = vec3::normalize(up);
+        const vec3 x = vec3::cross(y, z).normalize();
+        const vec3 c = -center;
+       
+        return mat4({x.x, x.y, x.z, vec3::dot(x , c),
+                     y.x, y.y, y.z, vec3::dot(y , c),
+                     z.x, z.y, z.z, vec3::dot(z , c),
+                     0, 0, 0, 1});
     }
 
-    mat4 persp(const float &n)
+    mat4 persp(const float &w, const float &h, const float &fovx, float fovy = 0)
     {
-        return mat4({-n, 0, 0, 0, 0, -n, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0});
+        float D2R = 3.14159265 / 180.0;
+
+        fovy = fovy == 0 ? fovx * h / w : fovy;
+        return mat4({-w / (2 * tanf(D2R * fovx / 2)), 0, 0, 0,
+                     0, -h / (2 * tanf(D2R * fovy / 2)), 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 1, 0});
     }
+
     mat4 my_PerspectiveFOV(float fov, float aspect, float n, float f)
     {
-/* 
-* 
-fovy:
-Specifies the field of view angle, in degrees, in the y direction.
-
-aspect:
-Specifies the aspect ratio that determines the field of view in the x direction. The aspect ratio is the ratio of x (width) to y (height).
-
-n:
-Specifies the distance from the viewer to the near clipping plane (always positive).
-
-f:
-Specifies the distance from the viewer to the far clipping plane (always positive). 
-*/
         float D2R = 3.14159265 / 180.0;
         float yScale = 1.0 / tan(D2R * fov / 2);
         float xScale = yScale / aspect;
         auto nmf = n - f;
         float a = 0;
-        /* last ko row le chai z ko vlue lai vector ko w component maa copy garxa by inverting the sign
-         * sign invert garnu ko karan chai hamle draw garne harek point ko chai z value negative hunxa so
-         * negative z le devide garo vane ta x ra y ko direction pani flip hunxa so sign flip garepaxi positive
-         * le divide hunxa 
-         * 
-         * hamle hamro vector ko z lai chai z square maa convert garnu parxa we cannot do this for each value
-         * so hamle near point ra far point lai matra yo satisfy garauxau tyo garauna lai aako ho third roow ko 
-         * duita complex value, also third ko row ko value bata aako z value lai last maa w value le divide garda
-         * result [-1,1] ko bich maa aaunu parxa but yo -1 dekhi 1 ko part chai ali clear xaina hamro chai
-         * near plane lai "1" and farplane lai "-1" aai raako xa
-         */
         mat4 ret({xScale, 0, 0, 0,
                   0, yScale, 0, 0,
-                  0, 0, (f + n) / nmf, 2 * f * n / nmf,
-                  0, 0, -1, 0
-
-        });
+                  0, 0, (f + n) / nmf, -1,
+                  0, 0, 2 * f * n / nmf, 0});
         return ret;
     }
+
     mat4 perspective(float x, float y, float z, float zvp)
     {
         float dp = z - zvp;
@@ -239,8 +222,10 @@ Specifies the distance from the viewer to the far clipping plane (always positiv
         theta *= pi / 180;
         alpha *= pi / 180;
         float l1 = 1 / tan(alpha);
-        mat4 tranMatrix({1, 0, l1 * cosf(theta), 0, 0, 1, l1 * sinf(theta), 0, 0, 0,
-                         0, 0, 0, 0, 0, 1});
+        mat4 tranMatrix({1, 0, l1 * cosf(theta), 0,
+                         0, 1, l1 * sinf(theta), 0,
+                         0, 0, 0, 0,
+                         0, 0, 0, 1});
         return tranMatrix;
     }
-} // namespace trans
+}

@@ -7,6 +7,9 @@
 #include "assimp/scene.h"
 #endif
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "tinyobj/tiny_obj_loader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,7 +26,7 @@
 static std::string directory;
 static std::vector<std::string> textures_loaded;
 static std::unordered_map<std::string, node> models_loaded;
-static std::unordered_map<std::string, node*> models_loaded_path;
+static std::unordered_map<std::string, node *> models_loaded_path;
 static std::unordered_map<std::string, Mesh> meshes_loaded;
 
 namespace Model {
@@ -223,14 +226,13 @@ node *loadModel(std::string const &path, const std::string &name, bool flipUV = 
     // process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene, temp.meshes, 0);
 
-   
     models_loaded[name] = std::move(temp);
     models_loaded_path[path] = &models_loaded[name];
     return &models_loaded[name];
 }
 #endif
 
-void calculate_tangent(Vertex *triangle) {
+/*void calculate_tangent(Vertex *triangle) {
 
     const vec3 &pos1 = triangle->position;
     const vec3 &pos2 = (triangle + 1)->position;
@@ -299,7 +301,7 @@ void calculate_tangent2(Vertex *triangle) {
     triangle->bitangent.normalize();
     (triangle + 1)->bitangent = (triangle)->bitangent;
     (triangle + 2)->bitangent = (triangle)->bitangent;
-}
+}*/
 
 node *loadModel_obj(std::string const &path, const std::string &name, bool flipUV = false) {
 
@@ -414,25 +416,31 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                 material_to_mesh_map[t->material.id] = name;
             }
 
-            if (m1->material.ambientMap.empty() && !materials[current_material_id].diffuse_texname.empty()) {
-                if (materials[current_material_id].name == std::string("CubeMaterial.005")) {
-                    DEBUG_BREAK;
+            if (m1->material.diffuse.m_data==nullptr && !materials[current_material_id].diffuse_texname.empty()) {
+                unsigned char *m_LocalBuffer = stbi_load((directory + materials[current_material_id].diffuse_texname).c_str(), &m1->material.diffuse.w, &m1->material.diffuse.h, &m1->material.diffuse.m_bpp, 0);
+                if (!m_LocalBuffer) {
+                    std::cout << "texture file unable to load" << directory + materials[current_material_id].diffuse_texname<< std::endl;
+                    ASSERT(false);
                 }
-                m1->material.diffuseMap = directory + materials[current_material_id].diffuse_texname;
-                if (!materials[current_material_id].ambient_texname.empty()) {
-                    m1->material.ambientMap = directory + materials[current_material_id].ambient_texname;
-                }
+                m1->material.diffuse.m_data = new unsigned char[m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp];
+                memcpy(m1->material.diffuse.m_data, m_LocalBuffer, m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp * sizeof(unsigned char));
+                stbi_image_free(m_LocalBuffer);
+
                 if (!materials[current_material_id].specular_texname.empty()) {
-                    m1->material.specularMap = directory + materials[current_material_id].specular_texname;
-                }
-                if (!materials[current_material_id].bump_texname.empty()) {
-                    m1->material.normalMap = directory + materials[current_material_id].bump_texname;
+                    m_LocalBuffer = stbi_load((directory + materials[current_material_id].specular_texname).c_str(), &m1->material.specular.w, &m1->material.specular.h, &m1->material.diffuse.m_bpp, 0);
+                    if (!m_LocalBuffer) {
+                        std::cout << "texture file unable to load" << directory + materials[current_material_id].specular_texname<< std::endl;
+                        ASSERT(false);
+                    }
+                    m1->material.specular.m_data = new unsigned char[m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp];
+                    memcpy(m1->material.specular.m_data, m_LocalBuffer, m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp * sizeof(unsigned char));
+                    stbi_image_free(m_LocalBuffer);
                 }
             }
 
-            if (m1->material.diffuseColor == vec3(1)) {
-                m1->material.diffuseColor = vec3(materials[current_material_id].diffuse[0], materials[current_material_id].diffuse[1], materials[current_material_id].diffuse[2]);
-                m1->material.specularColor = vec3(materials[current_material_id].specular[0], materials[current_material_id].specular[1], materials[current_material_id].specular[2]);
+            if (m1->material.diffuseColor == color(255)) {
+                m1->material.diffuseColor = color(materials[current_material_id].diffuse[0] * 255, materials[current_material_id].diffuse[1] * 255, materials[current_material_id].diffuse[2] * 255);
+                m1->material.specularColor = color(materials[current_material_id].specular[0] * 255, materials[current_material_id].specular[1] * 255, materials[current_material_id].specular[2] * 255);
                 m1->material.shininess = materials[current_material_id].shininess;
             }
 
@@ -457,10 +465,12 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                 m1->m_vertices.push_back(vertex);
                 m1->m_indices.push_back(current_index++);
             }
+           
 
-            if (!m1->material.normalMap.empty()) {
-                calculate_tangent2((&m1->m_vertices.back()) - 2);
-            }
+            // if (!m1->material.normalMap.empty())
+            // {
+            //     calculate_tangent2((&m1->m_vertices.back()) - 2);
+            // }
             index_offset += fv;
         }
 
