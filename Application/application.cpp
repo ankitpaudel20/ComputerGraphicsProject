@@ -12,7 +12,7 @@
 
 mat4 translate3d;
 mat4 scale3d;
-camera cam;
+camera cam1;
 uint32_t deltatime;
 
 const std::vector<vec4> cube = {{0, 0, 0, 1}, {0, 0, 50, 1}, {0, 50, 50, 1}, {0, 50, 0, 1}, {50, 0, 0, 1}, {50, 0, 50, 1}, {50, 50, 50, 1}, {50, 50, 0, 1}};
@@ -41,9 +41,9 @@ static int mx, my;
 engine *graphicsEngine;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    // auto dir = cam.center - cam.eye;
+    // auto dir = cam1.center - cam1.eye;
     // const float cameraSpeed = 2.5 * s.deltatime;
-    vec3 left = vec3::cross(cam.getUp(), cam.getViewDir());
+    vec3 left = vec3::cross(cam1.getUp(), cam1.getViewDir());
     switch (action) {
     case GLFW_PRESS:
         switch (key) {
@@ -67,43 +67,43 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 }
 
 void processHoldEvent(GLFWwindow *window) {
-    // auto dir = cam.center - cam.eye;
+    // auto dir = cam1.center - cam1.eye;
 
-    const float cameraSpeed = cam.speed * deltatime;
-    vec3 left = vec3::normalize(vec3::cross(cam.getUp(), cam.getViewDir()));
+    const float cameraSpeed = cam1.speed * deltatime;
+    vec3 left = vec3::normalize(vec3::cross(cam1.getUp(), cam1.getViewDir()));
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cam.eye += (cam.getViewDir() * cameraSpeed);
+        cam1.eye += (cam1.getViewDir() * cameraSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cam.eye += (left * cameraSpeed);
+        cam1.eye += (left * cameraSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cam.eye -= (cam.getViewDir() * cameraSpeed);
+        cam1.eye -= (cam1.getViewDir() * cameraSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cam.eye -= (left * cameraSpeed);
+        cam1.eye -= (left * cameraSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        cam.eye += (cam.getUp() * cameraSpeed);
+        cam1.eye += (cam1.getUp() * cameraSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        cam.eye -= (cam.getUp() * cameraSpeed);
+        cam1.eye -= (cam1.getUp() * cameraSpeed);
     }
 
     float factor = 1;
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        cam.DelPitch(cam.sensitivity * deltatime);
+        cam1.DelPitch(cam1.sensitivity * deltatime);
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        cam.DelPitch(-cam.sensitivity * deltatime);
+        cam1.DelPitch(-cam1.sensitivity * deltatime);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        cam.newDelYaw(-cam.sensitivity * deltatime * factor);
+        cam1.newDelYaw(-cam1.sensitivity * deltatime * factor);
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        cam.newDelYaw(cam.sensitivity * deltatime * factor);
+        cam1.newDelYaw(cam1.sensitivity * deltatime * factor);
     }
     if (glfwGetKey(window, GLFW_KEY_KP_0) == GLFW_PRESS) {
         graphicsEngine->nearPlane -= 0.1;
@@ -123,11 +123,11 @@ static void cursor_position_callback(GLFWwindow *window, double x, double y) {
         my = y;
 
         float sensitivity = 0.09;
-        xoffset *= cam.sensitivity * deltatime;
-        yoffset *= cam.sensitivity * deltatime;
+        xoffset *= cam1.sensitivity * deltatime;
+        yoffset *= cam1.sensitivity * deltatime;
 
-        cam.newDelYaw(-xoffset);
-        cam.DelPitch(-yoffset);
+        cam1.newDelYaw(-xoffset);
+        cam1.DelPitch(-yoffset);
     }
 }
 
@@ -187,21 +187,25 @@ int main(int argc, char **argv) {
 
     auto path = searchRes();
 
-    auto model = Model::loadModel_obj(path + "/nanosuit/nanosuit.obj", "arrow");
+    auto model = Model::loadModel_obj(path + "/color/testcolored.obj", "arrow");
 
     float rotation_angle = 0;
     float view_angle = 0.0;
     float angle_rotated = 0;
     float zvp = 50, zprp = -500;
 
-    auto lastframe = std::chrono::high_resolution_clock::now();
-    cam.eye = vec3(0.666116, 10.4253, 5.64431);
-    cam.changeDir(vec3(-0.165752, 0.269384, -0.948661));
+    cam1.eye = vec3(-4.11877, 3.28811, 2.87941);
+    cam1.changeDir(vec3(0.56935, -0.659947, -0.490215));
     graphicsEngine->nearPlane = 2;
     Material m;
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->currentMaterial = &m;
     graphicsEngine->cullBackface = true;
+    graphicsEngine->cam =& cam1;
+    graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
+    
+
+    auto lastframe = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
         deltatime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastframe).count();
         lastframe = std::chrono::high_resolution_clock::now();
@@ -225,21 +229,20 @@ int main(int argc, char **argv) {
         std::vector<vec2_T<int>> final_cube, final_axes;
 
         std::cout << "FPS: " << 1e6 / deltatime << std::endl;
-        //std::cout << "camera Eye: " << cam.eye << std::endl;
-        //std::cout << "camera up: " << cam.getUp() << std::endl;
-        //std::cout << "camera viewdir: " << cam.getViewDir() << std::endl;
-        //std::cout << "mx: " << mx << std::endl;
-        //std::cout << "my: " << my << std::endl;
+        std::cout << "camera Eye: " << cam1.eye << std::endl;
+        std::cout << "camera up: " << cam1.getUp() << std::endl;
+        std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        
 
-        for (size_t i = 0; i < 1; i++) {
+        for (size_t i = 0; i < 4; i++) {
             printf("\033[F");
         }
 
         //printingtime = std::chrono::high_resolution_clock::now();
 
-        // auto view = trans::lookAt(cam.eye, cam.eye + cam.getViewDir(), cam.getUp());
+        // auto view = trans::lookAt(cam1.eye, cam1.eye + cam1.getViewDir(), cam1.getUp());
         // // auto per = trans::perspective(0, 0, zprp, zvp);
-        // auto per = trans::persp(window_width, window_height, cam.FOV);
+        // auto per = trans::persp(window_width, window_height, cam1.FOV);
         // auto ob = trans::oblique_projection(90, view_angle);
 
         // std::vector<vec4> temp_cube;
@@ -261,17 +264,17 @@ int main(int argc, char **argv) {
         graphicsEngine->clear();
         // graphicsEngine->drawLines(final_axes);
         // graphicsEngine->drawLines(final_cube, brescolor, cube_indices);
-        // graphicsEngine->drawTriangles(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam, translate3d);
-        // graphicsEngine->drawTrianglesRasterized(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam, mat4());
+        // graphicsEngine->drawTriangles(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, translate3d);
+        // graphicsEngine->drawTrianglesRasterized(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, mat4());
 
         //m.diffuseColor = color(0, 255, 0);
         for (auto & mesh:model->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam, mat4());
-            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, cam, mat4());
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, mat4());
+            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, cam1, mat4());
         }      
         //graphicsEngine->currentMaterial = &m;
-        //graphicsEngine->drawTrianglesRasterized(square, square_indices, cam, translate3d);
+        //graphicsEngine->drawTrianglesRasterized(square, square_indices, cam1, translate3d);
         // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1, 0, 0));
         graphicsEngine->draw();
         // glClear(GL_COLOR_BUFFER_BIT);

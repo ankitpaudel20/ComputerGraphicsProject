@@ -416,32 +416,35 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                 material_to_mesh_map[t->material.id] = name;
             }
 
-            if (m1->material.diffuse.m_data==nullptr && !materials[current_material_id].diffuse_texname.empty()) {
-                unsigned char *m_LocalBuffer = stbi_load((directory + materials[current_material_id].diffuse_texname).c_str(), &m1->material.diffuse.w, &m1->material.diffuse.h, &m1->material.diffuse.m_bpp, 0);
-                if (!m_LocalBuffer) {
-                    std::cout << "texture file unable to load" << directory + materials[current_material_id].diffuse_texname<< std::endl;
-                    ASSERT(false);
+            //if (m1->material.diffuse.m_data == nullptr && !materials[current_material_id].diffuse_texname.empty()) {
+            if (m1->material.diffuse.m_data == nullptr && current_material_id != -1) {
+                unsigned char *m_LocalBuffer;
+                if (!materials[current_material_id].diffuse_texname.empty()) {
+                    m_LocalBuffer = stbi_load((directory + materials[current_material_id].diffuse_texname).c_str(), &m1->material.diffuse.w, &m1->material.diffuse.h, &m1->material.diffuse.m_bpp, 0);
+                    if (!m_LocalBuffer) {
+                        std::cout << "texture file unable to load" << directory + materials[current_material_id].diffuse_texname << std::endl;
+                        ASSERT(false);
+                    }
+                    m1->material.diffuse.m_data = new unsigned char[m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp];
+                    memcpy(m1->material.diffuse.m_data, m_LocalBuffer, m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp * sizeof(unsigned char));
+                    stbi_image_free(m_LocalBuffer);
                 }
-                m1->material.diffuse.m_data = new unsigned char[m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp];
-                memcpy(m1->material.diffuse.m_data, m_LocalBuffer, m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp * sizeof(unsigned char));
-                stbi_image_free(m_LocalBuffer);
 
                 if (!materials[current_material_id].specular_texname.empty()) {
                     m_LocalBuffer = stbi_load((directory + materials[current_material_id].specular_texname).c_str(), &m1->material.specular.w, &m1->material.specular.h, &m1->material.diffuse.m_bpp, 0);
                     if (!m_LocalBuffer) {
-                        std::cout << "texture file unable to load" << directory + materials[current_material_id].specular_texname<< std::endl;
+                        std::cout << "texture file unable to load" << directory + materials[current_material_id].specular_texname << std::endl;
                         ASSERT(false);
                     }
                     m1->material.specular.m_data = new unsigned char[m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp];
                     memcpy(m1->material.specular.m_data, m_LocalBuffer, m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp * sizeof(unsigned char));
                     stbi_image_free(m_LocalBuffer);
                 }
-            }
-
-            if (m1->material.diffuseColor == color(255)) {
-                m1->material.diffuseColor = color(materials[current_material_id].diffuse[0] * 255, materials[current_material_id].diffuse[1] * 255, materials[current_material_id].diffuse[2] * 255);
-                m1->material.specularColor = color(materials[current_material_id].specular[0] * 255, materials[current_material_id].specular[1] * 255, materials[current_material_id].specular[2] * 255);
-                m1->material.shininess = materials[current_material_id].shininess;
+                if (m1->material.diffuseColor == color(255)) {
+                    m1->material.diffuseColor = color(materials[current_material_id].diffuse[0] * 255, materials[current_material_id].diffuse[1] * 255, materials[current_material_id].diffuse[2] * 255);
+                    m1->material.specularColor = color(materials[current_material_id].specular[0] * 255, materials[current_material_id].specular[1] * 255, materials[current_material_id].specular[2] * 255);
+                    m1->material.shininess = materials[current_material_id].shininess;
+                }
             }
 
             size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
@@ -465,7 +468,6 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                 m1->m_vertices.push_back(vertex);
                 m1->m_indices.push_back(current_index++);
             }
-           
 
             // if (!m1->material.normalMap.empty())
             // {
@@ -480,14 +482,14 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                 // Invaid material ID. Use default material.
                 current_material_id = materials.size() - 1; // Default material is added to the last item in `materials`.
             }
-            name = name + materials[current_material_id].name;
+            if ((current_material_id >= 0)) {
+                name += materials[current_material_id].name;
+            }
 
             while (meshes_loaded.find(name) != meshes_loaded.end()) {
                 name += "_copy";
             }
-            if (materials[current_material_id].name == std::string("CubeMaterial.005")) {
-                DEBUG_BREAK;
-            }
+
             m1->name = name;
             meshes_loaded[name] = std::move(*m1);
             temp.meshes.push_back(&meshes_loaded[name]);

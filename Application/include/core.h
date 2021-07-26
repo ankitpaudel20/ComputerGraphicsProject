@@ -126,13 +126,6 @@ struct Vertex {
     }
 };
 
-struct dirLight {
-    vec3 direction;
-    float intensity;
-    vec3 color;
-
-    dirLight(const vec3 &dir = vec3::normalize(vec3(1)), const float &intensity = 1, const vec3 &diffcol = vec3(1)) : direction(dir), color(diffcol), intensity(intensity) {}
-};
 
 struct color {
     uint32_t col;
@@ -163,10 +156,51 @@ struct color {
     inline uint8_t &a() {
         return ((uint8_t *)&col)[3];
     }
-    color operator*(const float &in) { 
+
+    color operator*(const color &in) const {
+        auto temp = (uint8_t *)&col;
+        auto temp1 = (uint8_t *)&in.col;
+        auto r = (temp[0] * temp1[0]) / 255;
+        auto g = (temp[1] * temp1[1]) / 255;
+        auto b = (temp[2] * temp1[2]) / 255;
+        auto a = (temp[3] * temp1[3]) / 255;
+        color ret(r,g,b,a);
+        return std::move(ret);
+    }
+
+    void operator*=(const color &in) {
+        auto temp = (uint8_t *)&col;
+        auto temp1 = (uint8_t *)&in.col;
+        temp[0] = (temp[0] * temp1[0]) / 255;
+        temp[1] = (temp[1] * temp1[1]) / 255;
+        temp[2] = (temp[2] * temp1[2]) / 255;
+        temp[3] = (temp[3] * temp1[3]) / 255;
+    }
+
+     color operator+(const color &in) const {
+        auto temp = (uint8_t *)&col;
+        auto temp1 = (uint8_t *)&in.col;
+        return color((temp[0] + temp1[0]), (temp[1] + temp1[1]), (temp[2] + temp1[2]), (temp[3] +temp1[3]) );
+    }
+
+    void operator+=(const color &in) {
+        auto temp = (uint8_t *)&col;
+        auto temp1 = (uint8_t *)&in.col;
+        auto r = ((uint16_t)temp[0] + temp1[0]);
+        auto g = ((uint16_t)temp[1] + temp1[1]);
+        auto b = ((uint16_t)temp[2] + temp1[2]);
+        auto a = ((uint16_t)temp[3] + temp1[3]);
+        temp[0] = r>255?255:r;
+        temp[1] = g>255?255:g;
+        temp[2] = b>255?255:b;
+        temp[3] = a>255?255:a;
+    }
+
+    color operator*(const float &in) const { 
         auto temp = (uint8_t *)&col;
         return color(temp[0] * in, temp[1] * in, temp[2] * in, temp[3] * in );
     }
+
     void operator*=(const float &in) {
         auto temp = (uint8_t *)&col;
         temp[0] *= in;
@@ -218,3 +252,11 @@ std::string searchRes() {
     DEBUG_BREAK;
     return std::string();
 }
+
+struct dirLight {
+    vec3 direction;
+    float intensity;
+    color col;
+
+    dirLight(const vec3 &dir = vec3::normalize(vec3(1)), const float &intensity = 1, const color &diffcol = color(255)) : direction(dir), col(diffcol), intensity(intensity) {}
+};

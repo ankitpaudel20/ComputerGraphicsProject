@@ -73,7 +73,7 @@ struct vec2_T {
     }
 
     vec2_T<T> operator*(const vec2_T<T> &b) const {
-        return vec2_T<T> (x * b.x , y * b.y);
+        return vec2_T<T>(x * b.x, y * b.y);
     }
 
     vec2_T<float> operator*(float a) const {
@@ -192,8 +192,8 @@ struct vec3_T {
         return vec3_T<T>(x - a, y - a, z - a);
     }
 
-     vec3_T<T> operator*(const vec3_T<T> &b) const {
-        return vec3_T<T> (x * b.x , y * b.y, z * b.z);
+    vec3_T<T> operator*(const vec3_T<T> &b) const {
+        return vec3_T<T>(x * b.x, y * b.y, z * b.z);
     }
 
     vec3_T<T> operator*(const T &a) const {
@@ -421,7 +421,6 @@ class mat {
         m_data = in;
     }
 
-    
     template <class U>
     mat(const mat<U, x_dim, y_dim> &in) {
         for (int i = 0; i < y_dim; i++)
@@ -617,6 +616,10 @@ class mat {
                 operator()(i, j) /= a;
     }
 
+   //template <class T, size_t lx1, size_t ly1,size_t lx2>
+   //friend mat<T, ly1, lx2> operator*(const mat<T, lx1, ly1> &first, const mat<T, lx2, lx1> &second);
+
+
     template <size_t lx, size_t ly>
     mat<Type, x_dim, ly> operator*(const mat<Type, lx, ly> &in) const {
         assert(x_dim == ly);
@@ -631,6 +634,11 @@ class mat {
         }
         return ret;
     }
+
+#ifdef _MSC_VER
+    //template <>
+    //mat<Type, 4, 4> operator*<4, 4>(const mat<Type, 4, 4> &in) const;  
+#endif
 
     vec3_T<Type> operator*(const vec3_T<Type> &in) const {
         // assert(x_dim == 3 && y_dim == 3);
@@ -691,6 +699,32 @@ class mat {
 
     vec2_T<size_t> dimensions() const { return vec2_T<size_t>(xdim, ydim); }
 };
+
+
+
+//template <class Type, size_t x_dim, size_t y_dim>
+//template <size_t lx, size_t ly>
+//mat<Type, 4, 4> mat<Type, 4, 4>::operator*<4, 4>(const mat<Type, 4, 4> &in) const {
+//    mat<float, 4, 4> ret = {
+//        operator()(0, 0) * in(0, 0) + operator()(0, 1) * in(1, 0) + operator()(0, 2) * in(2, 0) + operator()(0, 3) * in(3, 0),
+//        operator()(0, 0) * in(0, 1) + operator()(0, 1) * in(1, 1) + operator()(0, 2) * in(2, 1) + operator()(0, 3) * in(3, 1),
+//        operator()(0, 0) * in(0, 2) + operator()(0, 1) * in(1, 2) + operator()(0, 2) * in(2, 2) + operator()(0, 3) * in(3, 2),
+//        operator()(0, 0) * in(0, 3) + operator()(0, 1) * in(1, 3) + operator()(0, 2) * in(2, 3) + operator()(0, 3) * in(3, 3),
+//        operator()(1, 0) * in(0, 0) + operator()(1, 1) * in(1, 0) + operator()(1, 2) * in(2, 0) + operator()(1, 3) * in(3, 0),
+//        operator()(1, 0) * in(0, 1) + operator()(1, 1) * in(1, 1) + operator()(1, 2) * in(2, 1) + operator()(1, 3) * in(3, 1),
+//        operator()(1, 0) * in(0, 2) + operator()(1, 1) * in(1, 2) + operator()(1, 2) * in(2, 2) + operator()(1, 3) * in(3, 2),
+//        operator()(1, 0) * in(0, 3) + operator()(1, 1) * in(1, 3) + operator()(1, 2) * in(2, 3) + operator()(1, 3) * in(3, 3),
+//        operator()(2, 0) * in(0, 0) + operator()(2, 1) * in(1, 0) + operator()(2, 2) * in(2, 0) + operator()(2, 3) * in(3, 0),
+//        operator()(2, 0) * in(0, 1) + operator()(2, 1) * in(1, 1) + operator()(2, 2) * in(2, 1) + operator()(2, 3) * in(3, 1),
+//        operator()(2, 0) * in(0, 2) + operator()(2, 1) * in(1, 2) + operator()(2, 2) * in(2, 2) + operator()(2, 3) * in(3, 2),
+//        operator()(2, 0) * in(0, 3) + operator()(2, 1) * in(1, 3) + operator()(2, 2) * in(2, 3) + operator()(2, 3) * in(3, 3),
+//        operator()(3, 0) * in(0, 0) + operator()(3, 1) * in(1, 0) + operator()(3, 2) * in(2, 0) + operator()(3, 3) * in(3, 0),
+//        operator()(3, 0) * in(0, 1) + operator()(3, 1) * in(1, 1) + operator()(3, 2) * in(2, 1) + operator()(3, 3) * in(3, 1),
+//        operator()(3, 0) * in(0, 2) + operator()(3, 1) * in(1, 2) + operator()(3, 2) * in(2, 2) + operator()(3, 3) * in(3, 2),
+//        operator()(3, 0) * in(0, 3) + operator()(3, 1) * in(1, 3) + operator()(3, 2) * in(2, 3) + operator()(3, 3) * in(3, 3)};
+//    return ret;
+//}
+
 
 typedef mat<float, 4, 4> mat4f;
 typedef mat<float, 3, 3> mat3f;

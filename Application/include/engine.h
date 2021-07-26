@@ -10,7 +10,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-inline int roundfloat(const float& in) {
+inline int roundfloat(const float &in) {
     return in + 0.5f;
 }
 
@@ -23,9 +23,9 @@ struct framebuffer {
     float *z;
     //Vertex2* rasterFBO;
     color *colorlayer;
-    uint32_t x_size, y_size;
+    size_t x_size, y_size;
     int xmax, xmin, ymax, ymin;
-    framebuffer(const uint32_t &x, const uint32_t &y) : x_size(x), y_size(y) {
+    framebuffer(const size_t &x, const size_t &y) : x_size(x), y_size(y) {
         grid = new bool[x_size * y_size];
         colorlayer = new color[x_size * y_size];
         z = new float[x_size * y_size];
@@ -142,8 +142,8 @@ struct engine {
         stbi_set_flip_vertically_on_load(1);
         int m_width, m_height, m_BPP;
         auto path = searchRes();
-        
-        unsigned char *m_LocalBuffer = stbi_load((path+"/container2.png").c_str(), &m_width, &m_height, &m_BPP, 3);
+
+        unsigned char *m_LocalBuffer = stbi_load((path + "/container2.png").c_str(), &m_width, &m_height, &m_BPP, 3);
         if (!m_LocalBuffer) {
             std::cout << "texture file unable to load" << std::endl;
             ASSERT(false);
@@ -403,8 +403,8 @@ struct engine {
         }
     }
 
-    inline void clip2(const std::array<vec4, 3> &tris, unsigned char idx1, unsigned char idx2, float &u1, float &u2) {
-        unsigned char rem = getRemaining(idx1, idx2);
+    inline void clip2(const std::array<vec4, 3> &tris, unsigned char idx1, unsigned char idx2, unsigned char rem, float &u1, float &u2) {
+        //unsigned char rem = getRemaining(idx1, idx2);
 
         u1 = -(nearPlane + tris[idx1].z) / (tris[rem].z - tris[idx1].z);
         u2 = -(nearPlane + tris[idx2].z) / (tris[rem].z - tris[idx2].z);
@@ -412,8 +412,8 @@ struct engine {
 
     inline void clip2helper(const mat4 &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, std::array<Vertex2, 3> &t) {
         float u1, u2;
-        clip2(modelviewTransformed, idx1, idx2, u1, u2);
-        unsigned char rem = getRemaining(idx1, idx2);
+        const unsigned char rem = getRemaining(idx1, idx2);
+        clip2(modelviewTransformed, idx1, idx2, rem, u1, u2);
         t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[rem] - points[idx1]) * u1, per), modelTransformed[idx1] + modelTransformed[rem] * u1);
         t[idx2] = Vertex2(Vertex::perspectiveMul(points[idx2] + (points[rem] - points[idx2]) * u2, per), modelTransformed[idx2] + modelTransformed[rem] * u2);
         t[rem] = Vertex2(Vertex(modelviewTransformed[rem], points[rem].normal, points[rem].texCoord).perspectiveMul(per), modelTransformed[rem]);
@@ -434,34 +434,54 @@ struct engine {
     }
 
     Material *currentMaterial = nullptr;
-    float ambientLightIntensity = 1.0f;    
-    vec3 dirlightDirection = vec3(1, 1, 1).normalize();
-    float dirlightIntensity=1.f;
+    float ambientLightIntensity = 0.1f;
+    dirLight dirlight;  
+    camera* cam;
 
     inline float max(const float &first, const float &second) {
         return first > second ? first : second;
     }
 
-    inline vec3 reflect(const vec3& I, const vec3& N) {
+    inline vec3 reflect(const vec3 &I, const vec3 &N) {
         return I - N * 2.0 * vec3::dot(N, I);
     }
 
-    inline void CalcDirLight(const vec3& normal, const vec3& viewdir ,const color& diffuseColor) {
-        float diff = max(vec3::dot(normal, dirlightDirection), 0.0f);
+    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir,const color& col) {
+        auto dot = vec3::dot(normal, -dirlight.direction);     
+        auto diff = max(dot, 0.0f);
+        vec3 reflectDir = reflect(dirlight.direction, normal);
+        dot = vec3::dot(viewdir, reflectDir);
+        auto spec = pow(max(dot, 0.0), currentMaterial->shininess);
+        //auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
+        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
+        //diffuse += dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
+        color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;    
+        if (specular.r()>0x40) {
+            //DEBUG_BREAK;
+        }
+        diffuse += specular;
+        diffuse.a() = 255;
+        return std::move(diffuse);
     }
 
-
     inline color getcolor(const Vertex2 &v) {
+        color col;
         if (currentMaterial->diffuse.w) {
             float intpart;
             int tx = std::modf(v.v.texCoord.x, &intpart) * currentMaterial->diffuse.w;
             int ty = std::modf(v.v.texCoord.y, &intpart) * currentMaterial->diffuse.h;
             auto ret = &currentMaterial->diffuse.m_data[(abs(tx) * currentMaterial->diffuse.m_bpp) * currentMaterial->diffuse.w + (abs(ty) * currentMaterial->diffuse.m_bpp)];
-            auto col = color(*ret, *(ret + 1), *(ret + 2));
-            col *= ambientLightIntensity;
-            return std::move(col);
+            col = color(*ret, *(ret + 1), *(ret + 2));
         } else
-            return currentMaterial->diffuseColor*ambientLightIntensity;
+            col= currentMaterial->diffuseColor ;
+        color result;
+
+        result += CalcDirLight(v.v.normal, (cam->eye - v.f_pos).normalize(), col);
+        result += col * ambientLightIntensity;
+        //col = CalcDirLight(v.v.normal, (cam->eye - v.f_pos).normalize(), col);
+        //col += col* ambientLightIntensity;
+        
+        return std::move(result);
     }
 
     //p0 is the top unique point
@@ -469,32 +489,35 @@ struct engine {
         double invslope1 = (double)(p0.x - p1.x) / (p0.y - p1.y);
         double invslope2 = (double)(p0.x - p2.x) / (p0.y - p2.y);
 
-        double currentx1 = p1.x, currentx2 = p2.x;
+        double currentx1 = p1.x - invslope1, currentx2 = p2.x - invslope2;
         Vertex2 vx1 = v1, vx2 = v2, vx3 = v0;
 
         Vertex2 diff1 = v0 - v1, diff2 = v0 - v2, diff3;
         double unit1 = 1 / (double)(p0.y - p1.y), unit2 = 1 / (double)(p0.y - p2.y), unit3 = 0;
-        double u1 = 0, u2 = 0, u3 = 0;
+        double u1 = -unit1, u2 = -unit2, u3 = 0;
 
-        for (int scanlineY = p1.y; scanlineY <= p0.y; scanlineY++) {
-            if (scanlineY >= fboCPU->ymax) {
-                break;
-            } else if (scanlineY <= fboCPU->ymin) {
+        for (int scanlineY = p1.y; scanlineY <= p0.y && scanlineY < fboCPU->ymax; ++scanlineY) {
+            currentx1 += invslope1;
+            u1 += unit1;
+            vx1 = v1 + diff1 * u1;
+
+            currentx2 += invslope2;
+            u2 += unit2;
+            vx2 = v2 + diff2 * u2;
+
+            if (scanlineY <= fboCPU->ymin) {
                 continue;
             }
 
-            unit3 = 1 / (currentx2 - currentx1);
+            unit3 = (currentx2 - currentx1) < epsilon ? 0 : 1 / (currentx2 - currentx1);
             u3 = 0;
             diff3 = vx2 - vx1;
 
-            //draw_bresenham_adjusted(currentx1, scanlineY, currentx2, scanlineY, color(255, 0, 0));
-
-            for (int i = currentx1; i <= rounddouble(currentx2); i++) {
+            for (int i = currentx1; i <= rounddouble(currentx2) && i < fboCPU->xmax; ++i, u3 += unit3) {
                 if (i <= fboCPU->xmin) {
                     continue;
-                } else if (scanlineY >= fboCPU->xmax) {
-                    break;
                 }
+
                 float z = vx1.v.position.z + (diff3.v.position.z) * u3;
                 auto gotz = getpixelZ_adjusted(i, scanlineY);
                 if (gotz < z) {
@@ -506,18 +529,7 @@ struct engine {
                         putpixel_adjusted_noChecks(i, scanlineY, z, color(255, 0, 0));
                     }
                 }
-                u3 += unit3;
             }
-
-            currentx1 += invslope1;
-            u1 += unit1;
-            vx1 = v1 + diff1 * u1;
-            //checkTexcoords(vx1.v.texCoord);
-
-            currentx2 += invslope2;
-            u2 += unit2;
-            vx2 = v2 + diff2 * u2;
-            //checkTexcoords(vx2.v.texCoord);
         }
     }
 
@@ -526,26 +538,33 @@ struct engine {
         double invslope1 = (double)(p2.x - p1.x) / (p2.y - p1.y);
         double invslope2 = (double)(p2.x - p0.x) / (p2.y - p0.y);
 
-        double currentx1 = p1.x, currentx2 = p0.x;
+        double currentx1 = p1.x + invslope1, currentx2 = p0.x + invslope2;
         Vertex2 vx1 = v1, vx2 = v0, vx3 = v2;
 
         double unit1 = 1 / (double)(p1.y - p2.y), unit2 = 1 / (double)(p0.y - p2.y), unit3 = 0;
-        double u1 = 0, u2 = 0, u3 = 0;
+        double u1 = -unit1, u2 = -unit2, u3 = 0;
         Vertex2 diff1 = v2 - v1, diff2 = v2 - v0, diff3;
 
-        for (int scanlineY = p0.y; scanlineY >= p2.y; scanlineY--) {
-            if (scanlineY <= fboCPU->ymin) {
-                break;
-            } else if (scanlineY >= fboCPU->ymax) {
+        for (int scanlineY = p0.y; scanlineY >= p2.y && scanlineY > fboCPU->ymin; --scanlineY) {
+            currentx1 = currentx1 - invslope1;
+            u1 += unit1;
+            vx1 = v1 + diff1 * u1;
+
+            currentx2 = currentx2 - invslope2;
+            u2 += unit2;
+            vx2 = v0 + diff2 * u2;
+
+            if (scanlineY >= fboCPU->ymax) {
                 continue;
             }
 
             u3 = 0;
-            unit3 = 1 / (currentx2 - currentx1);
+           
+            unit3 = (currentx2 - currentx1) < epsilon ? 0: 1 / (currentx2 - currentx1);
             diff3 = vx2 - vx1;
             //draw_bresenham_adjusted(currentx1, scanlineY, currentx2, scanlineY, color(255, 0, 0));
 
-            for (int i = currentx1; i <= round(currentx2); i++) {
+            for (int i = currentx1; i <= round(currentx2); ++i, u3 += unit3) {
                 if (i <= fboCPU->xmin) {
                     continue;
                 } else if (scanlineY >= fboCPU->xmax) {
@@ -561,14 +580,7 @@ struct engine {
                         putpixel_adjusted_noChecks(i, scanlineY, z, color(255, 255, 255));
                     }
                 }
-                u3 += unit3;
             }
-            currentx1 = currentx1 - invslope1;
-            u1 += unit1;
-            vx1 = v1 + diff1 * u1;
-            currentx2 = currentx2 - invslope2;
-            u2 += unit2;
-            vx2 = v0 + diff2 * u2;
         }
     }
 
@@ -628,7 +640,7 @@ struct engine {
 
                 if (points[1].x < pi.x) // major right
                 {
-                   fillBottomFlatTriangle(points[0], points[1], pi, tris[0], tris[1], vi);
+                    fillBottomFlatTriangle(points[0], points[1], pi, tris[0], tris[1], vi);
                     fillTopFlatTriangle(pi, points[1], points[2], vi, tris[1], tris[2]);
                 } else // major left
                 {
@@ -640,10 +652,10 @@ struct engine {
         int x = 4;
     }
 
-    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const camera &cam, const mat4 &modelmat) {
+    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,  const mat4 &modelmat) {
         triangles.clear();
-        auto view = trans::lookAt(cam.eye, cam.eye + cam.getViewDir(), cam.getUp());
-        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam.FOV);
+        auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
+        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
         for (size_t i = 0; i < indices.size(); i += 3) {
             std::array<vec4, 3> modelviewTransformed;
             std::array<vec4, 3> modelTransformed;
