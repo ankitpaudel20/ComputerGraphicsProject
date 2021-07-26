@@ -59,14 +59,14 @@ namespace trans
     //    auto c = dir.z;
     //    auto d = sqrtf(b * b + c * c);
     //    auto l = sqrtf(a * a + d * d);
-    //    mat4 result({ 1, 0, 0, 0, 0, c / d, -b / d, 0, 0, b / d, c / d, 0, 0, 0, 0, 1 });
+    //    mat4f result({ 1, 0, 0, 0, 0, c / d, -b / d, 0, 0, b / d, c / d, 0, 0, 0, 0, 1 });
     //    result = mat4({ d / l, 0, -a / l, 0, 0, 1, 0, 0, a / l, 0, d / l, 0, 0, 0, 0, 1 }) * result;
     //    auto mid = result;
     //    result = z_rotation(angle) * result;
     //    return mid.inverse() * result;
     //}
 
-    mat4 rotation(float angle, const vec3 &v)
+    mat4f rotation(float angle, const vec3 &v)
     {
         float const a = angle;
         float const c = cos(a);
@@ -75,7 +75,7 @@ namespace trans
         vec3 axis(vec3::normalize(v));
         vec3 temp(axis * (1 - c));
 
-        mat4 Rotate;
+        mat4f Rotate;
         Rotate(0, 0) = c + temp.x * axis.x;
         Rotate(0, 1) = temp.x * axis.y + s * axis.z;
         Rotate(0, 2) = temp.x * axis.z - s * axis.y;
@@ -154,53 +154,53 @@ namespace trans
         return refl;
     }
 
-    mat4 lookAt(const vec3 &eye, const vec3 &center, const vec3 &up)
+    mat4f lookAt(const vec3 &eye, const vec3 &center, const vec3 &up)
     {
         const vec3 z = (eye - center).normalize();
         const vec3 y = vec3::normalize(up);
         const vec3 x = vec3::cross(y, z).normalize();
         const vec3 c = -center;
        
-        return mat4({x.x, x.y, x.z, vec3::dot(x , c),
+        return mat4f({x.x, x.y, x.z, vec3::dot(x , c),
                      y.x, y.y, y.z, vec3::dot(y , c),
                      z.x, z.y, z.z, vec3::dot(z , c),
                      0, 0, 0, 1});
     }
 
-    mat4 persp(const float &w, const float &h, const float &fovx, float fovy = 0)
+    mat4f persp(const float &w, const float &h, const float &fovx, float fovy = 0)
     {
         float D2R = 3.14159265 / 180.0;
 
         fovy = fovy == 0 ? fovx * h / w : fovy;
-        return mat4({-w / (2 * tanf(D2R * fovx / 2)), 0, 0, 0,
+        return mat4f({-w / (2 * tanf(D2R * fovx / 2)), 0, 0, 0,
                      0, -h / (2 * tanf(D2R * fovy / 2)), 0, 0,
                      0, 0, 1, 0,
                      0, 0, 1, 0});
     }
 
-    mat4 my_PerspectiveFOV(float fov, float aspect, float n, float f)
+    mat4f my_PerspectiveFOV(float fov, float aspect, float n, float f)
     {
         float D2R = 3.14159265 / 180.0;
         float yScale = 1.0 / tan(D2R * fov / 2);
         float xScale = yScale / aspect;
         auto nmf = n - f;
         float a = 0;
-        mat4 ret({xScale, 0, 0, 0,
+        mat4f ret({xScale, 0, 0, 0,
                   0, yScale, 0, 0,
                   0, 0, (f + n) / nmf, -1,
                   0, 0, 2 * f * n / nmf, 0});
         return ret;
     }
 
-    mat4 perspective(float x, float y, float z, float zvp)
+    mat4f perspective(float x, float y, float z, float zvp)
     {
         float dp = z - zvp;
         if (!dp)
         {
             printf("DP is zero");
-            return mat4();
+            return mat4f();
         }
-        mat4 ret;
+        mat4f ret;
         ret(0, 2) = -x / dp;
         ret(0, 3) = x * zvp / dp;
         ret(1, 2) = -1 * y / dp;
@@ -214,15 +214,15 @@ namespace trans
     }
 
     // oblique
-    mat4 oblique_projection(float alpha, float theta)
+    mat4f oblique_projection(float alpha, float theta)
     {
         float pi = 3.14159265;
         if (alpha == 0 || alpha == 180 || alpha == 360)
-            return mat4();
+            return mat4f();
         theta *= pi / 180;
         alpha *= pi / 180;
         float l1 = 1 / tan(alpha);
-        mat4 tranMatrix({1, 0, l1 * cosf(theta), 0,
+        mat4f tranMatrix({1, 0, l1 * cosf(theta), 0,
                          0, 1, l1 * sinf(theta), 0,
                          0, 0, 0, 0,
                          0, 0, 0, 1});

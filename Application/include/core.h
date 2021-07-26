@@ -114,14 +114,14 @@ struct Vertex {
     Vertex operator-(const Vertex &f) const {
         return Vertex(position - f.position, normal - f.normal, texCoord - f.texCoord);
     }
-    inline Vertex perspectiveMul(const mat4 &per) {
+    inline Vertex perspectiveMul(const mat4f &per) {
         position = per * position;
         position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), position.z, 1);
         // position = position / (fabs(position.w) < epsilon ? epsilon : position.w);
         return *this;
     }
 
-    inline static Vertex perspectiveMul(Vertex in, const mat4 &per) {
+    inline static Vertex perspectiveMul(Vertex in, const mat4f &per) {
         return in.perspectiveMul(per);
     }
 };

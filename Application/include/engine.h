@@ -410,7 +410,7 @@ struct engine {
         u2 = -(nearPlane + tris[idx2].z) / (tris[rem].z - tris[idx2].z);
     }
 
-    inline void clip2helper(const mat4 &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, std::array<Vertex2, 3> &t) {
+    inline void clip2helper(const mat4f &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, std::array<Vertex2, 3> &t) {
         float u1, u2;
         const unsigned char rem = getRemaining(idx1, idx2);
         clip2(modelviewTransformed, idx1, idx2, rem, u1, u2);
@@ -419,7 +419,7 @@ struct engine {
         t[rem] = Vertex2(Vertex(modelviewTransformed[rem], points[rem].normal, points[rem].texCoord).perspectiveMul(per), modelTransformed[rem]);
     }
 
-    inline void clip1helper(const mat4 &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
+    inline void clip1helper(const mat4f &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
         float u1, u2;
         unsigned char idx2 = (idx1 + 1) % 3, idx3 = (idx1 + 2) % 3;
         clip1(modelviewTransformed, idx1, u1, u2);
@@ -652,7 +652,7 @@ struct engine {
         int x = 4;
     }
 
-    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,  const mat4 &modelmat) {
+    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,  const mat4f &modelmat) {
         triangles.clear();
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
@@ -762,7 +762,7 @@ struct engine {
         }
     }
 
-    void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const camera &cam, const mat4 &modelmat) {
+    void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const camera &cam, const mat4f &modelmat) {
         triangles.clear();
         auto view = trans::lookAt(cam.eye, cam.eye + cam.getViewDir(), cam.getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam.FOV);

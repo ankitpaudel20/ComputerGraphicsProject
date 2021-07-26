@@ -11,7 +11,7 @@ struct node
     //uint32_t nosChildren=0;
     std::unordered_map<std::string, node *> children;
     std::vector<Mesh *> meshes;
-    mat4 matModel = mat4(1.0);
+    mat4f matModel = mat4f();
     // std::string shaderName;
 
     void delpos(const vec3 &delta)
@@ -38,14 +38,14 @@ struct node
         refreshModel();
     }
 
-    const mat4 &refreshModel()
+    const mat4f &refreshModel()
     {
         matModel = translation * rotation * scaling;
         return matModel;
     }
 
 private:
-    mat4 scaling = mat4(1.0);
-    mat4 translation = mat4(1.0);
-    mat4 rotation = mat4(1.0);
+    mat4f scaling = mat4f();
+    mat4f translation = mat4f();
+    mat4f rotation = mat4f();
 };

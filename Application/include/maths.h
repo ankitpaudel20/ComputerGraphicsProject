@@ -401,19 +401,18 @@ template <class Type, size_t x_dim, size_t y_dim>
 class mat {
   protected:
     std::array<Type, x_dim * y_dim> m_data;
-    size_t xdim = x_dim, ydim = y_dim; // xdim=no of cols   ydim= no of rows
 
   public:
     mat() {
         for (int i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) = i == j ? 1 : 0;
+                at(i, j) = i == j ? 1 : 0;
     }
 
     mat(const Type &in) {
         for (int i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) = in;
+                at(i, j) = in;
     }
 
     mat(const std::array<Type, x_dim * y_dim> &in) {
@@ -425,24 +424,32 @@ class mat {
     mat(const mat<U, x_dim, y_dim> &in) {
         for (int i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) = in(i, j);
+                at(i, j) = in(i, j);
     }
 
-    Type &operator()(const size_t &r, const size_t &c) {
+    inline Type &operator()(const size_t &r, const size_t &c) {
         assert(r >= 0 && r < y_dim && c >= 0 && c < x_dim);
-        return m_data[r * xdim + c];
+        return m_data[r * x_dim + c];
     }
 
-    const Type &operator()(const size_t &r, const size_t &c) const {
+    inline const Type &operator()(const size_t &r, const size_t &c) const {
         assert(r >= 0 && r < y_dim && c >= 0 && c < x_dim);
-        return m_data[r * xdim + c];
+        return m_data[r * x_dim + c];
+    }
+
+    inline const Type &at(const size_t &r, const size_t &c) const{
+        return m_data[r * x_dim + c];
+    }
+
+    inline Type &at(const size_t &r, const size_t &c) {
+        return m_data[r * x_dim + c];
     }
 
     void print() const {
         for (size_t i = 0; i < y_dim; i++) {
             printf("(");
             for (size_t j = 0; j < x_dim; j++)
-                printf("%8.3lf", operator()(i, j));
+                printf("%8.3lf", at(i, j));
             printf(")\n");
         }
         // printf("\n");
@@ -452,11 +459,11 @@ class mat {
         mat<Type, x_dim, y_dim> temp = *this;
         size_t i, j, k;
         Type constant;
-        for (i = 0; i < temp.ydim; i++) {
+        for (i = 0; i < y_dim; i++) {
             constant = temp(i, i);
-            for (j = i + 1; j < temp.ydim; j++) {
+            for (j = i + 1; j < y_dim; j++) {
                 constant = temp(j, i) / temp(i, i);
-                for (k = i; k < temp.xdim; k++)
+                for (k = i; k < x_dim; k++)
                     temp(j, k) = temp(j, k) - constant * temp(i, k);
             }
         }
@@ -464,7 +471,6 @@ class mat {
     }
 
     mat<Type, x_dim, y_dim> inverse() const {
-
         assert(x_dim == y_dim);
         mat<Type, x_dim, y_dim> temp = *this;
         mat<Type, x_dim, y_dim> inv;
@@ -477,80 +483,53 @@ class mat {
 
         size_t i, j, k;
 
-        for (i = 0; i < ydim; i++)
-            for (j = 0; j < xdim; j++)
-                inv(i, j) = ((i == j) ? 1 : 0);
 
         Type constant;
-        // temp.print(inv);
-        // std::cout << std::endl;
-
-        for (i = 0; i < ydim; ++i) {
+     
+        for (i = 0; i < y_dim; ++i) {
             if (temp(i, i) == 0) {
-                for (j = i; j < ydim; j++) {
-                    if (temp(j, j) != 0) {
-                        // printf("swapping %d row with %d row\n", i, j);
-                        auto dest = &temp(j, 0);
-                        auto src = &temp(i, 0);
+                for (j = i; j < y_dim; j++) {
+                    if (temp.at(j, j) != 0) {
+                        auto dest = &temp.at(j, 0);
+                        auto src =  &temp.at(i, 0);
 
-                        auto *swaptemp = new Type[xdim];
+                        auto *swaptemp = new Type[x_dim];
 
-                        memcpy(swaptemp, dest, xdim * sizeof(Type));
-                        memcpy(dest, src, xdim * sizeof(Type));
-                        memcpy(src, swaptemp, xdim * sizeof(Type));
+                        memcpy(swaptemp, dest, x_dim * sizeof(Type));
+                        memcpy(dest, src, x_dim * sizeof(Type));
+                        memcpy(src, swaptemp, x_dim * sizeof(Type));
 
                         dest = &inv(j, 0);
                         src = &inv(i, 0);
 
-                        memcpy(swaptemp, dest, xdim * sizeof(Type));
-                        memcpy(dest, src, xdim * sizeof(Type));
-                        memcpy(src, swaptemp, xdim * sizeof(Type));
-
-                        // temp.print(inv);
-                        // std::cout << std::endl;
-
+                        memcpy(swaptemp, dest, x_dim * sizeof(Type));
+                        memcpy(dest, src, x_dim * sizeof(Type));
+                        memcpy(src, swaptemp, x_dim * sizeof(Type));
+                    
                         delete[] swaptemp;
                     }
                 }
             }
 
             constant = temp(i, i);
-            for (j = i; j < xdim; j++)
+            for (j = i; j < x_dim; j++)
                 temp(i, j) /= constant;
-            for (j = 0; j < xdim; j++)
+            for (j = 0; j < x_dim; j++)
                 inv(i, j) /= constant;
 
-            // printf("normalizing %zu th diagonal\n\n", i);
-            // temp.print(inv);
-            // std::cout << std::endl;
-
-            for (j = 0; j < ydim; j++) {
+            for (j = 0; j < y_dim; j++) {
                 if (j == i)
                     continue;
                 constant = temp(j, i);
-                // printf("R%zu = R%zu - %lf * R%zu \n\n", j, j, constant, i);
-                for (k = i; k < xdim; k++) {
-                    // printf("%.3lf = %.3lf - %.3f * %.3lf\n", temp(j, k), temp(j, k),
-                    // temp(i, k), constant);
+                for (k = i; k < x_dim; k++) {                    
                     temp(j, k) = temp(j, k) - temp(i, k) * constant;
                 }
 
-                for (k = 0; k < xdim; k++) {
-                    // printf("%.3lf = %.3lf - %.3lf * %.3lf\n", inv(j, k), inv(j, k),
-                    // inv(i, k), constant);
+                for (k = 0; k < x_dim; k++) {
                     inv(j, k) = inv(j, k) - inv(i, k) * constant;
                 }
-
-                // std::cout << std::endl;
-                // temp.print(inv);
-                // std::cout << std::endl;
             }
-
-            // printf("%d th row operation\n", i);
-            // std::cout << temp << std::endl<< inv;
-        }
-        // printf("the inverse is\n");
-        // std::cout << inv;
+        }      
         return inv;
     }
 
@@ -566,7 +545,7 @@ class mat {
         mat<Type, x_dim, y_dim> ret;
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                ret(i, j) = in(i, j) + operator()(i, j);
+                ret(i, j) = in(i, j) + at(i, j);
         return ret;
     }
 
@@ -574,20 +553,20 @@ class mat {
         mat<Type, x_dim, y_dim> ret;
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                ret(i, j) = in(i, j) - operator()(i, j);
+                ret(i, j) = in(i, j) - at(i, j);
         return ret;
     }
 
     void operator+=(const mat<Type, x_dim, y_dim> &in) {
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) += in(i, j);
+                at(i, j) += in(i, j);
     }
 
     void operator-=(const mat<Type, x_dim, y_dim> &in) {
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) -= in(i, j);
+                at(i, j) -= in(i, j);
     }
 
     void operator*=(const mat<Type, x_dim, y_dim> &in) {
@@ -598,7 +577,7 @@ class mat {
             for (j = 0; j < y_dim; j++) {
                 new_buffer[i * y_dim + j] = 0;
                 for (k = 0; k < y_dim; k++)
-                    new_buffer[i * y_dim + j] += operator()(i, k) * in(k, j);
+                    new_buffer[i * y_dim + j] += at(i, k) * in(k, j);
             }
         }
         m_data = std::move(new_buffer);
@@ -607,131 +586,120 @@ class mat {
     void operator*=(const Type &a) {
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) *= a;
+                at(i, j) *= a;
     }
 
     void operator/=(const Type &a) {
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
-                operator()(i, j) /= a;
-    }
-
-   //template <class T, size_t lx1, size_t ly1,size_t lx2>
-   //friend mat<T, ly1, lx2> operator*(const mat<T, lx1, ly1> &first, const mat<T, lx2, lx1> &second);
-
-
-    template <size_t lx, size_t ly>
-    mat<Type, x_dim, ly> operator*(const mat<Type, lx, ly> &in) const {
-        assert(x_dim == ly);
-        mat<Type, x_dim, ly> ret;
-        int i, j, k;
-        for (i = 0; i < y_dim; i++) {
-            for (j = 0; j < lx; j++) {
-                ret(i, j) = 0;
-                for (k = 0; k < x_dim; k++)
-                    ret(i, j) += operator()(i, k) * in(k, j);
-            }
-        }
-        return ret;
-    }
-
-#ifdef _MSC_VER
-    //template <>
-    //mat<Type, 4, 4> operator*<4, 4>(const mat<Type, 4, 4> &in) const;  
-#endif
-
-    vec3_T<Type> operator*(const vec3_T<Type> &in) const {
-        // assert(x_dim == 3 && y_dim == 3);
-        if (x_dim != 3 || y_dim != 3) {
-            DEBUG_BREAK;
-        }
-
-        vec3_T<Type> ret;
-        ret.x = operator()(0, 0) * in.x + operator()(0, 1) * in.y + operator()(0, 2) * in.z;
-        ret.y = operator()(1, 0) * in.x + operator()(1, 1) * in.y + operator()(1, 2) * in.z;
-        ret.z = operator()(2, 0) * in.x + operator()(2, 1) * in.y + operator()(2, 2) * in.z;
-        return ret;
-    }
-
+                at(i, j) /= a;
+    }      
+   
     vec2_T<Type> operator*(const vec2_T<Type> &in) const {
         assert(x_dim == 2 && y_dim == 2);
         vec2_T<Type> ret;
-        ret.x = operator()(0, 0) * in.x + operator()(0, 1) * in.y;
-        ret.y = operator()(1, 0) * in.x + operator()(1, 1) * in.y;
+        ret.x = at(0, 0) * in.x + at(0, 1) * in.y;
+        ret.y = at(1, 0) * in.x + at(1, 1) * in.y;
+        return ret;
+    }    
+
+    mat<Type, x_dim, y_dim> operator*(const Type &a)const {
+        mat<Type, x_dim, y_dim> ret=*this;
+        for (auto & i :ret.m_data) 
+            i *= a;
         return ret;
     }
 
-    vec4_T<Type> operator*(const vec4_T<Type> &in) const {
-        assert(x_dim == 4 && y_dim == 4);
-        vec4_T<Type> ret;
-        ret.x = operator()(0, 0) * in.x + operator()(0, 1) * in.y + operator()(0, 2) * in.z + operator()(0, 3) * in.w;
-        ret.y = operator()(1, 0) * in.x + operator()(1, 1) * in.y + operator()(1, 2) * in.z + operator()(1, 3) * in.w;
-        ret.z = operator()(2, 0) * in.x + operator()(2, 1) * in.y + operator()(2, 2) * in.z + operator()(2, 3) * in.w;
-        ret.w = operator()(3, 0) * in.x + operator()(3, 1) * in.y + operator()(3, 2) * in.z + operator()(3, 3) * in.w;
+    mat<Type, x_dim, y_dim> operator/(const Type &a) const{
+        mat<Type, x_dim, y_dim> ret = *this;
+        for (auto &i : ret.m_data) 
+            i /= a;        
         return ret;
-    }
-
-    mat<Type, x_dim, y_dim> operator*(const Type &a) {
-        mat<Type, x_dim, y_dim> ret;
-        for (size_t i = 0; i < y_dim; i++)
-            for (size_t j = 0; j < x_dim; j++)
-                ret(i, j) = operator()(i, j) * a;
-    }
-
-    mat<Type, x_dim, y_dim> operator/(const Type &a) {
-        mat<Type, x_dim, y_dim> ret;
-        for (size_t i = 0; i < y_dim; i++)
-            for (size_t j = 0; j < x_dim; j++)
-                ret(i, j) = operator()(i, j) / a;
     }
 
     Type determinant() {
-        // std::cout << "original " << *this;
         assert(x_dim == y_dim);
         mat<Type, x_dim, y_dim> temp = toUpper();
-        // std::cout << "converted to upper" << temp;
         Type ret = 1;
-        for (size_t i = 0; i < temp.ydim; i++)
+        for (size_t i = 0; i < y_dim; i++)
             ret *= temp(i, i);
 
         return ret;
     }
-
-    vec2_T<size_t> dimensions() const { return vec2_T<size_t>(xdim, ydim); }
 };
 
+template<class Type,size_t x1,size_t y1,size_t x2>
+mat<Type, x2, y1> operator*(const mat<Type, x1, y1>& first, const mat<Type, x2, x1>& second) {
+    mat<Type, x2, y1> ret;
+    int i, j, k;
+    for (i = 0; i < y1; i++) {
+        for (j = 0; j < x2; j++) {
+            ret.at(i, j) = 0;
+            for (k = 0; k < x1; k++)
+                ret.at(i, j) += first(i, k) * second(k, j);
+        }
+    }
+    return ret;
+}
 
+template <class Type>
+mat<Type, 4, 4> operator*(const mat<Type, 4, 4> &first, const mat<Type, 4, 4> &second) {
+    return mat<Type, 4, 4>({
+        first.at(0, 0) * second.at(0, 0) + first.at(0, 1) * second.at(1, 0) + first.at(0, 2) * second.at(2, 0) + first.at(0, 3) * second.at(3, 0),
+        first.at(0, 0) * second.at(0, 1) + first.at(0, 1) * second.at(1, 1) + first.at(0, 2) * second.at(2, 1) + first.at(0, 3) * second.at(3, 1),
+        first.at(0, 0) * second.at(0, 2) + first.at(0, 1) * second.at(1, 2) + first.at(0, 2) * second.at(2, 2) + first.at(0, 3) * second.at(3, 2),
+        first.at(0, 0) * second.at(0, 3) + first.at(0, 1) * second.at(1, 3) + first.at(0, 2) * second.at(2, 3) + first.at(0, 3) * second.at(3, 3),
+        first.at(1, 0) * second.at(0, 0) + first.at(1, 1) * second.at(1, 0) + first.at(1, 2) * second.at(2, 0) + first.at(1, 3) * second.at(3, 0),
+        first.at(1, 0) * second.at(0, 1) + first.at(1, 1) * second.at(1, 1) + first.at(1, 2) * second.at(2, 1) + first.at(1, 3) * second.at(3, 1),
+        first.at(1, 0) * second.at(0, 2) + first.at(1, 1) * second.at(1, 2) + first.at(1, 2) * second.at(2, 2) + first.at(1, 3) * second.at(3, 2),
+        first.at(1, 0) * second.at(0, 3) + first.at(1, 1) * second.at(1, 3) + first.at(1, 2) * second.at(2, 3) + first.at(1, 3) * second.at(3, 3),
+        first.at(2, 0) * second.at(0, 0) + first.at(2, 1) * second.at(1, 0) + first.at(2, 2) * second.at(2, 0) + first.at(2, 3) * second.at(3, 0),
+        first.at(2, 0) * second.at(0, 1) + first.at(2, 1) * second.at(1, 1) + first.at(2, 2) * second.at(2, 1) + first.at(2, 3) * second.at(3, 1),
+        first.at(2, 0) * second.at(0, 2) + first.at(2, 1) * second.at(1, 2) + first.at(2, 2) * second.at(2, 2) + first.at(2, 3) * second.at(3, 2),
+        first.at(2, 0) * second.at(0, 3) + first.at(2, 1) * second.at(1, 3) + first.at(2, 2) * second.at(2, 3) + first.at(2, 3) * second.at(3, 3),
+        first.at(3, 0) * second.at(0, 0) + first.at(3, 1) * second.at(1, 0) + first.at(3, 2) * second.at(2, 0) + first.at(3, 3) * second.at(3, 0),
+        first.at(3, 0) * second.at(0, 1) + first.at(3, 1) * second.at(1, 1) + first.at(3, 2) * second.at(2, 1) + first.at(3, 3) * second.at(3, 1),
+        first.at(3, 0) * second.at(0, 2) + first.at(3, 1) * second.at(1, 2) + first.at(3, 2) * second.at(2, 2) + first.at(3, 3) * second.at(3, 2),
+        first.at(3, 0) * second.at(0, 3) + first.at(3, 1) * second.at(1, 3) + first.at(3, 2) * second.at(2, 3) + first.at(3, 3) * second.at(3, 3)
+        });
+}
 
-//template <class Type, size_t x_dim, size_t y_dim>
-//template <size_t lx, size_t ly>
-//mat<Type, 4, 4> mat<Type, 4, 4>::operator*<4, 4>(const mat<Type, 4, 4> &in) const {
-//    mat<float, 4, 4> ret = {
-//        operator()(0, 0) * in(0, 0) + operator()(0, 1) * in(1, 0) + operator()(0, 2) * in(2, 0) + operator()(0, 3) * in(3, 0),
-//        operator()(0, 0) * in(0, 1) + operator()(0, 1) * in(1, 1) + operator()(0, 2) * in(2, 1) + operator()(0, 3) * in(3, 1),
-//        operator()(0, 0) * in(0, 2) + operator()(0, 1) * in(1, 2) + operator()(0, 2) * in(2, 2) + operator()(0, 3) * in(3, 2),
-//        operator()(0, 0) * in(0, 3) + operator()(0, 1) * in(1, 3) + operator()(0, 2) * in(2, 3) + operator()(0, 3) * in(3, 3),
-//        operator()(1, 0) * in(0, 0) + operator()(1, 1) * in(1, 0) + operator()(1, 2) * in(2, 0) + operator()(1, 3) * in(3, 0),
-//        operator()(1, 0) * in(0, 1) + operator()(1, 1) * in(1, 1) + operator()(1, 2) * in(2, 1) + operator()(1, 3) * in(3, 1),
-//        operator()(1, 0) * in(0, 2) + operator()(1, 1) * in(1, 2) + operator()(1, 2) * in(2, 2) + operator()(1, 3) * in(3, 2),
-//        operator()(1, 0) * in(0, 3) + operator()(1, 1) * in(1, 3) + operator()(1, 2) * in(2, 3) + operator()(1, 3) * in(3, 3),
-//        operator()(2, 0) * in(0, 0) + operator()(2, 1) * in(1, 0) + operator()(2, 2) * in(2, 0) + operator()(2, 3) * in(3, 0),
-//        operator()(2, 0) * in(0, 1) + operator()(2, 1) * in(1, 1) + operator()(2, 2) * in(2, 1) + operator()(2, 3) * in(3, 1),
-//        operator()(2, 0) * in(0, 2) + operator()(2, 1) * in(1, 2) + operator()(2, 2) * in(2, 2) + operator()(2, 3) * in(3, 2),
-//        operator()(2, 0) * in(0, 3) + operator()(2, 1) * in(1, 3) + operator()(2, 2) * in(2, 3) + operator()(2, 3) * in(3, 3),
-//        operator()(3, 0) * in(0, 0) + operator()(3, 1) * in(1, 0) + operator()(3, 2) * in(2, 0) + operator()(3, 3) * in(3, 0),
-//        operator()(3, 0) * in(0, 1) + operator()(3, 1) * in(1, 1) + operator()(3, 2) * in(2, 1) + operator()(3, 3) * in(3, 1),
-//        operator()(3, 0) * in(0, 2) + operator()(3, 1) * in(1, 2) + operator()(3, 2) * in(2, 2) + operator()(3, 3) * in(3, 2),
-//        operator()(3, 0) * in(0, 3) + operator()(3, 1) * in(1, 3) + operator()(3, 2) * in(2, 3) + operator()(3, 3) * in(3, 3)};
-//    return ret;
-//}
+template <class Type>
+vec3_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec3_T<Type> &in) {
+    return vec3_T<Type>(
+        mat.at(0, 0) * in.x + mat.at(0, 1) * in.y + mat.at(0, 2) * in.z,
+        mat.at(1, 0) * in.x + mat.at(1, 1) * in.y + mat.at(1, 2) * in.z,
+        mat.at(2, 0) * in.x + mat.at(2, 1) * in.y + mat.at(2, 2) * in.z);
+}
+
+template <class Type>
+vec3_T<Type> operator*(const mat<Type, 3, 3> &mat, const vec3_T<Type> &in) {
+    return vec3_T<Type>(
+        mat.at(0, 0) * in.x + mat.at(0, 1) * in.y + mat.at(0, 2) * in.z,
+        mat.at(1, 0) * in.x + mat.at(1, 1) * in.y + mat.at(1, 2) * in.z,
+        mat.at(2, 0) * in.x + mat.at(2, 1) * in.y + mat.at(2, 2) * in.z);
+}
+
+template <class Type>
+vec4_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec4_T<Type> &in)  {
+    return vec4_T<Type>(
+        mat.at(0, 0) * in.x + mat.at(0, 1) * in.y + mat.at(0, 2) * in.z + mat.at(0, 3) * in.w,
+        mat.at(1, 0) * in.x + mat.at(1, 1) * in.y + mat.at(1, 2) * in.z + mat.at(1, 3) * in.w,
+        mat.at(2, 0) * in.x + mat.at(2, 1) * in.y + mat.at(2, 2) * in.z + mat.at(2, 3) * in.w,
+        mat.at(3, 0) * in.x + mat.at(3, 1) * in.y + mat.at(3, 2) * in.z + mat.at(3, 3) * in.w);
+}
 
 
 typedef mat<float, 4, 4> mat4f;
 typedef mat<float, 3, 3> mat3f;
-typedef mat<float, 4, 4> mat4;
-typedef mat<float, 3, 3> mat3;
+typedef mat<double, 4, 4> mat4d;
+typedef mat<double, 3, 3> mat3d;
+typedef mat<int, 4, 4> mat4i;
+typedef mat<int, 3, 3> mat3i;
+typedef mat<unsigned int, 4, 4> mat4u;
+typedef mat<unsigned int, 3, 3> mat3u;
 
-inline vec3 mat4mulvec3(const mat4 &m, const vec3 &v) {
+inline vec3 mat4mulvec3(const mat4f &m, const vec3 &v) {
     vec3 ret;
 
     ret.x = m(0, 0) * v.x + m(0, 1) * v.y + m(0, 2) * v.z;

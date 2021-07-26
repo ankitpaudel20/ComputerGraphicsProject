@@ -10,8 +10,8 @@
 
 
 
-mat4 translate3d;
-mat4 scale3d;
+mat4f translate3d;
+mat4f scale3d;
 camera cam1;
 uint32_t deltatime;
 
@@ -225,6 +225,7 @@ int main(int argc, char **argv) {
 
         translate3d = trans::translation(vec3(5, 0, -5));
         scale3d = trans::scaling3d(vec3(2));
+        auto temp = translate3d * scale3d;
 
         std::vector<vec2_T<int>> final_cube, final_axes;
 
@@ -270,7 +271,7 @@ int main(int argc, char **argv) {
         //m.diffuseColor = color(0, 255, 0);
         for (auto & mesh:model->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, mat4());
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, mat4f());
             //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, cam1, mat4());
         }      
         //graphicsEngine->currentMaterial = &m;
