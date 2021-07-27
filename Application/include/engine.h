@@ -404,8 +404,6 @@ struct engine {
     }
 
     inline void clip2(const std::array<vec4, 3> &tris, unsigned char idx1, unsigned char idx2, unsigned char rem, float &u1, float &u2) {
-        //unsigned char rem = getRemaining(idx1, idx2);
-
         u1 = -(nearPlane + tris[idx1].z) / (tris[rem].z - tris[idx1].z);
         u2 = -(nearPlane + tris[idx2].z) / (tris[rem].z - tris[idx2].z);
     }
@@ -434,7 +432,7 @@ struct engine {
     }
 
     Material *currentMaterial = nullptr;
-    float ambientLightIntensity = 0.1f;
+    float ambientLightIntensity = 0.5f;
     dirLight dirlight;  
     camera* cam;
 
@@ -447,19 +445,21 @@ struct engine {
     }
 
     inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir,const color& col) {
-        auto dot = vec3::dot(normal, -dirlight.direction);     
-        auto diff = max(dot, 0.0f);
-        vec3 reflectDir = reflect(dirlight.direction, normal);
-        dot = vec3::dot(viewdir, reflectDir);
-        auto spec = pow(max(dot, 0.0), currentMaterial->shininess);
+        //auto dot = vec3::dot(normal, -dirlight.direction);     
+        //auto diff = max(dot, 0.0f);
+        auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
+        //vec3 reflectDir = reflect(dirlight.direction, normal);
+        //dot = vec3::dot(viewdir, reflectDir);
+        //auto spec = pow(max(dot, 0.0), currentMaterial->shininess);
+        auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
         //auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
         color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
         //diffuse += dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
-        color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;    
-        if (specular.r()>0x40) {
-            //DEBUG_BREAK;
-        }
-        diffuse += specular;
+        //color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;    
+        //if (specular.r()>0x40) {
+        //    //DEBUG_BREAK;
+        //}
+        diffuse += (dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec);
         diffuse.a() = 255;
         return std::move(diffuse);
     }
@@ -468,18 +468,20 @@ struct engine {
         color col;
         if (currentMaterial->diffuse.w) {
             float intpart;
-            int tx = std::modf(v.v.texCoord.x, &intpart) * currentMaterial->diffuse.w;
-            int ty = std::modf(v.v.texCoord.y, &intpart) * currentMaterial->diffuse.h;
+            int tx = std::modf(v.v.texCoord.x * v.v.position.z, &intpart) * currentMaterial->diffuse.w;
+            int ty = std::modf(v.v.texCoord.y * v.v.position.z, &intpart) * currentMaterial->diffuse.h;
             auto ret = &currentMaterial->diffuse.m_data[(abs(tx) * currentMaterial->diffuse.m_bpp) * currentMaterial->diffuse.w + (abs(ty) * currentMaterial->diffuse.m_bpp)];
             col = color(*ret, *(ret + 1), *(ret + 2));
         } else
             col= currentMaterial->diffuseColor ;
+        float intpart;
         color result;
+        //color result(vec3(fabs(std::modf(v.v.texCoord.x, &intpart)), fabs(std::modf(v.v.texCoord.y, &intpart)),1));
 
         result += CalcDirLight(v.v.normal, (cam->eye - v.f_pos).normalize(), col);
         result += col * ambientLightIntensity;
-        //col = CalcDirLight(v.v.normal, (cam->eye - v.f_pos).normalize(), col);
-        //col += col* ambientLightIntensity;
+        
+        
         
         return std::move(result);
     }

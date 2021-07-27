@@ -116,7 +116,8 @@ struct Vertex {
     }
     inline Vertex perspectiveMul(const mat4f &per) {
         position = per * position;
-        position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), position.z, 1);
+        texCoord /= (fabs(position.w) < epsilon ? epsilon : position.w);
+        position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), position.z, 1 / position.z);
         // position = position / (fabs(position.w) < epsilon ? epsilon : position.w);
         return *this;
     }
@@ -129,17 +130,11 @@ struct Vertex {
 
 struct color {
     uint32_t col;
-    color() : color(0) {
-        // int y = 1;
-        //printf("defaultused\n");
-    }
-    color(uint8_t r) : color(r, r, r) {
-        // int y = 1;
-    }
-    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {
-        // int y = 1;
-        //printf("nondefaultused\n");
-    }
+    color() : color(0) {}
+    color(uint8_t r) : color(r, r, r) {    }
+    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {}
+    color(const vec3 & in) : color(in.x*255,in.y*255,in.z*255){}
+
     vec4 getcolor() {
         auto temp = (uint8_t *)&col;
         return vec4(temp[0], temp[1], temp[2], temp[3]) / 255;

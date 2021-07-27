@@ -37,7 +37,7 @@ static void error_callback(int error, const char *description) {
 }
 
 static bool captured = false;
-static int mx, my;
+static double mx, my;
 engine *graphicsEngine;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -55,7 +55,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             captured = false;
             break;
         case GLFW_KEY_2:
-            glfwSetCursorPos(window, mx, my);
+            glfwGetCursorPos(window, &mx, &my);
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             captured = true;
             break;
@@ -187,7 +187,8 @@ int main(int argc, char **argv) {
 
     auto path = searchRes();
 
-    auto model = Model::loadModel_obj(path + "/color/testcolored.obj", "arrow");
+    auto colorCube = Model::loadModel_obj(path + "/color/testcolored.obj", "color");
+    auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
 
     float rotation_angle = 0;
     float view_angle = 0.0;
@@ -269,11 +270,16 @@ int main(int argc, char **argv) {
         // graphicsEngine->drawTrianglesRasterized(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, mat4());
 
         //m.diffuseColor = color(0, 255, 0);
-        for (auto & mesh:model->meshes) {
+        for (auto & mesh:colorCube->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, mat4f());
-            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, cam1, mat4());
-        }      
+            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
+        }   
+        for (auto &mesh : textureBox->meshes) {
+            graphicsEngine->currentMaterial = &mesh->material;
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, translate3d);
+            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
+        }   
         //graphicsEngine->currentMaterial = &m;
         //graphicsEngine->drawTrianglesRasterized(square, square_indices, cam1, translate3d);
         // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1, 0, 0));
