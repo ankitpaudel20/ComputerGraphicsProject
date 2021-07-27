@@ -433,8 +433,8 @@ struct engine {
 
     Material *currentMaterial = nullptr;
     float ambientLightIntensity = 0.5f;
-    dirLight dirlight;  
-    camera* cam;
+    dirLight dirlight;
+    camera *cam;
 
     inline float max(const float &first, const float &second) {
         return first > second ? first : second;
@@ -444,8 +444,8 @@ struct engine {
         return I - N * 2.0 * vec3::dot(N, I);
     }
 
-    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir,const color& col) {
-        //auto dot = vec3::dot(normal, -dirlight.direction);     
+    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
+        //auto dot = vec3::dot(normal, -dirlight.direction);
         //auto diff = max(dot, 0.0f);
         auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
         //vec3 reflectDir = reflect(dirlight.direction, normal);
@@ -455,7 +455,7 @@ struct engine {
         //auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
         color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
         //diffuse += dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
-        //color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;    
+        //color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
         //if (specular.r()>0x40) {
         //    //DEBUG_BREAK;
         //}
@@ -468,21 +468,19 @@ struct engine {
         color col;
         if (currentMaterial->diffuse.w) {
             float intpart;
-            int tx = std::modf(v.v.texCoord.x * v.v.position.z, &intpart) * currentMaterial->diffuse.w;
-            int ty = std::modf(v.v.texCoord.y * v.v.position.z, &intpart) * currentMaterial->diffuse.h;
+            int tx = std::modf(v.v.texCoord.x / v.v.position.z, &intpart) * currentMaterial->diffuse.w;
+            int ty = std::modf(v.v.texCoord.y / v.v.position.z, &intpart) * currentMaterial->diffuse.h;
             auto ret = &currentMaterial->diffuse.m_data[(abs(tx) * currentMaterial->diffuse.m_bpp) * currentMaterial->diffuse.w + (abs(ty) * currentMaterial->diffuse.m_bpp)];
             col = color(*ret, *(ret + 1), *(ret + 2));
         } else
-            col= currentMaterial->diffuseColor ;
+            col = currentMaterial->diffuseColor;
         float intpart;
         color result;
         //color result(vec3(fabs(std::modf(v.v.texCoord.x, &intpart)), fabs(std::modf(v.v.texCoord.y, &intpart)),1));
 
         result += CalcDirLight(v.v.normal, (cam->eye - v.f_pos).normalize(), col);
         result += col * ambientLightIntensity;
-        
-        
-        
+
         return std::move(result);
     }
 
@@ -520,10 +518,11 @@ struct engine {
                     continue;
                 }
 
-                float z = vx1.v.position.z + (diff3.v.position.z) * u3;
+                float z = 1 / (vx1.v.position.z + (diff3.v.position.z) * u3);
                 auto gotz = getpixelZ_adjusted(i, scanlineY);
                 if (gotz < z) {
                     vx3 = vx1 + diff3 * u3;
+
                     checkTexcoords(vx3.v.texCoord);
                     if (currentMaterial) {
                         putpixel_adjusted_noChecks(i, scanlineY, z, getcolor(vx3));
@@ -561,8 +560,8 @@ struct engine {
             }
 
             u3 = 0;
-           
-            unit3 = (currentx2 - currentx1) < epsilon ? 0: 1 / (currentx2 - currentx1);
+
+            unit3 = (currentx2 - currentx1) < epsilon ? 0 : 1 / (currentx2 - currentx1);
             diff3 = vx2 - vx1;
             //draw_bresenham_adjusted(currentx1, scanlineY, currentx2, scanlineY, color(255, 0, 0));
 
@@ -572,7 +571,7 @@ struct engine {
                 } else if (scanlineY >= fboCPU->xmax) {
                     break;
                 }
-                float z = vx1.v.position.z + (diff3.v.position.z) * u3;
+                float z = 1 / (vx1.v.position.z + (diff3.v.position.z) * u3);
                 auto gotz = getpixelZ_adjusted(i, scanlineY);
                 if (gotz < z) {
                     vx3 = vx1 + diff3 * u3;
@@ -636,6 +635,7 @@ struct engine {
                 auto diff = tris[2] - tris[0];
                 //checkTexcoords(diff.v.texCoord);
                 const auto vi = tris[0] + diff * alphaSplit;
+
                 checkTexcoords(vi.v.texCoord);
                 auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
                 pi.y = points[1].y;
@@ -654,7 +654,7 @@ struct engine {
         int x = 4;
     }
 
-    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,  const mat4f &modelmat) {
+    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         triangles.clear();
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);

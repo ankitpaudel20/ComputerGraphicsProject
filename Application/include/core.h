@@ -102,7 +102,7 @@ struct Vertex {
     vec3 normal = vec3(0);
     vec2 texCoord = vec2(0);
 
-    Vertex(const vec3 &pos, const vec3 &nor = vec3(0), const vec2 &texcoord = vec2(0)) : position(pos), normal(nor), texCoord(texcoord) {}
+    Vertex(const vec4 &pos, const vec3 &nor = vec3(0), const vec2 &texcoord = vec2(0)) : position(pos), normal(nor), texCoord(texcoord) {}
     Vertex() {}
 
     Vertex operator*(const float &f) const {
@@ -117,7 +117,7 @@ struct Vertex {
     inline Vertex perspectiveMul(const mat4f &per) {
         position = per * position;
         texCoord /= (fabs(position.w) < epsilon ? epsilon : position.w);
-        position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), position.z, 1 / position.z);
+        position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), 1/position.z, 1);
         // position = position / (fabs(position.w) < epsilon ? epsilon : position.w);
         return *this;
     }
