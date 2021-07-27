@@ -278,7 +278,7 @@ struct engine {
     uint32_t putpixelcalls = 0;
 
     inline void putpixel_adjusted_noChecks(int x, int y, float z, const color &col = 255) {
-        auto indx = (x + fboCPU->xmax) + (y + fboCPU->ymax) * fboCPU->x_size;
+        auto indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
         fboCPU->colorlayer[indx] = col;
         fboCPU->grid[indx] = true;
         fboCPU->z[indx] = z;
@@ -286,8 +286,8 @@ struct engine {
     }
 
     inline float getpixelZ_adjusted(int x, int y) const {
-        if ((x + fboCPU->xmax) < fboCPU->x_size && (x + fboCPU->xmax) >= 0 && (y + fboCPU->ymax) < fboCPU->y_size && (y + fboCPU->ymax) >= 0) {
-            return fboCPU->z[(x + fboCPU->xmax) + (y + fboCPU->ymax) * fboCPU->x_size];
+        if (((size_t)x + fboCPU->xmax) < fboCPU->x_size && (x + fboCPU->xmax) >= 0 && ((size_t)y + fboCPU->ymax) < fboCPU->y_size && (y + fboCPU->ymax) >= 0) {
+            return fboCPU->z[((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size];
         } else {
             return std::numeric_limits<float>::max();
         }
@@ -434,7 +434,7 @@ struct engine {
     Material *currentMaterial = nullptr;
     float ambientLightIntensity = 0.5f;
     dirLight dirlight;
-    camera *cam;
+    camera *cam=nullptr;
 
     inline float max(const float &first, const float &second) {
         return first > second ? first : second;
@@ -486,14 +486,14 @@ struct engine {
 
     //p0 is the top unique point
     inline void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
-        double invslope1 = (double)(p0.x - p1.x) / (p0.y - p1.y);
-        double invslope2 = (double)(p0.x - p2.x) / (p0.y - p2.y);
+        double invslope1 =((double)p0.x - p1.x) / ((double)p0.y - p1.y);
+        double invslope2 =((double)p0.x - p2.x) / ((double)p0.y - p2.y);
 
         double currentx1 = p1.x - invslope1, currentx2 = p2.x - invslope2;
         Vertex2 vx1 = v1, vx2 = v2, vx3 = v0;
 
         Vertex2 diff1 = v0 - v1, diff2 = v0 - v2, diff3;
-        double unit1 = 1 / (double)(p0.y - p1.y), unit2 = 1 / (double)(p0.y - p2.y), unit3 = 0;
+        double unit1 = 1 / ((double)p0.y - p1.y), unit2 = 1 / (double)((double)p0.y - p2.y), unit3 = 0;
         double u1 = -unit1, u2 = -unit2, u3 = 0;
 
         for (int scanlineY = p1.y; scanlineY <= p0.y && scanlineY < fboCPU->ymax; ++scanlineY) {
@@ -536,13 +536,13 @@ struct engine {
 
     //p2 is the bottom unique point
     inline void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
-        double invslope1 = (double)(p2.x - p1.x) / (p2.y - p1.y);
-        double invslope2 = (double)(p2.x - p0.x) / (p2.y - p0.y);
+        double invslope1 = ((double)p2.x - p1.x) / ((double)p2.y - p1.y);
+        double invslope2 = ((double)p2.x - p0.x) / ((double)p2.y - p0.y);
 
         double currentx1 = p1.x + invslope1, currentx2 = p0.x + invslope2;
         Vertex2 vx1 = v1, vx2 = v0, vx3 = v2;
 
-        double unit1 = 1 / (double)(p1.y - p2.y), unit2 = 1 / (double)(p0.y - p2.y), unit3 = 0;
+        double unit1 = 1 / ((double)p1.y - p2.y), unit2 = 1 / ((double)p0.y - p2.y), unit3 = 0;
         double u1 = -unit1, u2 = -unit2, u3 = 0;
         Vertex2 diff1 = v2 - v1, diff2 = v2 - v0, diff3;
 
@@ -563,7 +563,6 @@ struct engine {
 
             unit3 = (currentx2 - currentx1) < epsilon ? 0 : 1 / (currentx2 - currentx1);
             diff3 = vx2 - vx1;
-            //draw_bresenham_adjusted(currentx1, scanlineY, currentx2, scanlineY, color(255, 0, 0));
 
             for (int i = currentx1; i <= round(currentx2); ++i, u3 += unit3) {
                 if (i <= fboCPU->xmin) {
@@ -628,7 +627,7 @@ struct engine {
             } else // general triangle
             {
                 // find splitting vertex interpolant
-                const double alphaSplit = (double)(points[1].y - points[0].y) / (points[2].y - points[0].y);
+                const double alphaSplit = ((double)points[1].y - points[0].y) / ((double)points[2].y - points[0].y);
                 if (alphaSplit < 0.0f || alphaSplit > 1.0f) {
                     DEBUG_BREAK;
                 }

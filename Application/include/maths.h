@@ -21,9 +21,9 @@
 #endif
 #endif
 
-constexpr float radian = 3.14159265 / 180;
+constexpr float radian = 3.14159265f / 180.f;
 constexpr float epsilon = 1e-4f;
-constexpr float pi = 3.14159265;
+constexpr float pi = 3.14159265f;
 
 template <class T>
 struct vec4_T;
