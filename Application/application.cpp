@@ -8,8 +8,6 @@
 #include "engine.h"
 #include "model.h"
 
-
-
 mat4f translate3d;
 mat4f scale3d;
 camera cam1;
@@ -202,9 +200,8 @@ int main(int argc, char **argv) {
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->currentMaterial = &m;
     graphicsEngine->cullBackface = true;
-    graphicsEngine->cam =& cam1;
+    graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
-    
 
     auto lastframe = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
@@ -234,7 +231,6 @@ int main(int argc, char **argv) {
         std::cout << "camera Eye: " << cam1.eye << std::endl;
         std::cout << "camera up: " << cam1.getUp() << std::endl;
         std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
-        
 
         for (size_t i = 0; i < 4; i++) {
             printf("\033[F");
