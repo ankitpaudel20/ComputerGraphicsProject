@@ -17,6 +17,9 @@ bool captured = false;
 bool pause = false;
 bool performRasterization = false;
 int mx, my;
+float nearPlane = 0.10f;
+float farPlane = 10.0f;
+bool showTraingle = false;
 
 uint32_t deltatime;
 int window_width, window_height;
@@ -54,6 +57,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
             break;
         case GLFW_KEY_Y:
             gouraud_test = !gouraud_test;
+            break;
+        case GLFW_KEY_T:
+            showTraingle = !showTraingle;
             break;
         default:
             break;
@@ -95,6 +101,12 @@ void processHoldEvent(GLFWwindow *window) {
     }
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
         z_scale -= 0.01;
+    }
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+        nearPlane += 0.01;
+    }
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
+        nearPlane -= 0.01;
     }
 
     float factor = 100;

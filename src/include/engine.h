@@ -42,6 +42,7 @@ struct framebuffer {
 
 class engine {
   private:
+    std::vector<uint32_t> indices;
     framebuffer *fboCPU;
     void putpixel(int x, int y, const float zValue, const vec3 &col = 1) {
         if (x < fboCPU->x_size && x >= 0 && y < fboCPU->y_size && y >= 0) {
@@ -229,6 +230,10 @@ class engine {
         // temp.normal = src.normal + (dst.normal - src.normal) * alpha;
     }
 
+    vec4 interpolate(const vec4 &src, const vec4 &dst, float alpha) {
+        return src + (dst - src) * alpha;
+    }
+
   public:
     engine(const uint32_t &x, const uint32_t &y) {
         fboCPU = new framebuffer(x, y);
@@ -270,7 +275,8 @@ class engine {
     }
 
     void drawTraingles(const std::vector<vec4> &cube,
-                       const std::vector<uint32_t> &indices) {
+                       const std::vector<uint32_t> &index_buffer,
+                       const std::vector<vec4> &normals) {
 
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
@@ -288,9 +294,9 @@ class engine {
 
                 /* camera vanda paxadi paro vane aile lai puraai traingle nai
                  * display nagarne */
-                if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
-                    continue;
-                }
+                // if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
+                //     continue;
+                // }
 
                 vec3 normal = vec3::normalize(vec3::cross(
                     vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
@@ -312,63 +318,84 @@ class engine {
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
 
-                float window_width = 640;
-                float window_height = 480;
+                if (vertex1.x > vertex1.w && vertex2.x > vertex2.w &&
+                    vertex3.x > vertex3.w) {
+                    continue;
+                }
+                if (vertex1.x < -vertex1.w && vertex2.x < -vertex2.w &&
+                    vertex3.x < -vertex3.w) {
+                    continue;
+                }
+                if (vertex1.y > vertex1.w && vertex2.y > vertex2.w &&
+                    vertex3.y > vertex3.w) {
+                    continue;
+                }
+                if (vertex1.y < -vertex1.w && vertex2.y < -vertex2.w &&
+                    vertex3.y < -vertex3.w) {
+                    continue;
+                }
+                if (vertex1.z > vertex1.w && vertex2.z > vertex2.w &&
+                    vertex3.z > vertex3.w) {
+                    continue;
+                }
+                if (vertex1.w < nearPlane && vertex2.w < nearPlane &&
+                    vertex3.w < nearPlane) {
+                    continue;
+                }
+                const auto Clip1 = [this, normals, i](vec4 &v0, vec4 &v1,
+                                                      vec4 &v2) {
+                    // calculate alpha values for getting adjusted vertices
+                    const float alphaA = (-v0.z) / (v1.z - v0.z);
+                    const float alphaB = (-v0.z) / (v2.z - v0.z);
+                    // interpolate to get v0a and v0b
+                    const auto v0a = interpolate(v0, v1, alphaA);
+                    const auto v0b = interpolate(v0, v2, alphaB);
+                    // draw triangles
+                    foo(v0a, v1, v2, normals, i);
+                    foo(v0b, v0a, v2, normals, i);
+                };
+                const auto Clip2 = [this, normals, i](vec4 &v0, vec4 &v1,
+                                                      vec4 &v2) {
+                    // calculate alpha values for getting adjusted vertices
+                    const float alpha0 = (-v0.z) / (v2.z - v0.z);
+                    const float alpha1 = (-v1.z) / (v2.z - v1.z);
+                    // interpolate to get v0a and v0b
+                    v0 = interpolate(v0, v2, alpha0);
+                    v1 = interpolate(v1, v2, alpha1);
+                    // draw triangles
+                    foo(v0, v1, v2, normals, i);
+                };
 
-                draw_bresenham_adjusted(
-                    (int)round(((vertex1.x / vertex1.w) + 1) * window_width /
-                                   2 -
-                               window_width / 2),
-                    (int)round(((vertex1.y / vertex1.w) + 1) * window_height /
-                                   2 -
-                               window_height / 2),
-                    (int)round(((vertex2.x / vertex2.w) + 1) * window_width /
-                                   2 -
-                               window_width / 2),
-                    (int)round(((vertex2.y / vertex2.w) + 1) * window_height /
-                                   2 -
-                               window_height / 2),
-                    zValue);
-
-                draw_bresenham_adjusted(
-                    (int)round(((vertex2.x / vertex2.w) + 1) * window_width /
-                                   2 -
-                               window_width / 2),
-                    (int)round(((vertex2.y / vertex2.w) + 1) * window_height /
-                                   2 -
-                               window_height / 2),
-                    (int)round(((vertex3.x / vertex3.w) + 1) * window_width /
-                                   2 -
-                               window_width / 2),
-                    (int)round(((vertex3.y / vertex3.w) + 1) * window_height /
-                                   2 -
-                               window_height / 2),
-                    zValue);
-
-                draw_bresenham_adjusted(
-                    (int)round(((vertex1.x / vertex1.w) + 1) * window_width /
-                                   2 -
-                               window_width / 2),
-                    (int)round(((vertex1.y / vertex1.w) + 1) * window_height /
-                                   2 -
-                               window_height / 2),
-                    (int)round(((vertex3.x / vertex3.w) + 1) * window_width /
-                                   2 -
-                               window_width / 2),
-                    (int)round(((vertex3.y / vertex3.w) + 1) * window_height /
-                                   2 -
-                               window_height / 2),
-                    zValue);
+                if (vertex1.w < nearPlane) {
+                    if (vertex2.w < nearPlane) {
+                        Clip2(vertex1, vertex2, vertex3);
+                    } else if (vertex3.w < nearPlane) {
+                        Clip2(vertex1, vertex3, vertex2);
+                    } else {
+                        Clip1(vertex1, vertex2, vertex3);
+                    }
+                } else if (vertex2.w < nearPlane) {
+                    if (vertex3.w < nearPlane) {
+                        Clip2(vertex2, vertex3, vertex1);
+                    } else {
+                        Clip1(vertex2, vertex1, vertex3);
+                    }
+                } else if (vertex3.w < nearPlane) {
+                    Clip1(vertex3, vertex1, vertex2);
+                } else // no near clipping necessary
+                {
+                    foo(vertex1, vertex2, vertex3, normals, i);
+                }
             }
         }
     }
 
     void rasterize(const std::vector<vec4> &cube,
-                   const std::vector<uint32_t> &indices,
+                   const std::vector<uint32_t> &index_buffer,
                    const std::vector<vec4> &normals) {
-
+        indices = index_buffer;
         std::vector<vec3> color(3);
-        std::vector<MyVertex> traingle = std::vector<MyVertex>(3);
+
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
             vec4 vertex1 = cube[indices[i]];
@@ -378,14 +405,14 @@ class engine {
             /* this if condition is completely for testing purpose, it helps to
              * check how each traingle are drawn */
             int filter = 1;
-            if (filter or (indices[i] == 7 and indices[i + 1] == 6 and
-                           indices[i + 2] == 8)) {
+            if (filter or (indices[i] == 3 and indices[i + 1] == 8 and
+                           indices[i + 2] == 4)) {
 
                 /* camera vanda paxadi paro vane aile lai puraai traingle nai
                  * display nagarne */
-                if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
-                    continue;
-                }
+                // if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
+                //     continue;
+                // }
 
                 vec3 normal = vec3::normalize(vec3::cross(
                     vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
@@ -397,7 +424,7 @@ class engine {
                  * be drawn */
                 auto temp = vec3::dot(normal, vertex1);
                 if (temp <= 0) {
-                    continue;
+                    // continue;
                 }
 
                 /*  for testing */
@@ -408,97 +435,177 @@ class engine {
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
 
-                float window_width = 640;
-                float window_height = 480;
-
-                traingle[0].position =
-                    vec3((int)round(((vertex1.x / vertex1.w) + 1) *
-                                        window_width / 2 -
-                                    window_width / 2),
-                         (int)round(((vertex1.y / vertex1.w) + 1) *
-                                        window_height / 2 -
-                                    window_height / 2),
-                         vertex1.w);
-
-                traingle[1].position =
-                    vec3((int)round(((vertex2.x / vertex2.w) + 1) *
-                                        window_width / 2 -
-                                    window_width / 2),
-                         (int)round(((vertex2.y / vertex2.w) + 1) *
-                                        window_height / 2 -
-                                    window_height / 2),
-                         vertex2.w);
-
-                traingle[2].position =
-                    vec3((int)round(((vertex3.x / vertex3.w) + 1) *
-                                        window_width / 2 -
-                                    window_width / 2),
-                         (int)round(((vertex3.y / vertex3.w) + 1) *
-                                        window_height / 2 -
-                                    window_height / 2),
-                         vertex3.w);
-
-                auto color1 = vec3(0, 1, 0);
-                auto lightPos = vec3(0, 0, 0);
-
-                auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
-                auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
-                auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
-                // auto a=normal;
-
-                // auto intensity1 = lightDir1 * normal;
-                // auto intensity2 = lightDir2 * normal;
-                // auto intensity3 = lightDir3 * normal;
-
-                auto intensity1 = lightDir1 * normals[indices[i]];
-                auto intensity2 = lightDir2 * normals[indices[i + 1]];
-                auto intensity3 = lightDir3 * normals[indices[i + 2]];
-
-                traingle[0].color = color1 * intensity1;
-                traingle[1].color = color1 * intensity2;
-                traingle[2].color = color1 * intensity3;
-
-                sort(traingle.begin(), traingle.end(), sortcol);
-
-                if (traingle[0].position.y ==
-                    traingle[1].position.y) // natural flat top
-                {
-                    // sorting top vertices by x
-                    if (traingle[1].position.x < traingle[0].position.x)
-                        std::swap(traingle[0], traingle[1]);
-
-                    fillTopFlatTriangle(traingle[0], traingle[1], traingle[2]);
-                } else if (traingle[1].position.y ==
-                           traingle[2].position.y) // natural flat bottom
-                {
-                    // sorting bottom vertices by x
-                    if (traingle[2].position.x < traingle[1].position.x)
-                        std::swap(traingle[1], traingle[2]);
-
-                    fillBottomFlatTriangle(traingle[0], traingle[1],
-                                           traingle[2]);
-                } else // general triangle
-                {
-                    // find splitting vertex interpolant
-                    const float alphaSplit =
-                        (traingle[1].position.y - traingle[0].position.y) /
-                        (traingle[2].position.y - traingle[0].position.y);
-
-                    MyVertex vi;
-                    interpolate(traingle[0], traingle[2], alphaSplit, vi);
-
-                    if (traingle[1].position.x < vi.position.x) // major right
-                    {
-
-                        fillBottomFlatTriangle(traingle[0], traingle[1], vi);
-                        fillTopFlatTriangle(traingle[1], vi, traingle[2]);
-                    } else // major leftzValue,
-                    {
-
-                        fillBottomFlatTriangle(traingle[0], vi, traingle[1]);
-                        fillTopFlatTriangle(vi, traingle[1], traingle[2]);
-                    }
+                if (vertex1.x > vertex1.w && vertex2.x > vertex2.w &&
+                    vertex3.x > vertex3.w) {
+                    continue;
                 }
+                if (vertex1.x < -vertex1.w && vertex2.x < -vertex2.w &&
+                    vertex3.x < -vertex3.w) {
+                    continue;
+                }
+                if (vertex1.y > vertex1.w && vertex2.y > vertex2.w &&
+                    vertex3.y > vertex3.w) {
+                    continue;
+                }
+                if (vertex1.y < -vertex1.w && vertex2.y < -vertex2.w &&
+                    vertex3.y < -vertex3.w) {
+                    continue;
+                }
+                if (vertex1.z > vertex1.w && vertex2.z > vertex2.w &&
+                    vertex3.z > vertex3.w) {
+                    continue;
+                }
+                if (vertex1.w < nearPlane && vertex2.w < nearPlane &&
+                    vertex3.w < nearPlane) {
+                    continue;
+                }
+                const auto Clip1 = [this, normals, i](vec4 &v0, vec4 &v1,
+                                                      vec4 &v2) {
+                    // calculate alpha values for getting adjusted vertices
+                    const float alphaA = (nearPlane - v0.w) / (v1.w - v0.w);
+                    const float alphaB = (nearPlane - v0.w) / (v2.w - v0.w);
+                    // interpolate to get v0a and v0b
+                    const auto v0a = interpolate(v0, v1, fabs(alphaA));
+                    const auto v0b = interpolate(v0, v2, fabs(alphaB));
+                    // draw triangles
+                    foo(v0a, v1, v2, normals, i);
+                    foo(v0b, v0a, v2, normals, i);
+                };
+                const auto Clip2 = [this, normals, i](vec4 &v0, vec4 &v1,
+                                                      vec4 &v2) {
+                    // calculate alpha values for getting adjusted vertices
+                    const float alpha0 = (v0.w - nearPlane) / (v2.w - v0.w);
+                    const float alpha1 = (v1.w - nearPlane) / (v2.w - v1.w);
+                    // interpolate to get v0a and v0b
+                    v0 = interpolate(v0, v2, fabs(alpha0));
+                    v1 = interpolate(v1, v2, fabs(alpha1));
+                    // draw triangles
+                    foo(v0, v1, v2, normals, i);
+                };
+
+                if (showTraingle) {
+                    std::cout << "nearplane= " << nearPlane << std::endl;
+                    std::cout << "vertex1 =[" << vertex1.x << " ," << vertex1.y
+                              << ", " << vertex1.z << ", " << vertex1.w
+                              << std::endl;
+                    std::cout << "vertex2 =[" << vertex1.x << " ," << vertex2.y
+                              << ", " << vertex2.z << ", " << vertex2.w
+                              << std::endl;
+                    std::cout << "vertex3 =[" << vertex3.x << " ," << vertex3.y
+                              << ", " << vertex3.z << ", " << vertex3.w
+                              << std::endl;
+                    showTraingle = false;
+                }
+
+                if (vertex1.w < nearPlane) {
+                    if (vertex2.w < nearPlane) {
+                        Clip2(vertex1, vertex2, vertex3);
+                    } else if (vertex3.w < nearPlane) {
+                        Clip2(vertex1, vertex3, vertex2);
+                    } else {
+                        Clip1(vertex1, vertex2, vertex3);
+                    }
+                } else if (vertex2.w < nearPlane) {
+                    if (vertex3.w < nearPlane) {
+                        Clip2(vertex2, vertex3, vertex1);
+                    } else {
+                        Clip1(vertex2, vertex1, vertex3);
+                    }
+                } else if (vertex3.w < nearPlane) {
+                    Clip1(vertex3, vertex1, vertex2);
+                } else // no near clipping necessary
+                {
+                    foo(vertex1, vertex2, vertex3, normals, i);
+                }
+            }
+        }
+    }
+    void foo(const vec4 &vertex1, const vec4 &vertex2, const vec4 &vertex3,
+             const std::vector<vec4> &normals, const int &i) {
+        float window_width = 640;
+        float window_height = 480;
+        std::vector<MyVertex> traingle = std::vector<MyVertex>(3);
+        traingle[0].position =
+            vec3((int)round(((vertex1.x / vertex1.w) + 1) * window_width / 2 -
+                            window_width / 2),
+                 (int)round(((vertex1.y / vertex1.w) + 1) * window_height / 2 -
+                            window_height / 2),
+                 vertex1.w);
+
+        traingle[1].position =
+            vec3((int)round(((vertex2.x / vertex2.w) + 1) * window_width / 2 -
+                            window_width / 2),
+                 (int)round(((vertex2.y / vertex2.w) + 1) * window_height / 2 -
+                            window_height / 2),
+                 vertex2.w);
+
+        traingle[2].position =
+            vec3((int)round(((vertex3.x / vertex3.w) + 1) * window_width / 2 -
+                            window_width / 2),
+                 (int)round(((vertex3.y / vertex3.w) + 1) * window_height / 2 -
+                            window_height / 2),
+                 vertex3.w);
+
+        auto color1 = vec3(0, 1, 0);
+        auto lightPos = vec3(0, 0, 0);
+        vec3 normal = vec3::normalize(
+            vec3::cross(vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
+
+        auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
+        auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
+        auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
+        // auto a=normal;
+
+        auto intensity1 = lightDir1 * normal;
+        auto intensity2 = lightDir2 * normal;
+        auto intensity3 = lightDir3 * normal;
+
+        // auto intensity1 = lightDir1 * normals[indices[i]];
+        // auto intensity2 = lightDir2 * normals[indices[i + 1]];
+        // auto intensity3 = lightDir3 * normals[indices[i + 2]];
+
+        traingle[0].color = color1 * 1;
+        traingle[1].color = color1 * 1;
+        traingle[2].color = color1 * 1;
+
+        sort(traingle.begin(), traingle.end(), sortcol);
+
+        if (traingle[0].position.y ==
+            traingle[1].position.y) // natural flat top
+        {
+            // sorting top vertices by x
+            if (traingle[1].position.x < traingle[0].position.x)
+                std::swap(traingle[0], traingle[1]);
+
+            fillTopFlatTriangle(traingle[0], traingle[1], traingle[2]);
+        } else if (traingle[1].position.y ==
+                   traingle[2].position.y) // natural flat bottom
+        {
+            // sorting bottom vertices by x
+            if (traingle[2].position.x < traingle[1].position.x)
+                std::swap(traingle[1], traingle[2]);
+
+            fillBottomFlatTriangle(traingle[0], traingle[1], traingle[2]);
+        } else // general triangle
+        {
+            // find splitting vertex interpolant
+            const float alphaSplit =
+                (traingle[1].position.y - traingle[0].position.y) /
+                (traingle[2].position.y - traingle[0].position.y);
+
+            MyVertex vi;
+            interpolate(traingle[0], traingle[2], alphaSplit, vi);
+
+            if (traingle[1].position.x < vi.position.x) // major right
+            {
+
+                fillBottomFlatTriangle(traingle[0], traingle[1], vi);
+                fillTopFlatTriangle(traingle[1], vi, traingle[2]);
+            } else // major leftzValue,
+            {
+
+                fillBottomFlatTriangle(traingle[0], vi, traingle[1]);
+                fillTopFlatTriangle(vi, traingle[1], traingle[2]);
             }
         }
     }

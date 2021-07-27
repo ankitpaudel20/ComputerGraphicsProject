@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     float rotation_angle = 0;
     auto lastframe = std::chrono::high_resolution_clock::now();
 
-    auto cube = Model::loadModel_obj(path + "/cyborg.obj", "cyborg");
+    auto cube = Model::loadModel_obj(path + "/cube.obj", "cyborg");
     std::vector<vec4> vertices;
     std::vector<uint32_t> indices;
     std::vector<vec4> normals;
@@ -118,16 +118,15 @@ int main(int argc, char **argv) {
      * so, 0.1f here means z plane lies in z=-0.1f but we specify only
      * distance(i.e positive value) same goes with farPlane
      */
-    float nearPlane = 0.1f;
-    float farPlane = 10.0f;
+
     while (!glfwWindowShouldClose(window)) {
 
         deltatime = std::chrono::duration_cast<std::chrono::microseconds>(
                         std::chrono::high_resolution_clock::now() - lastframe)
                         .count();
-        std::cout << "FPS:" << 1000000 / deltatime << std::endl;
+        // std::cout << "FPS:" << 1000000 / deltatime << std::endl;
         lastframe = std::chrono::high_resolution_clock::now();
-
+        // std::cout << "near plane" << nearPlane << std::endl;
         glfwPollEvents();
         processHoldEvent(window);
 
@@ -142,8 +141,8 @@ int main(int argc, char **argv) {
 
         auto translate = trans::translation(vec3(3, 0, 0));
 
-        mvp_matrix = trans::scaling3d(vec3(0.3, 0.3, 0.3)) *
-                     trans::y_rotation(rotation_angle);
+        mvp_matrix =
+            trans::scaling3d(vec3(1, 1, 1)) * trans::y_rotation(rotation_angle);
         // auto t1 = trans::translation(vec3(1, 0, 0));
         // auto t2 = trans::translation(vec3(-1.0, 0, 0));
         // auto rotate_y = trans::y_rotation(rotation_angle);
@@ -184,7 +183,7 @@ int main(int argc, char **argv) {
             // graphicsEngine->rasterize(vertices2, indices);
 
         } else {
-            graphicsEngine->drawTraingles(vertices1, indices);
+            graphicsEngine->drawTraingles(vertices1, indices, normals);
             // graphicsEngine->drawTraingles(vertices2, indices);
         }
         // graphicsEngine->rasterize(vertices2, indices);
