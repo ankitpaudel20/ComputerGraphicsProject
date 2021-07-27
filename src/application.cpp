@@ -143,6 +143,7 @@ int main(int argc, char **argv) {
 
         mvp_matrix =
             trans::scaling3d(vec3(1, 1, 1)) * trans::y_rotation(rotation_angle);
+        //  trans::x_rotation(rotation_angle);
         // auto t1 = trans::translation(vec3(1, 0, 0));
         // auto t2 = trans::translation(vec3(-1.0, 0, 0));
         // auto rotate_y = trans::y_rotation(rotation_angle);
@@ -154,7 +155,8 @@ int main(int argc, char **argv) {
         // std::cout << "mx: " << mx << std::endl;
         // std::cout << "my: " << my << std::endl;
         // auto view =
-        //     trans::lookAt(cam.eye, cam.eye + cam.getViewDir(), cam.getUp());
+        //     trans::lookAt(cam.eye, cam.eye + cam.getViewDir(),
+        //     cam.getUp());
         mvp_matrix =
             trans::lookAt(cam.eye, cam.eye + cam.getViewDir(), cam.getUp()) *
             mvp_matrix;
@@ -183,7 +185,7 @@ int main(int argc, char **argv) {
             // graphicsEngine->rasterize(vertices2, indices);
 
         } else {
-            graphicsEngine->drawTraingles(vertices1, indices, normals);
+            graphicsEngine->drawTraingles(vertices1, indices);
             // graphicsEngine->drawTraingles(vertices2, indices);
         }
         // graphicsEngine->rasterize(vertices2, indices);

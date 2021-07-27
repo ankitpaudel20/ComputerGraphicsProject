@@ -275,8 +275,7 @@ class engine {
     }
 
     void drawTraingles(const std::vector<vec4> &cube,
-                       const std::vector<uint32_t> &index_buffer,
-                       const std::vector<vec4> &normals) {
+                       const std::vector<uint32_t> &indices) {
 
         for (int i = 0; i < indices.size(); i += 3) {
             /* subtracting 1 because indices are 1 indexd not zero indexed */
@@ -307,7 +306,7 @@ class engine {
                 auto temp = vec3::dot(normal, vertex1);
 
                 if (temp <= 0) {
-                    continue;
+                    // continue;
                 }
 
                 /*  for testing */
@@ -317,6 +316,9 @@ class engine {
                 }
 
                 assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
+
+                float window_width = 640;
+                float window_height = 480;
 
                 if (vertex1.x > vertex1.w && vertex2.x > vertex2.w &&
                     vertex3.x > vertex3.w) {
@@ -342,29 +344,43 @@ class engine {
                     vertex3.w < nearPlane) {
                     continue;
                 }
-                const auto Clip1 = [this, normals, i](vec4 &v0, vec4 &v1,
-                                                      vec4 &v2) {
+                const auto Clip1 = [this, zValue, i](vec4 &v0, vec4 &v1,
+                                                     vec4 &v2) {
                     // calculate alpha values for getting adjusted vertices
-                    const float alphaA = (-v0.z) / (v1.z - v0.z);
-                    const float alphaB = (-v0.z) / (v2.z - v0.z);
+                    const float alphaA = (nearPlane - v0.w) / (v1.w - v0.w);
+                    const float alphaB = (nearPlane - v0.w) / (v2.w - v0.w);
                     // interpolate to get v0a and v0b
-                    const auto v0a = interpolate(v0, v1, alphaA);
-                    const auto v0b = interpolate(v0, v2, alphaB);
+                    const auto v0a = interpolate(v0, v1, fabs(alphaA));
+                    const auto v0b = interpolate(v0, v2, fabs(alphaB));
                     // draw triangles
-                    foo(v0a, v1, v2, normals, i);
-                    foo(v0b, v0a, v2, normals, i);
+                    bar(v0a, v1, v2, zValue, i);
+                    bar(v0b, v0a, v2, zValue, i);
                 };
-                const auto Clip2 = [this, normals, i](vec4 &v0, vec4 &v1,
-                                                      vec4 &v2) {
+                const auto Clip2 = [this, zValue, i](vec4 &v0, vec4 &v1,
+                                                     vec4 &v2) {
                     // calculate alpha values for getting adjusted vertices
-                    const float alpha0 = (-v0.z) / (v2.z - v0.z);
-                    const float alpha1 = (-v1.z) / (v2.z - v1.z);
+                    const float alpha0 = (v0.w - nearPlane) / (v2.w - v0.w);
+                    const float alpha1 = (v1.w - nearPlane) / (v2.w - v1.w);
                     // interpolate to get v0a and v0b
-                    v0 = interpolate(v0, v2, alpha0);
-                    v1 = interpolate(v1, v2, alpha1);
+                    v0 = interpolate(v0, v2, fabs(alpha0));
+                    v1 = interpolate(v1, v2, fabs(alpha1));
                     // draw triangles
-                    foo(v0, v1, v2, normals, i);
+                    bar(v0, v1, v2, zValue, i);
                 };
+
+                if (showTraingle) {
+                    std::cout << "nearplane= " << nearPlane << std::endl;
+                    std::cout << "vertex1 =[" << vertex1.x << " ," << vertex1.y
+                              << ", " << vertex1.z << ", " << vertex1.w
+                              << std::endl;
+                    std::cout << "vertex2 =[" << vertex1.x << " ," << vertex2.y
+                              << ", " << vertex2.z << ", " << vertex2.w
+                              << std::endl;
+                    std::cout << "vertex3 =[" << vertex3.x << " ," << vertex3.y
+                              << ", " << vertex3.z << ", " << vertex3.w
+                              << std::endl;
+                    showTraingle = false;
+                }
 
                 if (vertex1.w < nearPlane) {
                     if (vertex2.w < nearPlane) {
@@ -384,7 +400,7 @@ class engine {
                     Clip1(vertex3, vertex1, vertex2);
                 } else // no near clipping necessary
                 {
-                    foo(vertex1, vertex2, vertex3, normals, i);
+                    bar(vertex1, vertex2, vertex3, zValue, i);
                 }
             }
         }
@@ -608,5 +624,42 @@ class engine {
                 fillTopFlatTriangle(vi, traingle[1], traingle[2]);
             }
         }
+    }
+    void bar(const vec4 &vertex1, const vec4 &vertex2, const vec4 &vertex3,
+             const float &zValue, const int &i) {
+        float window_width = 640;
+        float window_height = 480;
+        draw_bresenham_adjusted(
+            (int)round(((vertex1.x / vertex1.w) + 1) * window_width / 2 -
+                       window_width / 2),
+            (int)round(((vertex1.y / vertex1.w) + 1) * window_height / 2 -
+                       window_height / 2),
+            (int)round(((vertex2.x / vertex2.w) + 1) * window_width / 2 -
+                       window_width / 2),
+            (int)round(((vertex2.y / vertex2.w) + 1) * window_height / 2 -
+                       window_height / 2),
+            zValue);
+
+        draw_bresenham_adjusted(
+            (int)round(((vertex2.x / vertex2.w) + 1) * window_width / 2 -
+                       window_width / 2),
+            (int)round(((vertex2.y / vertex2.w) + 1) * window_height / 2 -
+                       window_height / 2),
+            (int)round(((vertex3.x / vertex3.w) + 1) * window_width / 2 -
+                       window_width / 2),
+            (int)round(((vertex3.y / vertex3.w) + 1) * window_height / 2 -
+                       window_height / 2),
+            zValue);
+
+        draw_bresenham_adjusted(
+            (int)round(((vertex1.x / vertex1.w) + 1) * window_width / 2 -
+                       window_width / 2),
+            (int)round(((vertex1.y / vertex1.w) + 1) * window_height / 2 -
+                       window_height / 2),
+            (int)round(((vertex3.x / vertex3.w) + 1) * window_width / 2 -
+                       window_width / 2),
+            (int)round(((vertex3.y / vertex3.w) + 1) * window_height / 2 -
+                       window_height / 2),
+            zValue);
     }
 };
