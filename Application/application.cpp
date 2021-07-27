@@ -8,8 +8,6 @@
 #include "engine.h"
 #include "model.h"
 
-
-
 mat4f translate3d;
 mat4f scale3d;
 camera cam1;
@@ -37,7 +35,7 @@ static void error_callback(int error, const char *description) {
 }
 
 static bool captured = false;
-static int mx, my;
+static double mx, my;
 engine *graphicsEngine;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -55,7 +53,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             captured = false;
             break;
         case GLFW_KEY_2:
-            glfwSetCursorPos(window, mx, my);
+            glfwGetCursorPos(window, &mx, &my);
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             captured = true;
             break;
@@ -187,7 +185,7 @@ int main(int argc, char **argv) {
 
     auto path = searchRes();
 
-    auto model = Model::loadModel_obj(path + "/color/testcolored.obj", "arrow");
+    auto model = Model::loadModel_obj(path + "/color/testColored.obj", "arrow");
 
     float rotation_angle = 0;
     float view_angle = 0.0;
@@ -201,9 +199,8 @@ int main(int argc, char **argv) {
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->currentMaterial = &m;
     graphicsEngine->cullBackface = true;
-    graphicsEngine->cam =& cam1;
+    graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
-    
 
     auto lastframe = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
@@ -233,7 +230,6 @@ int main(int argc, char **argv) {
         std::cout << "camera Eye: " << cam1.eye << std::endl;
         std::cout << "camera up: " << cam1.getUp() << std::endl;
         std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
-        
 
         for (size_t i = 0; i < 4; i++) {
             printf("\033[F");
@@ -269,11 +265,11 @@ int main(int argc, char **argv) {
         // graphicsEngine->drawTrianglesRasterized(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, mat4());
 
         //m.diffuseColor = color(0, 255, 0);
-        for (auto & mesh:model->meshes) {
+        for (auto &mesh : model->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, mat4f());
             //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, cam1, mat4());
-        }      
+        }
         //graphicsEngine->currentMaterial = &m;
         //graphicsEngine->drawTrianglesRasterized(square, square_indices, cam1, translate3d);
         // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1, 0, 0));
