@@ -21,6 +21,7 @@ float nearPlane = 0.10f;
 float farPlane = 10.0f;
 bool showTraingle = false;
 bool BACK_FACE_CULLING = true;
+bool SHOW_FLAT_TRIANGLES;
 
 uint32_t deltatime;
 int window_width, window_height;
@@ -64,6 +65,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
             break;
         case GLFW_KEY_B:
             BACK_FACE_CULLING = !BACK_FACE_CULLING;
+            break;
+        case GLFW_KEY_F:
+            SHOW_FLAT_TRIANGLES = !SHOW_FLAT_TRIANGLES;
             break;
         default:
             break;

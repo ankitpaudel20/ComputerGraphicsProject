@@ -8,4 +8,5 @@ extern float nearPlane;
 extern float farPlane;
 extern bool showTraingle;
 extern bool BACK_FACE_CULLING;
+extern bool SHOW_FLAT_TRIANGLES;
 #endif

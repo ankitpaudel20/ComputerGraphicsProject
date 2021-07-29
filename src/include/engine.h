@@ -13,6 +13,7 @@ struct MyVertex {
 bool sortcol(const MyVertex &v1, const MyVertex &v2) {
     return v1.position.y < v2.position.y;
 }
+bool sortcol1(const vec2 &v1, const vec2 &v2) { return v1.y < v2.y; }
 struct framebuffer {
     float *zBuffer;
     bool *grid;
@@ -235,6 +236,9 @@ class engine {
     vec4 interpolate(const vec4 &src, const vec4 &dst, float alpha) {
         return src + (dst - src) * alpha;
     }
+    vec2 interpolate(const vec2 &src, const vec2 &dst, float alpha) {
+        return src + (dst - src) * alpha;
+    }
 
   public:
     engine(const uint32_t &x, const uint32_t &y) {
@@ -279,130 +283,256 @@ class engine {
     void drawTraingles(const std::vector<vec4> &cube,
                        const std::vector<uint32_t> &indices) {
 
-        for (int i = 0; i < indices.size(); i += 3) {
-            /* subtracting 1 because indices are 1 indexd not zero indexed */
-            vec4 vertex1 = cube[indices[i]];
-            vec4 vertex2 = cube[indices[i + 1]];
-            vec4 vertex3 = cube[indices[i + 2]];
+        if (SHOW_FLAT_TRIANGLES) {
+            for (int i = 0; i < indices.size(); i += 3) {
+                /* subtracting 1 because indices are 1 indexd not zero indexed
+                 */
+                vec4 vertex1 = cube[indices[i]];
+                vec4 vertex2 = cube[indices[i + 1]];
+                vec4 vertex3 = cube[indices[i + 2]];
 
-            auto zValue = vertex1.z;
+                /* this if condition is completely for testing purpose, it helps
+                 * to check how each traingle are drawn */
+                int filter = 1;
+                if (filter or (indices[i] == 7 and indices[i + 1] == 6 and
+                               indices[i + 2] == 8)) {
 
-            /* this if condition is completely for testing purpose, it helps to
-             * check how each traingle are drawn */
-            int filter = 1;
-            if (filter or (indices[i] == 3 and indices[i + 1] == 8 and
-                           indices[i + 2] == 4)) {
+                    /* camera vanda paxadi paro vane aile lai puraai traingle
+                     * nai display nagarne */
+                    if (vertex1.z / vertex1.w > 1 or
+                        vertex3.z / vertex3.w > 1 or
+                        vertex2.z / vertex2.w > 1) {
+                        continue;
+                    }
 
-                /* camera vanda paxadi paro vane aile lai puraai traingle nai
-                 * display nagarne */
-                // if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
-                //     continue;
-                // }
+                    vec3 normal = vec3::normalize(vec3::cross(
+                        vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
 
-                vec3 normal = vec3::normalize(vec3::cross(
-                    vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
+                    // normal=
 
-                /* calculate the normal here and if the normal and camera
-                 * direction dot product gives positive the trangle should not
-                 * be drawn */
-                auto temp = vec3::dot(normal, vertex1);
+                    /* calculate the normal here and if the normal and camera
+                     * direction dot product gives positive the trangle should
+                     * not be drawn */
+                    auto temp = vec3::dot(normal, vertex1);
+                    if (temp <= 0) {
+                        continue;
+                    }
 
-                if (temp <= 0 and BACK_FACE_CULLING) {
-                    continue;
+                    /*  for testing */
+                    if (!filter) {
+                        std::cout << "normal=" << normal;
+                        std::cout << "dot=" << temp << std::endl;
+                    }
+
+                    assert(vertex1.w != 0 and vertex2.w != 0 and
+                           vertex3.w != 0);
+
+                    float window_width = 640;
+                    float window_height = 480;
+
+                    std::vector<vec2> traingle = std::vector<vec2>(3);
+                    traingle[0] =
+                        vec2((int)round(((vertex1.x / vertex1.w) + 1) *
+                                            window_width / 2 -
+                                        window_width / 2),
+                             (int)round(((vertex1.y / vertex1.w) + 1) *
+                                            window_height / 2 -
+                                        window_height / 2));
+
+                    traingle[1] =
+                        vec2((int)round(((vertex2.x / vertex2.w) + 1) *
+                                            window_width / 2 -
+                                        window_width / 2),
+                             (int)round(((vertex2.y / vertex2.w) + 1) *
+                                            window_height / 2 -
+                                        window_height / 2));
+
+                    traingle[2] =
+                        vec2((int)round(((vertex3.x / vertex3.w) + 1) *
+                                            window_width / 2 -
+                                        window_width / 2),
+                             (int)round(((vertex3.y / vertex3.w) + 1) *
+                                            window_height / 2 -
+                                        window_height / 2));
+
+                    auto color = vec3(1, 0, 0);
+
+                    sort(traingle.begin(), traingle.end(), sortcol1);
+                    if (traingle[0].y == traingle[1].y) // natural flat top
+                    {
+                        // sorting top vertices by x
+                        if (traingle[1].x < traingle[0].x)
+                            std::swap(traingle[0], traingle[1]);
+
+                        drawFlatTriangle(traingle[0], traingle[1], traingle[2],
+                                         color);
+                    } else if (traingle[1].y ==
+                               traingle[2].y) // natural flat bottom
+                    {
+                        // sorting bottom vertices by x
+                        if (traingle[2].x < traingle[1].x)
+                            std::swap(traingle[1], traingle[2]);
+
+                        drawFlatTriangle(traingle[0], traingle[1], traingle[2],
+                                         color);
+                    } else // general triangle
+                    {
+                        // find splitting vertex interpolant
+                        const float alphaSplit =
+                            (traingle[1].y - traingle[0].y) /
+                            (traingle[2].y - traingle[0].y);
+                        const auto vi = interpolate(
+                            vec2(traingle[0]), vec2(traingle[2]), alphaSplit);
+
+                        if (traingle[1].x < vi.x) // major right
+                        {
+                            drawFlatTriangle(traingle[0], traingle[1], vi,
+                                             color);
+                            drawFlatTriangle(traingle[1], vi, traingle[2],
+                                             color);
+                        } else // major left
+                        {
+                            drawFlatTriangle(traingle[0], vi, traingle[1],
+                                             color);
+                            drawFlatTriangle(vi, traingle[1], traingle[2],
+                                             color);
+                        }
+                    }
                 }
+            }
+        } else {
 
-                /*  for testing */
-                if (!filter) {
-                    std::cout << "normal=" << normal;
-                    std::cout << "dot=" << temp << std::endl;
-                }
+            for (int i = 0; i < indices.size(); i += 3) {
+                /* subtracting 1 because indices are 1 indexd not zero
+                 * indexed
+                 */
+                vec4 vertex1 = cube[indices[i]];
+                vec4 vertex2 = cube[indices[i + 1]];
+                vec4 vertex3 = cube[indices[i + 2]];
 
-                assert(vertex1.w != 0 and vertex2.w != 0 and vertex3.w != 0);
+                auto zValue = vertex1.z;
 
-                float window_width = 640;
-                float window_height = 480;
+                /* this if condition is completely for testing purpose, it
+                 * helps to check how each traingle are drawn */
+                int filter = 1;
+                if (filter or (indices[i] == 3 and indices[i + 1] == 8 and
+                               indices[i + 2] == 4)) {
 
-                if (vertex1.x > vertex1.w && vertex2.x > vertex2.w &&
-                    vertex3.x > vertex3.w) {
-                    continue;
-                }
-                if (vertex1.x < -vertex1.w && vertex2.x < -vertex2.w &&
-                    vertex3.x < -vertex3.w) {
-                    continue;
-                }
-                if (vertex1.y > vertex1.w && vertex2.y > vertex2.w &&
-                    vertex3.y > vertex3.w) {
-                    continue;
-                }
-                if (vertex1.y < -vertex1.w && vertex2.y < -vertex2.w &&
-                    vertex3.y < -vertex3.w) {
-                    continue;
-                }
-                if (vertex1.z > vertex1.w && vertex2.z > vertex2.w &&
-                    vertex3.z > vertex3.w) {
-                    continue;
-                }
-                if (vertex1.w < nearPlane && vertex2.w < nearPlane &&
-                    vertex3.w < nearPlane) {
-                    continue;
-                }
-                const auto Clip1 = [this, zValue, i](vec4 &v0, vec4 &v1,
-                                                     vec4 &v2) {
-                    // calculate alpha values for getting adjusted vertices
-                    const float alphaA = (nearPlane - v0.w) / (v1.w - v0.w);
-                    const float alphaB = (nearPlane - v0.w) / (v2.w - v0.w);
-                    // interpolate to get v0a and v0b
-                    const auto v0a = interpolate(v0, v1, fabs(alphaA));
-                    const auto v0b = interpolate(v0, v2, fabs(alphaB));
-                    // draw triangles
-                    bar(v0a, v1, v2, zValue, i);
-                    bar(v0b, v0a, v2, zValue, i);
-                };
-                const auto Clip2 = [this, zValue, i](vec4 &v0, vec4 &v1,
-                                                     vec4 &v2) {
-                    // calculate alpha values for getting adjusted vertices
-                    const float alpha0 = (v0.w - nearPlane) / (v2.w - v0.w);
-                    const float alpha1 = (v1.w - nearPlane) / (v2.w - v1.w);
-                    // interpolate to get v0a and v0b
-                    v0 = interpolate(v0, v2, fabs(alpha0));
-                    v1 = interpolate(v1, v2, fabs(alpha1));
-                    // draw triangles
-                    bar(v0, v1, v2, zValue, i);
-                };
+                    /* camera vanda paxadi paro vane aile lai puraai
+                     * traingle nai display nagarne */
+                    // if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w <
+                    // 0.1) {
+                    //     continue;
+                    // }
 
-                if (showTraingle) {
-                    std::cout << "nearplane= " << nearPlane << std::endl;
-                    std::cout << "vertex1 =[" << vertex1.x << " ," << vertex1.y
-                              << ", " << vertex1.z << ", " << vertex1.w
-                              << std::endl;
-                    std::cout << "vertex2 =[" << vertex1.x << " ," << vertex2.y
-                              << ", " << vertex2.z << ", " << vertex2.w
-                              << std::endl;
-                    std::cout << "vertex3 =[" << vertex3.x << " ," << vertex3.y
-                              << ", " << vertex3.z << ", " << vertex3.w
-                              << std::endl;
-                    showTraingle = false;
-                }
+                    vec3 normal = vec3::normalize(vec3::cross(
+                        vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
 
-                if (vertex1.w < nearPlane) {
-                    if (vertex2.w < nearPlane) {
-                        Clip2(vertex1, vertex2, vertex3);
+                    /* calculate the normal here and if the normal and
+                     * camera direction dot product gives positive the
+                     * trangle should not be drawn */
+                    auto temp = vec3::dot(normal, vertex1);
+
+                    if (temp <= 0 and BACK_FACE_CULLING) {
+                        continue;
+                    }
+
+                    /*  for testing */
+                    if (!filter) {
+                        std::cout << "normal=" << normal;
+                        std::cout << "dot=" << temp << std::endl;
+                    }
+
+                    assert(vertex1.w != 0 and vertex2.w != 0 and
+                           vertex3.w != 0);
+
+                    float window_width = 640;
+                    float window_height = 480;
+
+                    if (vertex1.x > vertex1.w && vertex2.x > vertex2.w &&
+                        vertex3.x > vertex3.w) {
+                        continue;
+                    }
+                    if (vertex1.x < -vertex1.w && vertex2.x < -vertex2.w &&
+                        vertex3.x < -vertex3.w) {
+                        continue;
+                    }
+                    if (vertex1.y > vertex1.w && vertex2.y > vertex2.w &&
+                        vertex3.y > vertex3.w) {
+                        continue;
+                    }
+                    if (vertex1.y < -vertex1.w && vertex2.y < -vertex2.w &&
+                        vertex3.y < -vertex3.w) {
+                        continue;
+                    }
+                    if (vertex1.z > vertex1.w && vertex2.z > vertex2.w &&
+                        vertex3.z > vertex3.w) {
+                        continue;
+                    }
+                    if (vertex1.w < nearPlane && vertex2.w < nearPlane &&
+                        vertex3.w < nearPlane) {
+                        continue;
+                    }
+                    const auto Clip1 = [this, zValue, i](vec4 &v0, vec4 &v1,
+                                                         vec4 &v2) {
+                        // calculate alpha values for getting adjusted
+                        // vertices
+                        const float alphaA = (nearPlane - v0.w) / (v1.w - v0.w);
+                        const float alphaB = (nearPlane - v0.w) / (v2.w - v0.w);
+                        // interpolate to get v0a and v0b
+                        const auto v0a = interpolate(v0, v1, fabs(alphaA));
+                        const auto v0b = interpolate(v0, v2, fabs(alphaB));
+                        // draw triangles
+                        bar(v0a, v1, v2, zValue, i);
+                        bar(v0b, v0a, v2, zValue, i);
+                    };
+                    const auto Clip2 = [this, zValue, i](vec4 &v0, vec4 &v1,
+                                                         vec4 &v2) {
+                        // calculate alpha values for getting adjusted
+                        // vertices
+                        const float alpha0 = (v0.w - nearPlane) / (v2.w - v0.w);
+                        const float alpha1 = (v1.w - nearPlane) / (v2.w - v1.w);
+                        // interpolate to get v0a and v0b
+                        v0 = interpolate(v0, v2, fabs(alpha0));
+                        v1 = interpolate(v1, v2, fabs(alpha1));
+                        // draw triangles
+                        bar(v0, v1, v2, zValue, i);
+                    };
+
+                    if (showTraingle) {
+                        std::cout << "nearplane= " << nearPlane << std::endl;
+                        std::cout << "vertex1 =[" << vertex1.x << " ,"
+                                  << vertex1.y << ", " << vertex1.z << ", "
+                                  << vertex1.w << std::endl;
+                        std::cout << "vertex2 =[" << vertex1.x << " ,"
+                                  << vertex2.y << ", " << vertex2.z << ", "
+                                  << vertex2.w << std::endl;
+                        std::cout << "vertex3 =[" << vertex3.x << " ,"
+                                  << vertex3.y << ", " << vertex3.z << ", "
+                                  << vertex3.w << std::endl;
+                        showTraingle = false;
+                    }
+
+                    if (vertex1.w < nearPlane) {
+                        if (vertex2.w < nearPlane) {
+                            Clip2(vertex1, vertex2, vertex3);
+                        } else if (vertex3.w < nearPlane) {
+                            Clip2(vertex1, vertex3, vertex2);
+                        } else {
+                            Clip1(vertex1, vertex2, vertex3);
+                        }
+                    } else if (vertex2.w < nearPlane) {
+                        if (vertex3.w < nearPlane) {
+                            Clip2(vertex2, vertex3, vertex1);
+                        } else {
+                            Clip1(vertex2, vertex1, vertex3);
+                        }
                     } else if (vertex3.w < nearPlane) {
-                        Clip2(vertex1, vertex3, vertex2);
-                    } else {
-                        Clip1(vertex1, vertex2, vertex3);
+                        Clip1(vertex3, vertex1, vertex2);
+                    } else // no near clipping necessary
+                    {
+                        bar(vertex1, vertex2, vertex3, zValue, i);
                     }
-                } else if (vertex2.w < nearPlane) {
-                    if (vertex3.w < nearPlane) {
-                        Clip2(vertex2, vertex3, vertex1);
-                    } else {
-                        Clip1(vertex2, vertex1, vertex3);
-                    }
-                } else if (vertex3.w < nearPlane) {
-                    Clip1(vertex3, vertex1, vertex2);
-                } else // no near clipping necessary
-                {
-                    bar(vertex1, vertex2, vertex3, zValue, i);
                 }
             }
         }
@@ -415,20 +545,22 @@ class engine {
         std::vector<vec3> color(3);
 
         for (int i = 0; i < indices.size(); i += 3) {
-            /* subtracting 1 because indices are 1 indexd not zero indexed */
+            /* subtracting 1 because indices are 1 indexd not zero indexed
+             */
             vec4 vertex1 = cube[indices[i]];
             vec4 vertex2 = cube[indices[i + 1]];
             vec4 vertex3 = cube[indices[i + 2]];
 
-            /* this if condition is completely for testing purpose, it helps to
-             * check how each traingle are drawn */
+            /* this if condition is completely for testing purpose, it helps
+             * to check how each traingle are drawn */
             int filter = 1;
             if (filter or (indices[i] == 3 and indices[i + 1] == 8 and
                            indices[i + 2] == 4)) {
 
-                /* camera vanda paxadi paro vane aile lai puraai traingle nai
-                 * display nagarne */
-                // if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w < 0.1) {
+                /* camera vanda paxadi paro vane aile lai puraai traingle
+                 * nai display nagarne */
+                // if (vertex1.w < 0.1 || vertex2.w < 0.1 || vertex3.w <
+                // 0.1) {
                 //     continue;
                 // }
 
@@ -438,8 +570,8 @@ class engine {
                 // vec3 normal(normals[indices[i]]);
 
                 /* calculate the normal here and if the normal and camera
-                 * direction dot product gives positive the trangle should not
-                 * be drawn */
+                 * direction dot product gives positive the trangle should
+                 * not be drawn */
                 auto temp = vec3::dot(normal, vertex1);
                 if (temp <= 0) {
                     // continue;
@@ -663,5 +795,14 @@ class engine {
             (int)round(((vertex3.y / vertex3.w) + 1) * window_height / 2 -
                        window_height / 2),
             zValue);
+    }
+    void drawFlatTriangle(vec2 vertex1, vec2 vertex2, vec2 vertex3,
+                          vec3 color) {
+        draw_bresenham_adjusted(vertex1.x, vertex1.y, vertex2.x, vertex2.y, 0,
+                                color);
+        draw_bresenham_adjusted(vertex2.x, vertex2.y, vertex3.x, vertex3.y, 0,
+                                color);
+        draw_bresenham_adjusted(vertex1.x, vertex1.y, vertex3.x, vertex3.y, 0,
+                                color);
     }
 };
