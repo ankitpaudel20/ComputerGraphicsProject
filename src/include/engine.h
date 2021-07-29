@@ -696,27 +696,42 @@ class engine {
                             window_height / 2),
                  vertex3.w);
 
-        auto color1 = vec3(0, 1, 0);
-        auto lightPos = vec3(0, 0, 0);
+        auto color = vec3(1, 0, 0);
+        // auto lightPos = vec3(0, 0, 0);
         vec3 normal = vec3::normalize(
             vec3::cross(vec3(vertex2 - vertex1), vec3(vertex3 - vertex1)));
 
-        auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
-        auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
-        auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
+        float ka = 0.1;
+        float kd = 0.5;
+        float ia = 0.8;
+        auto lightPos = vec3(5, 5, 5);
+
+        auto lightDir = vec3::normalize(vec3(vertex1) - lightPos);
+
+        // auto final = ;
+        // if (final < 0) {
+        //     final = 0;
+        // }
+        color = color * ia * ka +
+                color * std::max(0.0f, lightDir * normal) * kd * ia;
+
+        // auto lightDir1 = vec3::normalize(vec3(vertex1) - lightPos);
+        // auto lightDir2 = vec3::normalize(vec3(vertex2) - lightPos);
+        // auto lightDir3 = vec3::normalize(vec3(vertex3) - lightPos);
         // auto a=normal;
 
-        auto intensity1 = lightDir1 * normal;
-        auto intensity2 = lightDir2 * normal;
-        auto intensity3 = lightDir3 * normal;
+        /* one one lightDir is taken for flat shading */
+        // auto intensity1 = lightDir1 * normal;
+        // auto intensity2 = lightDir1 * normal;
+        // auto intensity3 = lightDir1 * normal;
 
         // auto intensity1 = lightDir1 * normals[indices[i]];
         // auto intensity2 = lightDir2 * normals[indices[i + 1]];
         // auto intensity3 = lightDir3 * normals[indices[i + 2]];
 
-        traingle[0].color = color1 * intensity1;
-        traingle[1].color = color1 * intensity2;
-        traingle[2].color = color1 * intensity3;
+        traingle[0].color = color;
+        traingle[1].color = color;
+        traingle[2].color = color;
 
         sort(traingle.begin(), traingle.end(), sortcol);
 
