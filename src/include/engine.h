@@ -139,8 +139,9 @@ class engine {
                         i, scanlineY, currentz1 + alpha * (i - (int)currentx1),
                         currentColor1 + color_alpha * (i - (int)currentx1));
                 } else {
-                    putpixel_adjusted(i, scanlineY, v1.position.z,
-                                      currentColor1);
+                    putpixel_adjusted(i, scanlineY,
+                                      currentz1 + alpha * (i - (int)currentx1),
+                                      v1.color);
                 }
             }
             // draw_bresenham_adjusted((int)currentx1, scanlineY,
@@ -203,8 +204,9 @@ class engine {
                         currentColor1 + color_alpha * (i - (int)currentx1));
                 } else {
 
-                    putpixel_adjusted(i, scanlineY, v1.position.z,
-                                      currentColor1);
+                    putpixel_adjusted(i, scanlineY,
+                                      currentz1 + alpha * (i - (int)currentx1),
+                                      v1.color);
                 }
             }
             // draw_bresenham_adjusted((int)currentx1, scputpixel_adjusted(i,
@@ -305,8 +307,8 @@ class engine {
                  * be drawn */
                 auto temp = vec3::dot(normal, vertex1);
 
-                if (temp <= 0) {
-                    // continue;
+                if (temp <= 0 and BACK_FACE_CULLING) {
+                    continue;
                 }
 
                 /*  for testing */
@@ -580,9 +582,9 @@ class engine {
         // auto intensity2 = lightDir2 * normals[indices[i + 1]];
         // auto intensity3 = lightDir3 * normals[indices[i + 2]];
 
-        traingle[0].color = color1 * 1;
-        traingle[1].color = color1 * 1;
-        traingle[2].color = color1 * 1;
+        traingle[0].color = color1 * intensity1;
+        traingle[1].color = color1 * intensity2;
+        traingle[2].color = color1 * intensity3;
 
         sort(traingle.begin(), traingle.end(), sortcol);
 

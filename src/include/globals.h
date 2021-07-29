@@ -7,4 +7,5 @@ extern bool gouraud_test;
 extern float nearPlane;
 extern float farPlane;
 extern bool showTraingle;
+extern bool BACK_FACE_CULLING;
 #endif
