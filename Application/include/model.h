@@ -425,8 +425,8 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                         std::cout << "texture file unable to load" << directory + materials[current_material_id].diffuse_texname << std::endl;
                         ASSERT(false);
                     }
-                    m1->material.diffuse.m_data = new unsigned char[m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp];
-                    memcpy(m1->material.diffuse.m_data, m_LocalBuffer, m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp * sizeof(unsigned char));
+                    m1->material.diffuse.m_data = new unsigned char[(size_t)m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp];
+                    memcpy(m1->material.diffuse.m_data, m_LocalBuffer, (size_t)m1->material.diffuse.w * m1->material.diffuse.h * m1->material.diffuse.m_bpp * sizeof(unsigned char));
                     stbi_image_free(m_LocalBuffer);
                 }
 
@@ -436,8 +436,8 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
                         std::cout << "texture file unable to load" << directory + materials[current_material_id].specular_texname << std::endl;
                         ASSERT(false);
                     }
-                    m1->material.specular.m_data = new unsigned char[m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp];
-                    memcpy(m1->material.specular.m_data, m_LocalBuffer, m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp * sizeof(unsigned char));
+                    m1->material.specular.m_data = new unsigned char[(size_t)m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp];
+                    memcpy(m1->material.specular.m_data, m_LocalBuffer, (size_t)m1->material.specular.w * m1->material.specular.h * m1->material.specular.m_bpp * sizeof(unsigned char));
                     stbi_image_free(m_LocalBuffer);
                 }
                 if (m1->material.diffuseColor == color(255)) {

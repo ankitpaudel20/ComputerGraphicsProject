@@ -427,7 +427,7 @@ struct engine {
         t[idx3] = Vertex2(Vertex(modelviewTransformed[idx3], points[idx3].normal, points[idx3].texCoord).perspectiveMul(per), modelTransformed[idx3]);
         triangles.emplace_back(t);
         t[idx2] = t[idx3];
-        t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + points[idx3] * u2, per), modelTransformed[idx1] + modelTransformed[idx3] * u2);
+        t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3]-points[idx1]) * u2, per), modelTransformed[idx1] + modelTransformed[idx3] * u2);
         triangles.emplace_back(std::move(t));
     }
 
@@ -444,21 +444,10 @@ struct engine {
         return I - N * 2.0 * vec3::dot(N, I);
     }
 
-    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
-        //auto dot = vec3::dot(normal, -dirlight.direction);
-        //auto diff = max(dot, 0.0f);
-        auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
-        //vec3 reflectDir = reflect(dirlight.direction, normal);
-        //dot = vec3::dot(viewdir, reflectDir);
-        //auto spec = pow(max(dot, 0.0), currentMaterial->shininess);
+    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {        
+        auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);      
         auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
-        //auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
-        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
-        //diffuse += dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
-        //color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
-        //if (specular.r()>0x40) {
-        //    //DEBUG_BREAK;
-        //}
+        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;       
         diffuse += (dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec);
         diffuse.a() = 255;
         return std::move(diffuse);
@@ -753,9 +742,8 @@ struct engine {
             t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), modelTransformed[1]);
             t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), modelTransformed[2]);
 
-            triangles.emplace_back(t);
+            triangles.emplace_back(std::move(t));
         }
-
         for (auto &tris : triangles) {
             draw_bresenham_adjusted(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y), roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y), color(0, 255, 0));
             draw_bresenham_adjusted(roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y), roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y), color(0, 255, 0));
@@ -763,10 +751,10 @@ struct engine {
         }
     }
 
-    void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const camera &cam, const mat4f &modelmat) {
+    void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         triangles.clear();
-        auto view = trans::lookAt(cam.eye, cam.eye + cam.getViewDir(), cam.getUp());
-        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam.FOV);
+        auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
+        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
         for (size_t i = 0; i < indices.size(); i += 3) {
             std::array<vec4, 3> modelviewTransformed;
             std::array<vec4, 3> modelTransformed;

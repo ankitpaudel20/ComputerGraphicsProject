@@ -193,9 +193,9 @@ int main(int argc, char **argv) {
     float angle_rotated = 0;
     float zvp = 50, zprp = -500;
 
-    cam1.eye = vec3(-4.11877, 3.28811, 2.87941);
-    cam1.changeDir(vec3(0.56935, -0.659947, -0.490215));
-    graphicsEngine->nearPlane = 2;
+    cam1.eye = vec3(5.93216, 2.89812, -3.64021);
+    cam1.changeDir(vec3(-0.780658, -0.400843, 0.479476));
+    graphicsEngine->nearPlane = 1;
     Material m;
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->currentMaterial = &m;
@@ -265,19 +265,19 @@ int main(int argc, char **argv) {
         // graphicsEngine->drawTriangles(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, translate3d);
         // graphicsEngine->drawTrianglesRasterized(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, mat4());
 
-        //m.diffuseColor = color(0, 255, 0);
+        m.diffuseColor = color(0, 255, 0);
         for (auto & mesh:colorCube->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, mat4f());
-            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
+            //graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices,  mat4f());
+            graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
         }   
         for (auto &mesh : textureBox->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, cam1, translate3d);
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
             //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
         }   
         //graphicsEngine->currentMaterial = &m;
-        //graphicsEngine->drawTrianglesRasterized(square, square_indices, cam1, translate3d);
+        //graphicsEngine->drawTrianglesRasterized(square, square_indices, translate3d);
         // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1, 0, 0));
         graphicsEngine->draw();
         // glClear(GL_COLOR_BUFFER_BIT);

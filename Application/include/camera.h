@@ -1,11 +1,6 @@
 #pragma once
 #include "transformations.h"
 
-struct Euler_angles
-{
-	float m_roll, m_yaw, m_pitch;
-};
-
 class camera
 {
 public:
