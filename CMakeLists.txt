@@ -20,7 +20,7 @@ else()
         message("Linked to Linux")
 
     elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)       
-        target_link_libraries(Application PRIVATE freeglut opengl32 glu32 glew32 glfw3)
+        target_link_libraries(Application PRIVATE  opengl32 glu32 glew32 glfw3)
         message("Linked to windows")
     endif ()
 endif()

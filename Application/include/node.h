@@ -1,6 +1,9 @@
+#pragma once
 #include "core.h"
 #include "transformations.h"
 #include <unordered_map>
+#include "drawable.h"
+
 
 ////
 // anything that can be transformed( has modelmatrix )
@@ -16,13 +19,13 @@ struct node
 
     void delpos(const vec3 &delta)
     {
-        translation = trans::translation((delta)) * translation;
+        translation = trans::translate((delta)) * translation;
         refreshModel();
     }
 
     void setpos(const vec3 &position)
     {
-        translation = trans::translation(position);
+        translation = trans::translate(position);
         refreshModel();
     }
 

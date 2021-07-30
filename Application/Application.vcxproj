@@ -163,6 +163,7 @@
     <ClInclude Include="include\maths.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\node.h" />
+    <ClInclude Include="include\pointLight.h" />
     <ClInclude Include="include\transformations.h" />
     <ClInclude Include="vendor\GLFW\glfw3.h" />
     <ClInclude Include="vendor\GLFW\glfw3native.h" />

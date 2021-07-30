@@ -379,11 +379,6 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
         // Loop over faces(polygon)
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
 
-            // // Optional:vertex colors
-            // tinyobj::real_t red = attrib.colors[3 * size_t(idx.vertex_index) + 0];
-            // tinyobj::real_t green = attrib.colors[3 * size_t(idx.vertex_index) + 1];
-            // tinyobj::real_t blue = attrib.colors[3 * size_t(idx.vertex_index) + 2];
-
             // per-face material
             int current_material_id = shapes[s].mesh.material_ids[f];
             if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {

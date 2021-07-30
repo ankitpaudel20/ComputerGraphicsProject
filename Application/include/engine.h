@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include "material.h"
+#include "pointLight.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -21,7 +22,6 @@ inline int rounddouble(const double &in) {
 struct framebuffer {
     bool *grid;
     float *z;
-    //Vertex2* rasterFBO;
     color *colorlayer;
     size_t x_size, y_size;
     int xmax, xmin, ymax, ymin;
@@ -33,6 +33,7 @@ struct framebuffer {
         xmin = -xmax;
         ymax = y_size / 2;
         ymin = -ymax;
+
         clear();
     }
 
@@ -42,7 +43,7 @@ struct framebuffer {
         delete[] z;
     }
 
-    inline void clear() {
+    void clear() {
         for (uint32_t x = 0; x < x_size * y_size; ++x) {
             grid[x] = false;
             colorlayer[x] = color(0, 0, 0, 255);
@@ -51,8 +52,10 @@ struct framebuffer {
     }
 };
 
+//same as Vertex with fragment Position
 struct Vertex2 {
     Vertex v;
+    //fragment Position
     vec3 f_pos;
     Vertex2(const Vertex &vin, const vec3 &pos) : v(vin), f_pos(pos) {}
     Vertex2() {}
@@ -77,11 +80,12 @@ struct engine {
 
     const char *vertexShaderSource = R"(#version 330 core
     layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec2 texCoord;
     out vec2 f_texCoord;
     void main()
     {
        	gl_Position = vec4(aPos.xyz, 1.0);
-	f_texCoord=aPos.xy;
+	    f_texCoord=texCoord;
     }
     )";
 
@@ -92,17 +96,20 @@ struct engine {
     void main()
     {
        FragColor = texture(tex,f_texCoord);
-       //FragColor = vec4(f_texCoord.x,f_texCoord.y,0,0);
+       //FragColor = vec4(f_texCoord.x,f_texCoord.y,0,0);            
+       // if(FragColor.xyz==vec3(0)){
+       //     //FragColor =vec4(FragColor.w);
+       // }
     }
     )";
 
-    float vertices[12] =
+    float vertices[20] =
         {
             //    x      y      z
-            -1.0f, -1.0f, -0.0f,
-            1.0f, 1.0f, -0.0f,
-            -1.0f, 1.0f, -0.0f,
-            1.0f, -1.0f, -0.0f};
+            -1.0f, -1.0f, -0.0f, 0.f, 0.f,
+            1.0f, 1.0f, -0.0f, 1.f, 1.f,
+            -1.0f, 1.0f, -0.0f, 0.f, 1.f,
+            1.0f, -1.0f, -0.0f, 1.f, 0.f};
 
     uint32_t indices[6] =
         {
@@ -112,11 +119,11 @@ struct engine {
             0, 1, 2,
             0, 3, 1};
 
-    //std::vector<drawable<Vertex>*> draw_queue;
 #endif // NEWRENDERMETHOD
 
     engine(const uint32_t &x, const uint32_t &y) {
         fboCPU = new framebuffer(x, y);
+
 #ifdef NEWRENDERMETHOD
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
@@ -130,30 +137,21 @@ struct engine {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
         glEnableVertexAttribArray(0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
         glBindVertexArray(0);
 
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
         GLcall(glGenTextures(1, &tex));
-        // GLcall(glActiveTexture(GL_TEXTURE0 ));
+        GLcall(glActiveTexture(GL_TEXTURE0));
         GLcall(glBindTexture(GL_TEXTURE_2D, tex));
-        stbi_set_flip_vertically_on_load(1);
-        int m_width, m_height, m_BPP;
-        auto path = searchRes();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        unsigned char *m_LocalBuffer = stbi_load((path + "/container2.png").c_str(), &m_width, &m_height, &m_BPP, 3);
-        if (!m_LocalBuffer) {
-            std::cout << "texture file unable to load" << std::endl;
-            ASSERT(false);
-        }
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_LocalBuffer);
-
-        //stbi_image_free(m_LocalBuffer);
-        //GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, fboCPU->x_size, fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, fboCPU->colorlayer));
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, fboCPU->x_size, fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
         GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 
         // build and compile our shader program
@@ -201,7 +199,7 @@ struct engine {
         auto location = glGetUniformLocation(shader, "tex");
         if (location == -1)
             std::cout << "Warning: uniform tex does not exist !" << std::endl;
-        glUniform1i(location, 1);
+        glUniform1i(location, 0);
         glUseProgram(0);
 
 #else
@@ -213,7 +211,7 @@ struct engine {
         glLoadIdentity();
 #endif // NEWRENDERMETHOD
 
-        glEnable(GL_DEPTH_TEST);
+        //glEnable(GL_DEPTH_TEST);
     }
 
     ~engine() {
@@ -228,28 +226,19 @@ struct engine {
 
     void clear() {
         triangles.clear();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         fboCPU->clear();
     }
 
     void draw() {
+
 #ifdef NEWRENDERMETHOD
-        GLcall(glUseProgram(shader));
-        GLcall(glUniform1i(glGetUniformLocation(shader, "tex"), 0));
-        GLcall(glActiveTexture(GL_TEXTURE0));
+        uint8_t *imageData = (uint8_t *)&fboCPU->colorlayer[0].col;
+        glUseProgram(shader);
         GLcall(glBindTexture(GL_TEXTURE_2D, tex));
-        // GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, fboCPU->x_size, fboCPU->y_size, 0, GL_RGB, GL_FLOAT, fboCPU->colorlayer));
-        //GLcall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fboCPU->x_size, fboCPU->y_size, GL_RGB, GL_UNSIGNED_BYTE, fboCPU->colorlayer));
-
-        GLcall(glBindVertexArray(vao));
+        GLcall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fboCPU->x_size, fboCPU->y_size, GL_RGBA, GL_UNSIGNED_BYTE, imageData));
+        glBindVertexArray(vao);
         GLcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-        if (!written) {
-            if (!stbi_write_bmp("output.bmp", fboCPU->x_size, fboCPU->y_size, 3, fboCPU->colorlayer)) {
-                printf("write unsueccessful\n");
-            };
-            written = true;
-        }
-
 #else
         glBegin(GL_POINTS);
         for (GLint x = 0; x < fboCPU->x_size; ++x) {
@@ -275,6 +264,7 @@ struct engine {
     void putpixel_adjusted(int x, int y, const color &col = 255) {
         putpixel(x + fboCPU->xmax, y + fboCPU->ymax, col);
     }
+
     uint32_t putpixelcalls = 0;
 
     inline void putpixel_adjusted_noChecks(int x, int y, float z, const color &col = 255) {
@@ -325,41 +315,6 @@ struct engine {
                 p += 2 * dy - 2 * dx;
             }
         }
-    }
-
-    std::vector<vec2_T<int>> getBresenhampoints(int x1, int y1, int x2, int y2) {
-        std::vector<vec2_T<int>> ret;
-        int dx = abs(x2 - x1);
-        int dy = abs(y2 - y1);
-
-        int lx = x2 > x1 ? 1 : -1;
-        int ly = y2 > y1 ? 1 : -1;
-
-        int x = x1, y = y1;
-        bool changed = false;
-
-        if (dx <= dy) {
-            changed = true;
-            std::swap(dx, dy);
-            std::swap(lx, ly);
-            std::swap(x, y);
-        }
-        ret.reserve(dx);
-        int p = 2 * dy - dx;
-        for (int k = 0; k <= dx; k++) {
-            if (!changed)
-                ret.emplace_back(x, y);
-            else
-                ret.emplace_back(y, x);
-            x += lx;
-            if (p < 0) {
-                p += 2 * dy;
-            } else {
-                y += ly;
-                p += 2 * dy - 2 * dx;
-            }
-        }
-        return ret;
     }
 
     void drawLines(const std::vector<vec2_T<int>> &points, const color &col = color(255), const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
@@ -427,14 +382,15 @@ struct engine {
         t[idx3] = Vertex2(Vertex(modelviewTransformed[idx3], points[idx3].normal, points[idx3].texCoord).perspectiveMul(per), modelTransformed[idx3]);
         triangles.emplace_back(t);
         t[idx2] = t[idx3];
-        t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3]-points[idx1]) * u2, per), modelTransformed[idx1] + modelTransformed[idx3] * u2);
+        t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3] - points[idx1]) * u2, per), modelTransformed[idx1] + modelTransformed[idx3] * u2);
         triangles.emplace_back(std::move(t));
     }
 
     Material *currentMaterial = nullptr;
     float ambientLightIntensity = 0.5f;
     dirLight dirlight;
-    camera *cam=nullptr;
+    std::vector<pointLight> pointLights;
+    camera *cam = nullptr;
 
     inline float max(const float &first, const float &second) {
         return first > second ? first : second;
@@ -444,13 +400,24 @@ struct engine {
         return I - N * 2.0 * vec3::dot(N, I);
     }
 
-    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {        
-        auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);      
+    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
+        auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
         auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
-        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;       
+        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
         diffuse += (dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec);
         diffuse.a() = 255;
         return std::move(diffuse);
+    }
+
+    color CalcPointLight(const pointLight &light, const vec3 &normal, const vec3 &fragPos, const vec3 &viewDir, const color &diffuseColor, float int_by_at) {
+        const vec3 lightDir = vec3::normalize(light.getpos() - fragPos);
+        const float diff = max(vec3::dot(normal, lightDir), 0.0);
+        const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
+        const float spec = pow(max(vec3::dot(normal, halfwayDir), 0.0), currentMaterial->shininess);
+        color ambient = diffuseColor * light.get_ambient_color() * light.intensity * currentMaterial->AmbientStrength * int_by_at;
+        color diffuse = diffuseColor * light.get_diffuse_color() * light.intensity * currentMaterial->DiffuseStrength * diff * int_by_at;
+        color specular = light.get_diffuse_color() * light.intensity * currentMaterial->SpecularStrength * spec * int_by_at;
+        return (ambient + diffuse + specular);
     }
 
     inline color getcolor(const Vertex2 &v) {
@@ -466,8 +433,16 @@ struct engine {
         float intpart;
         color result;
         //color result(vec3(fabs(std::modf(v.v.texCoord.x, &intpart)), fabs(std::modf(v.v.texCoord.y, &intpart)),1));
+        auto viewDir = (cam->eye - v.f_pos).normalize();
 
-        result += CalcDirLight(v.v.normal, (cam->eye - v.f_pos).normalize(), col);
+        //result += CalcDirLight(v.v.normal, viewDir, col);
+        for (auto &light : pointLights) {
+            float dist = vec3::dist(v.f_pos, light.getpos());
+            float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+            if (int_by_at > 0.04) {
+                result += CalcPointLight(light, v.v.normal, v.f_pos, viewDir, col, int_by_at);
+            }
+        }
         result += col * ambientLightIntensity;
 
         return std::move(result);
@@ -475,8 +450,8 @@ struct engine {
 
     //p0 is the top unique point
     inline void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
-        double invslope1 =((double)p0.x - p1.x) / ((double)p0.y - p1.y);
-        double invslope2 =((double)p0.x - p2.x) / ((double)p0.y - p2.y);
+        double invslope1 = ((double)p0.x - p1.x) / ((double)p0.y - p1.y);
+        double invslope2 = ((double)p0.x - p2.x) / ((double)p0.y - p2.y);
 
         double currentx1 = p1.x - invslope1, currentx2 = p2.x - invslope2;
         Vertex2 vx1 = v1, vx2 = v2, vx3 = v0;
@@ -688,10 +663,6 @@ struct engine {
             } else if (clip[0]) {
                 if (clip[1]) {
                     clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 1, t);
-                    // clip2(modelviewTransformed, 0, 1, u1, u2);
-                    // t[0] = Vertex2(Vertex::perspectiveMul(points[0] + points[2] * u1, per), modelTransformed[0] + modelTransformed[2] * u1);
-                    // t[1] = Vertex2(Vertex::perspectiveMul(points[1] + points[2] * u2, per), modelTransformed[1] + modelTransformed[2] * u2);
-                    // t[2] = Vertex2(Vertex(per * modelviewTransformed[2], modelmat * points[2].normal, points[2].texCoord), modelTransformed[2]);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else if (clip[2]) {
@@ -700,14 +671,6 @@ struct engine {
                     continue;
                 } else {
                     clip1helper(per, modelTransformed, modelviewTransformed, points, 0, t, triangles);
-                    // clip1(modelviewTransformed, 0, u1, u2);
-                    // t[0] = Vertex2(Vertex::perspectiveMul(points[0] + points[0 + 1] * u1, per), modelTransformed[0] + modelTransformed[0 + 1] * u1);
-                    // t[1] = Vertex2(Vertex(per * modelviewTransformed[1], modelmat * points[1].normal, points[1].texCoord), modelTransformed[1]);
-                    // t[2] = Vertex2(Vertex(per * modelviewTransformed[2], modelmat * points[2].normal, points[2].texCoord), modelTransformed[2]);
-                    // triangles.emplace_back(t);
-                    // t[1] = t[2];
-                    // t[2] = Vertex2(Vertex::perspectiveMul(points[0] + points[2] * u2, per), modelTransformed[0] + modelTransformed[2] * u2);
-                    // triangles.emplace_back(std::move(t));
                     continue;
                 }
             } else if (clip[1]) {
@@ -797,11 +760,6 @@ struct engine {
             } else if (clip[0]) {
                 if (clip[1]) {
                     clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 1, t);
-                    // clip2(modelviewTransformed, 0, 1, u1, u2);
-                    // t[0] = Vertex2(Vertex::perspectiveMul(points[0] + points[2] * u1, per), modelTransformed[0] + modelTransformed[2] * u1);
-                    // t[1] = Vertex2(Vertex::perspectiveMul(points[1] + points[2] * u2, per), modelTransformed[1] + modelTransformed[2] * u2);
-                    // t[2] = Vertex2(Vertex(per * modelviewTransformed[2], modelmat * points[2].normal, points[2].texCoord), modelTransformed[2]);
-                    triangles.emplace_back(std::move(t));
                     continue;
                 } else if (clip[2]) {
                     clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 2, t);
@@ -809,14 +767,6 @@ struct engine {
                     continue;
                 } else {
                     clip1helper(per, modelTransformed, modelviewTransformed, points, 0, t, triangles);
-                    // clip1(modelviewTransformed, 0, u1, u2);
-                    // t[0] = Vertex2(Vertex::perspectiveMul(points[0] + points[0 + 1] * u1, per), modelTransformed[0] + modelTransformed[0 + 1] * u1);
-                    // t[1] = Vertex2(Vertex(per * modelviewTransformed[1], modelmat * points[1].normal, points[1].texCoord), modelTransformed[1]);
-                    // t[2] = Vertex2(Vertex(per * modelviewTransformed[2], modelmat * points[2].normal, points[2].texCoord), modelTransformed[2]);
-                    // triangles.emplace_back(t);
-                    // t[1] = t[2];
-                    // t[2] = Vertex2(Vertex::perspectiveMul(points[0] + points[2] * u2, per), modelTransformed[0] + modelTransformed[2] * u2);
-                    // triangles.emplace_back(std::move(t));
                     continue;
                 }
             } else if (clip[1]) {

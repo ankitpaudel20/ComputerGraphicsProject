@@ -57,6 +57,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             captured = true;
             break;
+        case GLFW_KEY_6:
+            //graphicsEngine->executesubimage2d();           
+            break;
         default:
             break;
         }
@@ -90,6 +93,31 @@ void processHoldEvent(GLFWwindow *window) {
     }
 
     float factor = 1;
+    auto light_speed = 0.05;
+
+    if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) {
+        graphicsEngine->pointLights.back().delpos(cam1.getViewDir() * light_speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_2) == GLFW_PRESS) {
+        graphicsEngine->pointLights.back().delpos(-cam1.getViewDir() * light_speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS) {
+        graphicsEngine->pointLights.back().delpos(left * light_speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) {
+        graphicsEngine->pointLights.back().delpos(-left * light_speed);
+    }
+
+    //if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS) {
+    //    graphicsEngine->pointLights.back().delpos(cam1.getUp() * light_speed);
+    //}
+    //
+    //if (glfwGetKey(window, GLFW_KEY_KP_0) == GLFW_PRESS) {
+    //    graphicsEngine->pointLights.back().delpos(-cam1.getUp() * light_speed);
+    //}
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         cam1.DelPitch(cam1.sensitivity * deltatime);
@@ -187,14 +215,26 @@ int main(int argc, char **argv) {
 
     auto colorCube = Model::loadModel_obj(path + "/color/testcolored.obj", "color");
     auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
+    std::vector<node *> lightmodels;
+    lightmodels.push_back(Model::loadModel_obj(path + "/sphere.obj", "light"));
+    auto spherescale = trans::scaling3d(0.01);
+    for (auto &mesh : lightmodels) {
+        for (auto &point : mesh->meshes.back()->m_vertices) {
+            point.position = spherescale * point.position;
+        }
+    }
+
+    for (int i = 0; i < graphicsEngine->pointLights.size(); i++) {
+        graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
+    }
 
     float rotation_angle = 0;
     float view_angle = 0.0;
     float angle_rotated = 0;
     float zvp = 50, zprp = -500;
 
-    cam1.eye = vec3(5.93216, 2.89812, -3.64021);
-    cam1.changeDir(vec3(-0.780658, -0.400843, 0.479476));
+    cam1.eye = vec3(6.60158, 2.24303, -3.31695);
+    cam1.changeDir(vec3(-0.324038, -0.717021, -0.617155));
     graphicsEngine->nearPlane = 1;
     Material m;
     m.diffuseColor = color(255, 0, 0);
@@ -202,6 +242,7 @@ int main(int argc, char **argv) {
     graphicsEngine->cullBackface = true;
     graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
+    graphicsEngine->pointLights.emplace_back(vec3(500, 500, 500), 1);
 
     auto lastframe = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
@@ -210,22 +251,9 @@ int main(int argc, char **argv) {
 
         glfwPollEvents();
         processHoldEvent(window);
-        rotation_angle += 1;
-        view_angle += 0.1;
-        if (rotation_angle > 360) {
-            rotation_angle = 0;
-        }
-        if (view_angle > 180) {
-            view_angle = 1;
-        }
-        // zprp += 0.1;
-        // printf("zprp=%f\n", zprp);
 
-        translate3d = trans::translation(vec3(5, 0, -5));
+        translate3d = trans::translate(vec3(5, 0, -5));
         scale3d = trans::scaling3d(vec3(2));
-        auto temp = translate3d * scale3d;
-
-        std::vector<vec2_T<int>> final_cube, final_axes;
 
         std::cout << "FPS: " << 1e6 / deltatime << std::endl;
         std::cout << "camera Eye: " << cam1.eye << std::endl;
@@ -236,60 +264,29 @@ int main(int argc, char **argv) {
             printf("\033[F");
         }
 
-        //printingtime = std::chrono::high_resolution_clock::now();
-
-        // auto view = trans::lookAt(cam1.eye, cam1.eye + cam1.getViewDir(), cam1.getUp());
-        // // auto per = trans::perspective(0, 0, zprp, zvp);
-        // auto per = trans::persp(window_width, window_height, cam1.FOV);
-        // auto ob = trans::oblique_projection(90, view_angle);
-
-        // std::vector<vec4> temp_cube;
-        // for (auto &p : cube)
-        // {
-        //     auto temp = view * scale3d * translate3d * p;
-        //     temp = per * temp;
-        //     final_cube.emplace_back((int)round(temp.x / (fabs(temp.w) < epsilon ? epsilon : temp.w)), (int)round(temp.y / (fabs(temp.w) < epsilon ? epsilon : temp.w)));
-        // }
-
-        // for (auto &p : axes_endpoints)
-        // {
-        //     auto temp = per * view * scale3d * p;
-        //     final_axes.emplace_back((int)round(temp.x / (fabs(temp.w) < epsilon ? epsilon : temp.w)), (int)round(temp.y / (fabs(temp.w) < epsilon ? epsilon : temp.w)));
-        // }
-
         color brescolor(0, 255, 0);
 
         graphicsEngine->clear();
-        // graphicsEngine->drawLines(final_axes);
-        // graphicsEngine->drawLines(final_cube, brescolor, cube_indices);
-        // graphicsEngine->drawTriangles(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, translate3d);
-        // graphicsEngine->drawTrianglesRasterized(cube->meshes[0]->m_vertices, cube->meshes[0]->m_indices, cam1, mat4());
 
-        m.diffuseColor = color(0, 255, 0);
-        for (auto & mesh:colorCube->meshes) {
+        m.diffuseColor = color(255, 255, 0);
+        for (auto &mesh : colorCube->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             //graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices,  mat4f());
-            graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
-        }   
+            graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
+        }
         for (auto &mesh : textureBox->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
             //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
-        }   
+        }
+        auto lightnode = lightmodels.back();
+        for (auto &mesh : lightnode->meshes) {
+            graphicsEngine->currentMaterial = &mesh->material;
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, lightnode->matModel);
+        }
         //graphicsEngine->currentMaterial = &m;
         //graphicsEngine->drawTrianglesRasterized(square, square_indices, translate3d);
-        // graphicsEngine.draw_bresenham_adjusted(50, 100, -200, -100, vec3(1, 0, 0));
         graphicsEngine->draw();
-        // glClear(GL_COLOR_BUFFER_BIT);
-        // glBegin(GL_TRIANGLES);
-        // glColor4f(1, 0, 0, 0);
-        // glVertex2i(0, 0);
-        // glColor4f(0, 1, 0, 1);
-        // glVertex2i(0, 200);
-        // glColor4f(0, 0, 1, 1);
-        // glVertex2i(100, 100);
-        // glEnd();
-        // glFlush();
         glfwSwapBuffers(window);
     }
     delete graphicsEngine;

@@ -8,7 +8,6 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-
 #ifdef _WIN32
 const std::string pathDelemeter(std::string("\\") + "\\");
 #else
@@ -16,17 +15,17 @@ const std::string pathDelemeter("/");
 #endif // _WIN32
 
 #ifdef _MSC_VER
-#define DEBUG_BREAK __debugbreak()
-
-#ifdef _DEBUG
-#define MDEBUG
-#endif
+    #define DEBUG_BREAK __debugbreak()
+    
+    #ifdef _DEBUG
+    #define MDEBUG
+    #endif
 #else
-#define DEBUG_BREAK __builtin_trap()
-
-#ifndef NDEBUG
-#define MDEBUG
-#endif
+    #define DEBUG_BREAK __builtin_trap()
+    
+    #ifndef NDEBUG
+    #define MDEBUG
+    #endif
 #endif
 
 #ifdef MDEBUG
@@ -43,7 +42,7 @@ const std::string pathDelemeter("/");
 #define GLcall_P(y, x) y = x
 #endif
 
- //#define NEWRENDERMETHOD
+#define NEWRENDERMETHOD
 
 inline void GLClearError() {
     while (glGetError() != GL_NO_ERROR)
@@ -117,7 +116,7 @@ struct Vertex {
     inline Vertex perspectiveMul(const mat4f &per) {
         position = per * position;
         texCoord /= (fabs(position.w) < epsilon ? epsilon : position.w);
-        position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), 1/position.z, 1);
+        position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), 1 / position.z, 1);
         // position = position / (fabs(position.w) < epsilon ? epsilon : position.w);
         return *this;
     }
@@ -127,13 +126,12 @@ struct Vertex {
     }
 };
 
-
 struct color {
     uint32_t col;
     color() : color(0) {}
-    color(uint8_t r) : color(r, r, r) {    }
+    color(uint8_t r) : color(r, r, r) {}
     color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {}
-    color(const vec3 & in) : color(in.x*255,in.y*255,in.z*255){}
+    color(const vec3 &in) : color(in.x * 255, in.y * 255, in.z * 255) {}
 
     vec4 getcolor() {
         auto temp = (uint8_t *)&col;
@@ -159,7 +157,7 @@ struct color {
         auto g = (temp[1] * temp1[1]) / 255;
         auto b = (temp[2] * temp1[2]) / 255;
         auto a = (temp[3] * temp1[3]) / 255;
-        color ret(r,g,b,a);
+        color ret(r, g, b, a);
         return std::move(ret);
     }
 
@@ -172,10 +170,10 @@ struct color {
         temp[3] = (temp[3] * temp1[3]) / 255;
     }
 
-     color operator+(const color &in) const {
+    color operator+(const color &in) const {
         auto temp = (uint8_t *)&col;
         auto temp1 = (uint8_t *)&in.col;
-        return color((temp[0] + temp1[0]), (temp[1] + temp1[1]), (temp[2] + temp1[2]), (temp[3] +temp1[3]) );
+        return color((temp[0] + temp1[0]), (temp[1] + temp1[1]), (temp[2] + temp1[2]), (temp[3] + temp1[3]));
     }
 
     void operator+=(const color &in) {
@@ -185,15 +183,15 @@ struct color {
         auto g = ((uint16_t)temp[1] + temp1[1]);
         auto b = ((uint16_t)temp[2] + temp1[2]);
         auto a = ((uint16_t)temp[3] + temp1[3]);
-        temp[0] = r>255?255:r;
-        temp[1] = g>255?255:g;
-        temp[2] = b>255?255:b;
-        temp[3] = a>255?255:a;
+        temp[0] = r > 255 ? 255 : r;
+        temp[1] = g > 255 ? 255 : g;
+        temp[2] = b > 255 ? 255 : b;
+        temp[3] = a > 255 ? 255 : a;
     }
 
-    color operator*(const float &in) const { 
+    color operator*(const float &in) const {
         auto temp = (uint8_t *)&col;
-        return color(temp[0] * in, temp[1] * in, temp[2] * in, temp[3] * in );
+        return color(temp[0] * in, temp[1] * in, temp[2] * in, temp[3] * in);
     }
 
     void operator*=(const float &in) {
@@ -201,7 +199,7 @@ struct color {
         temp[0] *= in;
         temp[1] *= in;
         temp[2] *= in;
-        temp[3] *= in;        
+        temp[3] *= in;
     }
     bool operator==(const color &in) { return col == in.col; }
 };

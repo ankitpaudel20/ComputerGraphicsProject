@@ -4,6 +4,7 @@
 
 #include "core.h"
 #include "material.h"
+#include "transformations.h"
 
 struct entity;
 
@@ -18,7 +19,7 @@ struct drawable {
     std::string name;
     bool draw = true;
 
-    glm::mat4 matModel = glm::mat4(1.0);
+    mat4f matModel = mat4f();
 
     drawable() = default;
 
@@ -26,28 +27,28 @@ struct drawable {
     }
 
     void delpos(const vec3 &delta) {
-        translation = glm::translate(this->translation, (glm::vec3)delta);
+        translation = trans::translate(delta) * this->translation;
         refreshModel();
     }
 
     void setpos(const vec3 &delta) {
-        translation = glm::translate(glm::mat4(1), (glm::vec3)(delta));
+        translation = trans::translate(delta);
         refreshModel();
     }
 
-    glm::mat4 getTranslation() { return translation; }
+    mat4f getTranslation() { return translation; }
 
     void setScale(const vec3 &scale) {
-        scaling = glm::scale(glm::mat4(1.0), (glm::vec3)scale);
+        scaling = trans::scaling3d(scale);
         refreshModel();
     }
 
     void setRotation(float angle, const vec3 &axis) {
-        rotation = glm::rotate(rotation, glm::radians(angle), (glm::vec3)axis);
+        rotation = trans::rotation(radian * angle, axis);
         refreshModel();
     }
 
-    glm::mat4 *refreshModel() {
+    mat4f *refreshModel() {
         matModel = translation * rotation * scaling;
         return &matModel;
     }
@@ -55,30 +56,9 @@ struct drawable {
     virtual void userSpecificFunction() {}
 
   protected:
-    glm::mat4 scaling = glm::mat4(1.0);
-    glm::mat4 translation = glm::mat4(1.0);
-    glm::mat4 rotation = glm::mat4(1.0);
+    mat4f scaling = mat4f();
+    mat4f translation = mat4f();
+    mat4f rotation = mat4f();
 };
 
 typedef drawable<Vertex> Mesh;
-
-struct line : public drawable<Vertex> {
-    uint32_t m_width = 1;
-
-    line(const std::vector<Vertex> &vertices, const std::string &n, std::vector<uint32_t> indices = std::vector<uint32_t>()) : drawable<Vertex>(vertices, indices, n) {
-        doLightCalculations = false;
-        m_primitve = GL_LINES;
-        if (indices.empty()) {
-            m_indices.reserve(vertices.size());
-            for (uint32_t i = 0; i < vertices.size(); i++) {
-                m_indices.emplace_back(i);
-            }
-        }
-    }
-
-    line() {}
-
-    virtual void userSpecificFunction() {
-        glLineWidth(m_width);
-    }
-};
