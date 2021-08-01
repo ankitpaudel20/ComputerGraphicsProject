@@ -58,7 +58,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             captured = true;
             break;
         case GLFW_KEY_6:
-            //graphicsEngine->executesubimage2d();           
+            //graphicsEngine->executesubimage2d();
             break;
         default:
             break;
@@ -109,6 +109,14 @@ void processHoldEvent(GLFWwindow *window) {
 
     if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) {
         graphicsEngine->pointLights.back().delpos(-left * light_speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+        graphicsEngine->pointLights.back().delpos(-cam1.getUp() * light_speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+        graphicsEngine->pointLights.back().delpos(cam1.getUp() * light_speed);
     }
 
     //if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS) {
@@ -185,9 +193,11 @@ int main(int argc, char **argv) {
         return -1;
     glfwSetErrorCallback(error_callback);
 
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef NEWRENDERMETHOD
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
     window = glfwCreateWindow(640, 480, "main", NULL, NULL);
     if (!(window)) {
         glfwTerminate();
@@ -202,7 +212,6 @@ int main(int argc, char **argv) {
 
     GLenum err = glewInit();
     if (GLEW_OK != err) {
-        /* Problem: glewInit failed, something is seriously wrong. */
         fprintf(stderr, "GLEW Error: %s\n", glewGetErrorString(err));
     }
 
@@ -213,11 +222,27 @@ int main(int argc, char **argv) {
 
     auto path = searchRes();
 
-    auto colorCube = Model::loadModel_obj(path + "/color/testcolored.obj", "color");
+    auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
     auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
+
+    float rotation_angle = 0;
+    float view_angle = 0.0;
+    float angle_rotated = 0;
+    float zvp = 50, zprp = -500;
+
+    cam1.eye = vec3(-1.25065, 3.78314, -1.36433);
+    cam1.changeDir(vec3(0.353761, -0.850367, 0.389523));
+    graphicsEngine->nearPlane = 1;
+    Material m;
+    m.diffuseColor = color(255, 0, 0);
+    graphicsEngine->currentMaterial = &m;
+    graphicsEngine->cullBackface = true;
+    graphicsEngine->cam = &cam1;
+    graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
+    graphicsEngine->pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3);
     std::vector<node *> lightmodels;
     lightmodels.push_back(Model::loadModel_obj(path + "/sphere.obj", "light"));
-    auto spherescale = trans::scaling3d(0.01);
+    auto spherescale = trans::scaling3d(0.1);
     for (auto &mesh : lightmodels) {
         for (auto &point : mesh->meshes.back()->m_vertices) {
             point.position = spherescale * point.position;
@@ -227,23 +252,6 @@ int main(int argc, char **argv) {
     for (int i = 0; i < graphicsEngine->pointLights.size(); i++) {
         graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
     }
-
-    float rotation_angle = 0;
-    float view_angle = 0.0;
-    float angle_rotated = 0;
-    float zvp = 50, zprp = -500;
-
-    cam1.eye = vec3(6.60158, 2.24303, -3.31695);
-    cam1.changeDir(vec3(-0.324038, -0.717021, -0.617155));
-    graphicsEngine->nearPlane = 1;
-    Material m;
-    m.diffuseColor = color(255, 0, 0);
-    graphicsEngine->currentMaterial = &m;
-    graphicsEngine->cullBackface = true;
-    graphicsEngine->cam = &cam1;
-    graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
-    graphicsEngine->pointLights.emplace_back(vec3(500, 500, 500), 1);
-
     auto lastframe = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
         deltatime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastframe).count();
@@ -257,8 +265,8 @@ int main(int argc, char **argv) {
 
         std::cout << "FPS: " << 1e6 / deltatime << std::endl;
         std::cout << "camera Eye: " << cam1.eye << std::endl;
-        std::cout << "camera up: " << cam1.getUp() << std::endl;
         std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        std::cout << "pointlight position: " << graphicsEngine->pointLights.back().getpos() << std::endl;
 
         for (size_t i = 0; i < 4; i++) {
             printf("\033[F");
@@ -271,11 +279,12 @@ int main(int argc, char **argv) {
         m.diffuseColor = color(255, 255, 0);
         for (auto &mesh : colorCube->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
-            //graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices,  mat4f());
-            graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, mat4f());
+            // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
         }
         for (auto &mesh : textureBox->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
+            graphicsEngine->currentMaterial->AmbientStrength = 0;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
             //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
         }

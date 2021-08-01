@@ -15,17 +15,17 @@ const std::string pathDelemeter("/");
 #endif // _WIN32
 
 #ifdef _MSC_VER
-    #define DEBUG_BREAK __debugbreak()
-    
-    #ifdef _DEBUG
-    #define MDEBUG
-    #endif
+#define DEBUG_BREAK __debugbreak()
+
+#ifdef _DEBUG
+#define MDEBUG
+#endif
 #else
-    #define DEBUG_BREAK __builtin_trap()
-    
-    #ifndef NDEBUG
-    #define MDEBUG
-    #endif
+#define DEBUG_BREAK __builtin_trap()
+
+#ifndef NDEBUG
+#define MDEBUG
+#endif
 #endif
 
 #ifdef MDEBUG
@@ -138,25 +138,29 @@ struct color {
         return vec4(temp[0], temp[1], temp[2], temp[3]) / 255;
     }
     inline uint8_t &r() {
-        return ((uint8_t *)&col)[0];
+        auto temp = (uint8_t *)&col;
+        return temp[0];
     }
     inline uint8_t &g() {
-        return ((uint8_t *)&col)[1];
+        auto temp = (uint8_t *)&col;
+        return temp[1];
     }
     inline uint8_t &b() {
-        return ((uint8_t *)&col)[2];
+        auto temp = (uint8_t *)&col;
+        return temp[2];
     }
     inline uint8_t &a() {
-        return ((uint8_t *)&col)[3];
+        auto temp = (uint8_t *)&col;
+        return temp[3];
     }
 
     color operator*(const color &in) const {
         auto temp = (uint8_t *)&col;
         auto temp1 = (uint8_t *)&in.col;
-        auto r = (temp[0] * temp1[0]) / 255;
-        auto g = (temp[1] * temp1[1]) / 255;
-        auto b = (temp[2] * temp1[2]) / 255;
-        auto a = (temp[3] * temp1[3]) / 255;
+        auto r = ((unsigned short)temp[0] * temp1[0]) / 255u;
+        auto g = ((unsigned short)temp[1] * temp1[1]) / 255u;
+        auto b = ((unsigned short)temp[2] * temp1[2]) / 255u;
+        auto a = ((unsigned short)temp[3] * temp1[3]) / 255u;
         color ret(r, g, b, a);
         return std::move(ret);
     }
@@ -164,25 +168,29 @@ struct color {
     void operator*=(const color &in) {
         auto temp = (uint8_t *)&col;
         auto temp1 = (uint8_t *)&in.col;
-        temp[0] = (temp[0] * temp1[0]) / 255;
-        temp[1] = (temp[1] * temp1[1]) / 255;
-        temp[2] = (temp[2] * temp1[2]) / 255;
-        temp[3] = (temp[3] * temp1[3]) / 255;
+        temp[0] = ((unsigned short)temp[0] * temp1[0]) / 255u;
+        temp[1] = ((unsigned short)temp[1] * temp1[1]) / 255u;
+        temp[2] = ((unsigned short)temp[2] * temp1[2]) / 255u;
+        temp[3] = ((unsigned short)temp[3] * temp1[3]) / 255u;
     }
 
     color operator+(const color &in) const {
         auto temp = (uint8_t *)&col;
         auto temp1 = (uint8_t *)&in.col;
-        return color((temp[0] + temp1[0]), (temp[1] + temp1[1]), (temp[2] + temp1[2]), (temp[3] + temp1[3]));
+        unsigned short r = (unsigned short)temp[0] + temp1[0];
+        unsigned short g = (unsigned short)temp[1] + temp1[1];
+        unsigned short b = (unsigned short)temp[2] + temp1[2];
+        unsigned short a = (unsigned short)temp[3] + temp1[3];
+        return color(r > 255 ? 255 : r, g > 255 ? 255 : g, b > 255 ? 255 : b, a > 255 ? 255 : a);
     }
 
     void operator+=(const color &in) {
         auto temp = (uint8_t *)&col;
         auto temp1 = (uint8_t *)&in.col;
-        auto r = ((uint16_t)temp[0] + temp1[0]);
-        auto g = ((uint16_t)temp[1] + temp1[1]);
-        auto b = ((uint16_t)temp[2] + temp1[2]);
-        auto a = ((uint16_t)temp[3] + temp1[3]);
+        unsigned short r = (unsigned short)temp[0] + temp1[0];
+        unsigned short g = (unsigned short)temp[1] + temp1[1];
+        unsigned short b = (unsigned short)temp[2] + temp1[2];
+        unsigned short a = (unsigned short)temp[3] + temp1[3];
         temp[0] = r > 255 ? 255 : r;
         temp[1] = g > 255 ? 255 : g;
         temp[2] = b > 255 ? 255 : b;
@@ -191,16 +199,22 @@ struct color {
 
     color operator*(const float &in) const {
         auto temp = (uint8_t *)&col;
-        return color(temp[0] * in, temp[1] * in, temp[2] * in, temp[3] * in);
+        unsigned short r = (unsigned short)temp[0] * in;
+        unsigned short g = (unsigned short)temp[1] * in;
+        unsigned short b = (unsigned short)temp[2] * in;
+        return color(r > 255 ? 255 : r, g > 255 ? 255 : g, b > 255 ? 255 : b);
     }
 
     void operator*=(const float &in) {
         auto temp = (uint8_t *)&col;
-        temp[0] *= in;
-        temp[1] *= in;
-        temp[2] *= in;
-        temp[3] *= in;
+        unsigned short r = (unsigned short)temp[0] * in;
+        unsigned short g = (unsigned short)temp[1] * in;
+        unsigned short b = (unsigned short)temp[2] * in;
+        temp[0] = r > 255 ? 255 : r;
+        temp[1] = g > 255 ? 255 : g;
+        temp[2] = b > 255 ? 255 : b;
     }
+
     bool operator==(const color &in) { return col == in.col; }
 };
 

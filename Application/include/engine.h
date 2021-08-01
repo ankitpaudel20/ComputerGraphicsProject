@@ -387,7 +387,7 @@ struct engine {
     }
 
     Material *currentMaterial = nullptr;
-    float ambientLightIntensity = 0.5f;
+    float ambientLightIntensity = 0.1f;
     dirLight dirlight;
     std::vector<pointLight> pointLights;
     camera *cam = nullptr;
@@ -404,7 +404,11 @@ struct engine {
         auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
         auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
         color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
-        diffuse += (dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec);
+        color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
+        if (specular.r() != specular.g() != specular.b()) {
+            DEBUG_BREAK;
+        }
+        diffuse += specular;
         diffuse.a() = 255;
         return std::move(diffuse);
     }
