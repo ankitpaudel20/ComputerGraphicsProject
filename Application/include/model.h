@@ -412,7 +412,7 @@ node *loadModel_obj(std::string const &path, const std::string &name, bool flipU
             }
 
             //if (m1->material.diffuse.m_data == nullptr && !materials[current_material_id].diffuse_texname.empty()) {
-            if (m1->material.diffuse.m_data == nullptr && current_material_id != -1) {
+            if (m1->material.diffuse.m_data == nullptr && current_material_id >= 0) {
                 unsigned char *m_LocalBuffer;
                 if (!materials[current_material_id].diffuse_texname.empty()) {
                     m_LocalBuffer = stbi_load((directory + materials[current_material_id].diffuse_texname).c_str(), &m1->material.diffuse.w, &m1->material.diffuse.h, &m1->material.diffuse.m_bpp, 0);

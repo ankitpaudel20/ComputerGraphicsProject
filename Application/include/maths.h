@@ -437,7 +437,7 @@ class mat {
         return m_data[r * x_dim + c];
     }
 
-    inline const Type &at(const size_t &r, const size_t &c) const{
+    inline const Type &at(const size_t &r, const size_t &c) const {
         return m_data[r * x_dim + c];
     }
 
@@ -483,15 +483,14 @@ class mat {
 
         size_t i, j, k;
 
-
         Type constant;
-     
+
         for (i = 0; i < y_dim; ++i) {
             if (temp(i, i) == 0) {
                 for (j = i; j < y_dim; j++) {
                     if (temp.at(j, j) != 0) {
                         auto dest = &temp.at(j, 0);
-                        auto src =  &temp.at(i, 0);
+                        auto src = &temp.at(i, 0);
 
                         auto *swaptemp = new Type[x_dim];
 
@@ -505,7 +504,7 @@ class mat {
                         memcpy(swaptemp, dest, x_dim * sizeof(Type));
                         memcpy(dest, src, x_dim * sizeof(Type));
                         memcpy(src, swaptemp, x_dim * sizeof(Type));
-                    
+
                         delete[] swaptemp;
                     }
                 }
@@ -521,7 +520,7 @@ class mat {
                 if (j == i)
                     continue;
                 constant = temp(j, i);
-                for (k = i; k < x_dim; k++) {                    
+                for (k = i; k < x_dim; k++) {
                     temp(j, k) = temp(j, k) - temp(i, k) * constant;
                 }
 
@@ -529,7 +528,7 @@ class mat {
                     inv(j, k) = inv(j, k) - inv(i, k) * constant;
                 }
             }
-        }      
+        }
         return inv;
     }
 
@@ -593,27 +592,27 @@ class mat {
         for (size_t i = 0; i < y_dim; i++)
             for (size_t j = 0; j < x_dim; j++)
                 at(i, j) /= a;
-    }      
-   
+    }
+
     vec2_T<Type> operator*(const vec2_T<Type> &in) const {
         assert(x_dim == 2 && y_dim == 2);
         vec2_T<Type> ret;
         ret.x = at(0, 0) * in.x + at(0, 1) * in.y;
         ret.y = at(1, 0) * in.x + at(1, 1) * in.y;
         return ret;
-    }    
+    }
 
-    mat<Type, x_dim, y_dim> operator*(const Type &a)const {
-        mat<Type, x_dim, y_dim> ret=*this;
-        for (auto & i :ret.m_data) 
+    mat<Type, x_dim, y_dim> operator*(const Type &a) const {
+        mat<Type, x_dim, y_dim> ret = *this;
+        for (auto &i : ret.m_data)
             i *= a;
         return ret;
     }
 
-    mat<Type, x_dim, y_dim> operator/(const Type &a) const{
+    mat<Type, x_dim, y_dim> operator/(const Type &a) const {
         mat<Type, x_dim, y_dim> ret = *this;
-        for (auto &i : ret.m_data) 
-            i /= a;        
+        for (auto &i : ret.m_data)
+            i /= a;
         return ret;
     }
 
@@ -628,8 +627,8 @@ class mat {
     }
 };
 
-template<class Type,size_t x1,size_t y1,size_t x2>
-mat<Type, x2, y1> operator*(const mat<Type, x1, y1>& first, const mat<Type, x2, x1>& second) {
+template <class Type, size_t x1, size_t y1, size_t x2>
+mat<Type, x2, y1> operator*(const mat<Type, x1, y1> &first, const mat<Type, x2, x1> &second) {
     mat<Type, x2, y1> ret;
     int i, j, k;
     for (i = 0; i < y1; i++) {
@@ -644,24 +643,22 @@ mat<Type, x2, y1> operator*(const mat<Type, x1, y1>& first, const mat<Type, x2, 
 
 template <class Type>
 mat<Type, 4, 4> operator*(const mat<Type, 4, 4> &first, const mat<Type, 4, 4> &second) {
-    return mat<Type, 4, 4>({
-        first.at(0, 0) * second.at(0, 0) + first.at(0, 1) * second.at(1, 0) + first.at(0, 2) * second.at(2, 0) + first.at(0, 3) * second.at(3, 0),
-        first.at(0, 0) * second.at(0, 1) + first.at(0, 1) * second.at(1, 1) + first.at(0, 2) * second.at(2, 1) + first.at(0, 3) * second.at(3, 1),
-        first.at(0, 0) * second.at(0, 2) + first.at(0, 1) * second.at(1, 2) + first.at(0, 2) * second.at(2, 2) + first.at(0, 3) * second.at(3, 2),
-        first.at(0, 0) * second.at(0, 3) + first.at(0, 1) * second.at(1, 3) + first.at(0, 2) * second.at(2, 3) + first.at(0, 3) * second.at(3, 3),
-        first.at(1, 0) * second.at(0, 0) + first.at(1, 1) * second.at(1, 0) + first.at(1, 2) * second.at(2, 0) + first.at(1, 3) * second.at(3, 0),
-        first.at(1, 0) * second.at(0, 1) + first.at(1, 1) * second.at(1, 1) + first.at(1, 2) * second.at(2, 1) + first.at(1, 3) * second.at(3, 1),
-        first.at(1, 0) * second.at(0, 2) + first.at(1, 1) * second.at(1, 2) + first.at(1, 2) * second.at(2, 2) + first.at(1, 3) * second.at(3, 2),
-        first.at(1, 0) * second.at(0, 3) + first.at(1, 1) * second.at(1, 3) + first.at(1, 2) * second.at(2, 3) + first.at(1, 3) * second.at(3, 3),
-        first.at(2, 0) * second.at(0, 0) + first.at(2, 1) * second.at(1, 0) + first.at(2, 2) * second.at(2, 0) + first.at(2, 3) * second.at(3, 0),
-        first.at(2, 0) * second.at(0, 1) + first.at(2, 1) * second.at(1, 1) + first.at(2, 2) * second.at(2, 1) + first.at(2, 3) * second.at(3, 1),
-        first.at(2, 0) * second.at(0, 2) + first.at(2, 1) * second.at(1, 2) + first.at(2, 2) * second.at(2, 2) + first.at(2, 3) * second.at(3, 2),
-        first.at(2, 0) * second.at(0, 3) + first.at(2, 1) * second.at(1, 3) + first.at(2, 2) * second.at(2, 3) + first.at(2, 3) * second.at(3, 3),
-        first.at(3, 0) * second.at(0, 0) + first.at(3, 1) * second.at(1, 0) + first.at(3, 2) * second.at(2, 0) + first.at(3, 3) * second.at(3, 0),
-        first.at(3, 0) * second.at(0, 1) + first.at(3, 1) * second.at(1, 1) + first.at(3, 2) * second.at(2, 1) + first.at(3, 3) * second.at(3, 1),
-        first.at(3, 0) * second.at(0, 2) + first.at(3, 1) * second.at(1, 2) + first.at(3, 2) * second.at(2, 2) + first.at(3, 3) * second.at(3, 2),
-        first.at(3, 0) * second.at(0, 3) + first.at(3, 1) * second.at(1, 3) + first.at(3, 2) * second.at(2, 3) + first.at(3, 3) * second.at(3, 3)
-        });
+    return mat<Type, 4, 4>({first.at(0, 0) * second.at(0, 0) + first.at(0, 1) * second.at(1, 0) + first.at(0, 2) * second.at(2, 0) + first.at(0, 3) * second.at(3, 0),
+                            first.at(0, 0) * second.at(0, 1) + first.at(0, 1) * second.at(1, 1) + first.at(0, 2) * second.at(2, 1) + first.at(0, 3) * second.at(3, 1),
+                            first.at(0, 0) * second.at(0, 2) + first.at(0, 1) * second.at(1, 2) + first.at(0, 2) * second.at(2, 2) + first.at(0, 3) * second.at(3, 2),
+                            first.at(0, 0) * second.at(0, 3) + first.at(0, 1) * second.at(1, 3) + first.at(0, 2) * second.at(2, 3) + first.at(0, 3) * second.at(3, 3),
+                            first.at(1, 0) * second.at(0, 0) + first.at(1, 1) * second.at(1, 0) + first.at(1, 2) * second.at(2, 0) + first.at(1, 3) * second.at(3, 0),
+                            first.at(1, 0) * second.at(0, 1) + first.at(1, 1) * second.at(1, 1) + first.at(1, 2) * second.at(2, 1) + first.at(1, 3) * second.at(3, 1),
+                            first.at(1, 0) * second.at(0, 2) + first.at(1, 1) * second.at(1, 2) + first.at(1, 2) * second.at(2, 2) + first.at(1, 3) * second.at(3, 2),
+                            first.at(1, 0) * second.at(0, 3) + first.at(1, 1) * second.at(1, 3) + first.at(1, 2) * second.at(2, 3) + first.at(1, 3) * second.at(3, 3),
+                            first.at(2, 0) * second.at(0, 0) + first.at(2, 1) * second.at(1, 0) + first.at(2, 2) * second.at(2, 0) + first.at(2, 3) * second.at(3, 0),
+                            first.at(2, 0) * second.at(0, 1) + first.at(2, 1) * second.at(1, 1) + first.at(2, 2) * second.at(2, 1) + first.at(2, 3) * second.at(3, 1),
+                            first.at(2, 0) * second.at(0, 2) + first.at(2, 1) * second.at(1, 2) + first.at(2, 2) * second.at(2, 2) + first.at(2, 3) * second.at(3, 2),
+                            first.at(2, 0) * second.at(0, 3) + first.at(2, 1) * second.at(1, 3) + first.at(2, 2) * second.at(2, 3) + first.at(2, 3) * second.at(3, 3),
+                            first.at(3, 0) * second.at(0, 0) + first.at(3, 1) * second.at(1, 0) + first.at(3, 2) * second.at(2, 0) + first.at(3, 3) * second.at(3, 0),
+                            first.at(3, 0) * second.at(0, 1) + first.at(3, 1) * second.at(1, 1) + first.at(3, 2) * second.at(2, 1) + first.at(3, 3) * second.at(3, 1),
+                            first.at(3, 0) * second.at(0, 2) + first.at(3, 1) * second.at(1, 2) + first.at(3, 2) * second.at(2, 2) + first.at(3, 3) * second.at(3, 2),
+                            first.at(3, 0) * second.at(0, 3) + first.at(3, 1) * second.at(1, 3) + first.at(3, 2) * second.at(2, 3) + first.at(3, 3) * second.at(3, 3)});
 }
 
 template <class Type>
@@ -681,14 +678,13 @@ vec3_T<Type> operator*(const mat<Type, 3, 3> &mat, const vec3_T<Type> &in) {
 }
 
 template <class Type>
-vec4_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec4_T<Type> &in)  {
+vec4_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec4_T<Type> &in) {
     return vec4_T<Type>(
         mat.at(0, 0) * in.x + mat.at(0, 1) * in.y + mat.at(0, 2) * in.z + mat.at(0, 3) * in.w,
         mat.at(1, 0) * in.x + mat.at(1, 1) * in.y + mat.at(1, 2) * in.z + mat.at(1, 3) * in.w,
         mat.at(2, 0) * in.x + mat.at(2, 1) * in.y + mat.at(2, 2) * in.z + mat.at(2, 3) * in.w,
         mat.at(3, 0) * in.x + mat.at(3, 1) * in.y + mat.at(3, 2) * in.z + mat.at(3, 3) * in.w);
 }
-
 
 typedef mat<float, 4, 4> mat4f;
 typedef mat<float, 3, 3> mat3f;

@@ -5,11 +5,11 @@
 #include "material.h"
 #include "pointLight.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+// #define STB_IMAGE_IMPLEMENTATION
+// #include "stb_image.h"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+// #include "stb_image_write.h"
 
 inline int roundfloat(const float &in) {
     return in + 0.5f;
@@ -23,12 +23,25 @@ struct framebuffer {
     bool *grid;
     float *z;
     color *colorlayer;
+    bool *clearedgrid;
+    float *clearedz;
+    color *clearedcolorlayer;
     size_t x_size, y_size;
     int xmax, xmin, ymax, ymin;
     framebuffer(const size_t &x, const size_t &y) : x_size(x), y_size(y) {
         grid = new bool[x_size * y_size];
         colorlayer = new color[x_size * y_size];
         z = new float[x_size * y_size];
+
+        clearedgrid = new bool[x_size * y_size];
+        clearedcolorlayer = new color[x_size * y_size];
+        clearedz = new float[x_size * y_size];
+        for (uint32_t x = 0; x < x_size * y_size; ++x) {
+            clearedgrid[x] = false;
+            clearedcolorlayer[x] = color(0, 0, 0, 255);
+            clearedz[x] = -std::numeric_limits<float>::max();
+        }
+
         xmax = x_size / 2;
         xmin = -xmax;
         ymax = y_size / 2;
@@ -44,19 +57,34 @@ struct framebuffer {
     }
 
     void clear() {
-        for (uint32_t x = 0; x < x_size * y_size; ++x) {
-            grid[x] = false;
-            colorlayer[x] = color(0, 0, 0, 255);
-            z[x] = -std::numeric_limits<float>::max();
-        }
+        memcpy(grid, clearedgrid, x_size * y_size * sizeof(bool));
+        memcpy(colorlayer, clearedcolorlayer, x_size * y_size * sizeof(color));
+        memcpy(z, clearedz, x_size * y_size * sizeof(float));
     }
+
+    //void clear2() {
+    //    auto steps = (x_size * y_size) / pool.get_thread_count();
+    //    for (size_t i = 0; i < pool.get_thread_count(); i++) {
+    //        pool.submit(clearhelper, i * steps, (i + 1) * steps, grid, colorlayer, z);
+    //    }
+    //    pool.wait_for_tasks();
+    //}
+    //
+    //private:
+    //static void clearhelper(uint32_t i, const uint32_t &end, bool *grid, color *colorlayer, float *z) {
+    //    for (i; i < end; ++i) {
+    //        grid[i] = false;
+    //        colorlayer[i] = color(0, 0, 0, 255);
+    //        z[i] = -std::numeric_limits<float>::max();
+    //    }
+    //}
 };
 
 //same as Vertex with fragment Position
 struct Vertex2 {
     Vertex v;
-    //fragment Position
-    vec3 f_pos;
+    //fragment Position for phong and INTENSITY for gouraud
+    EXTRA_VARIABLE_TYPE f_pos;
     Vertex2(const Vertex &vin, const vec3 &pos) : v(vin), f_pos(pos) {}
     Vertex2() {}
     Vertex2 operator*(const float &f) const {
@@ -150,7 +178,6 @@ struct engine {
         GLcall(glBindTexture(GL_TEXTURE_2D, tex));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
         GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, fboCPU->x_size, fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
         GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 
@@ -265,14 +292,11 @@ struct engine {
         putpixel(x + fboCPU->xmax, y + fboCPU->ymax, col);
     }
 
-    uint32_t putpixelcalls = 0;
-
     inline void putpixel_adjusted_noChecks(int x, int y, float z, const color &col = 255) {
         auto indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
         fboCPU->colorlayer[indx] = col;
         fboCPU->grid[indx] = true;
         fboCPU->z[indx] = z;
-        putpixelcalls++;
     }
 
     inline float getpixelZ_adjusted(int x, int y) const {
@@ -355,6 +379,8 @@ struct engine {
             return 1;
         case 3:
             return 0;
+        default:
+            return 0;
         }
     }
 
@@ -363,26 +389,28 @@ struct engine {
         u2 = -(nearPlane + tris[idx2].z) / (tris[rem].z - tris[idx2].z);
     }
 
-    inline void clip2helper(const mat4f &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, std::array<Vertex2, 3> &t) {
+#define EXTRA_VARIABLE_TYPE vec3
+
+    inline void clip2helper(const mat4f &per, const std::array<EXTRA_VARIABLE_TYPE, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, std::array<Vertex2, 3> &t) {
         float u1, u2;
         const unsigned char rem = getRemaining(idx1, idx2);
         clip2(modelviewTransformed, idx1, idx2, rem, u1, u2);
-        t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[rem] - points[idx1]) * u1, per), modelTransformed[idx1] + modelTransformed[rem] * u1);
-        t[idx2] = Vertex2(Vertex::perspectiveMul(points[idx2] + (points[rem] - points[idx2]) * u2, per), modelTransformed[idx2] + modelTransformed[rem] * u2);
-        t[rem] = Vertex2(Vertex(modelviewTransformed[rem], points[rem].normal, points[rem].texCoord).perspectiveMul(per), modelTransformed[rem]);
+        t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[rem] - points[idx1]) * u1, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[rem] - extraInfoAboutVertex[idx1]) * u1);
+        t[idx2] = Vertex2(Vertex::perspectiveMul(points[idx2] + (points[rem] - points[idx2]) * u2, per), extraInfoAboutVertex[idx2] + (extraInfoAboutVertex[rem] - extraInfoAboutVertex[idx2]) * u2);
+        t[rem] = Vertex2(Vertex(modelviewTransformed[rem], points[rem].normal, points[rem].texCoord).perspectiveMul(per), extraInfoAboutVertex[rem]);
     }
 
-    inline void clip1helper(const mat4f &per, const std::array<vec4, 3> &modelTransformed, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
+    inline void clip1helper(const mat4f &per, const std::array<EXTRA_VARIABLE_TYPE, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
         float u1, u2;
         unsigned char idx2 = (idx1 + 1) % 3, idx3 = (idx1 + 2) % 3;
         clip1(modelviewTransformed, idx1, u1, u2);
 
-        t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx2] - points[idx1]) * u1, per), modelTransformed[idx1] + modelTransformed[idx2] * u1);
-        t[idx2] = Vertex2(Vertex(modelviewTransformed[idx2], points[idx2].normal, points[idx2].texCoord).perspectiveMul(per), modelTransformed[idx2]);
-        t[idx3] = Vertex2(Vertex(modelviewTransformed[idx3], points[idx3].normal, points[idx3].texCoord).perspectiveMul(per), modelTransformed[idx3]);
+        t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx2] - points[idx1]) * u1, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[idx2] - extraInfoAboutVertex[idx1]) * u1);
+        t[idx2] = Vertex2(Vertex(modelviewTransformed[idx2], points[idx2].normal, points[idx2].texCoord).perspectiveMul(per), extraInfoAboutVertex[idx2]);
+        t[idx3] = Vertex2(Vertex(modelviewTransformed[idx3], points[idx3].normal, points[idx3].texCoord).perspectiveMul(per), extraInfoAboutVertex[idx3]);
         triangles.emplace_back(t);
         t[idx2] = t[idx3];
-        t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3] - points[idx1]) * u2, per), modelTransformed[idx1] + modelTransformed[idx3] * u2);
+        t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3] - points[idx1]) * u2, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[idx3] - extraInfoAboutVertex[idx1]) * u2);
         triangles.emplace_back(std::move(t));
     }
 
@@ -405,9 +433,9 @@ struct engine {
         auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
         color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
         color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
-        if (specular.r() != specular.g() != specular.b()) {
-            DEBUG_BREAK;
-        }
+        //if (specular.r() != specular.g() != specular.b()) {
+        //    DEBUG_BREAK;
+        //}
         diffuse += specular;
         diffuse.a() = 255;
         return std::move(diffuse);
@@ -418,13 +446,13 @@ struct engine {
         const float diff = max(vec3::dot(normal, lightDir), 0.0);
         const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
         const float spec = pow(max(vec3::dot(normal, halfwayDir), 0.0), currentMaterial->shininess);
-        color ambient = diffuseColor * light.get_ambient_color() * light.intensity * currentMaterial->AmbientStrength * int_by_at;
-        color diffuse = diffuseColor * light.get_diffuse_color() * light.intensity * currentMaterial->DiffuseStrength * diff * int_by_at;
-        color specular = light.get_diffuse_color() * light.intensity * currentMaterial->SpecularStrength * spec * int_by_at;
+        const color ambient = diffuseColor * light.get_ambient_color() * (currentMaterial->AmbientStrength * int_by_at);
+        const color diffuse = diffuseColor * light.get_diffuse_color() * (currentMaterial->DiffuseStrength * diff * int_by_at);
+        const color specular = light.get_diffuse_color() * (currentMaterial->SpecularStrength * spec * int_by_at);
         return (ambient + diffuse + specular);
     }
 
-    inline color getcolor(const Vertex2 &v) {
+    color getcolor(const Vertex2 &v) {
         color col;
         if (currentMaterial->diffuse.w) {
             float intpart;
@@ -434,12 +462,10 @@ struct engine {
             col = color(*ret, *(ret + 1), *(ret + 2));
         } else
             col = currentMaterial->diffuseColor;
-        float intpart;
-        color result;
-        //color result(vec3(fabs(std::modf(v.v.texCoord.x, &intpart)), fabs(std::modf(v.v.texCoord.y, &intpart)),1));
-        auto viewDir = (cam->eye - v.f_pos).normalize();
 
-        //result += CalcDirLight(v.v.normal, viewDir, col);
+        color result;
+#ifdef PHONG_SHADING
+        auto viewDir = (cam->eye - v.f_pos).normalize();
         for (auto &light : pointLights) {
             float dist = vec3::dist(v.f_pos, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
@@ -448,12 +474,20 @@ struct engine {
             }
         }
         result += col * ambientLightIntensity;
+#else
+        for (auto &light : pointLights) {
+            result += col * light.get_ambient_color() * v.f_pos.x;
+            result += col * light.get_diffuse_color() * v.f_pos.y;
+            result += light.get_diffuse_color() * v.f_pos.z;
+            result += col * ambientLightIntensity;
+        }
+#endif
 
         return std::move(result);
     }
 
     //p0 is the top unique point
-    inline void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
+    void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
         double invslope1 = ((double)p0.x - p1.x) / ((double)p0.y - p1.y);
         double invslope2 = ((double)p0.x - p2.x) / ((double)p0.y - p2.y);
 
@@ -503,7 +537,7 @@ struct engine {
     }
 
     //p2 is the bottom unique point
-    inline void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
+    void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
         double invslope1 = ((double)p2.x - p1.x) / ((double)p2.y - p1.y);
         double invslope2 = ((double)p2.x - p0.x) / ((double)p2.y - p0.y);
 
@@ -558,14 +592,28 @@ struct engine {
         }
     }
 
-    void rasterizeTriangles() {
-        putpixelcalls = 0;
-        for (auto tris : triangles) {
+    template <class T>
+    void sort3Values(T &item0, T &item1, T &item2, std::function<bool(const T &, const T &)> function) {
+        // Insert item1
+        if (function(item1, item0))
+            std::swap(item0, item1);
 
-            std::sort(tris.begin(), tris.end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+        // Insert item2
+        if (function(item2, item1)) {
+            std::swap(item1, item2);
+            if (function(item1, item0))
+                std::swap(item1, item0);
+        }
+    }
+
+    void rasterizeTriangles() {
+        for (auto &tris : triangles) {
+
+            sort3Values<Vertex2>(tris[0], tris[1], tris[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
             if (tris[0].v.position.y < tris[1].v.position.y || tris[1].v.position.y < tris[2].v.position.y) {
                 DEBUG_BREAK;
             }
+            //std::sort(tris.begin(), tris.end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
 
             vec2_T<int> points[3];
             points[0] = vec2_T<int>(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y));
@@ -599,11 +647,11 @@ struct engine {
                 if (alphaSplit < 0.0f || alphaSplit > 1.0f) {
                     DEBUG_BREAK;
                 }
-                auto diff = tris[2] - tris[0];
+                const auto diff = tris[2] - tris[0];
                 //checkTexcoords(diff.v.texCoord);
                 const auto vi = tris[0] + diff * alphaSplit;
 
-                checkTexcoords(vi.v.texCoord);
+                //checkTexcoords(vi.v.texCoord);
                 auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
                 pi.y = points[1].y;
 
@@ -621,36 +669,52 @@ struct engine {
         int x = 4;
     }
 
-    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
-        triangles.clear();
+    void fillExtraInformationForGoraudShading(Vertex &v, vec3 &extraInfoAboutVertex) {
+        auto viewDir = (cam->eye - extraInfoAboutVertex).normalize();
+        for (auto &light : pointLights) {
+            float dist = vec3::dist(extraInfoAboutVertex, light.getpos());
+            float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+            const vec3 lightDir = vec3::normalize(light.getpos() - extraInfoAboutVertex);
+            extraInfoAboutVertex = vec3();
+            if (int_by_at > 0.04) {
+                const float diff = max(vec3::dot(v.normal, lightDir), 0.0);
+                const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
+                const float spec = pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMaterial->shininess);
+                extraInfoAboutVertex += vec3(currentMaterial->AmbientStrength * int_by_at, currentMaterial->DiffuseStrength * diff * int_by_at, currentMaterial->SpecularStrength * spec * int_by_at);
+            }
+        }
+    }
+
+    void makeRequiredTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
         for (size_t i = 0; i < indices.size(); i += 3) {
             std::array<vec4, 3> modelviewTransformed;
-            std::array<vec4, 3> modelTransformed;
+            std::array<EXTRA_VARIABLE_TYPE, 3> extraInfoAboutVertex;
             std::array<bool, 3> clip;
             clip[2] = clip[1] = clip[0] = false;
             Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
             std::array<Vertex2, 3> t;
             // Vertex temp;
+            extraInfoAboutVertex[0] = modelmat * points[0].position;
+            extraInfoAboutVertex[1] = modelmat * points[1].position;
+            extraInfoAboutVertex[2] = modelmat * points[2].position;
 
-            modelTransformed[0] = modelmat * points[0].position;
-            modelviewTransformed[0] = view * modelTransformed[0];
+            modelviewTransformed[0] = view * (modelmat * points[0].position);
             if (modelviewTransformed[0].z > -nearPlane) {
                 clip[0] = true;
             }
 
-            modelTransformed[1] = modelmat * points[1].position;
-            modelviewTransformed[1] = view * modelTransformed[1];
+            modelviewTransformed[1] = view * (modelmat * points[1].position);
             if (modelviewTransformed[1].z > -nearPlane) {
                 clip[1] = true;
             }
 
-            modelTransformed[2] = modelmat * points[2].position;
-            modelviewTransformed[2] = view * modelTransformed[2];
+            modelviewTransformed[2] = view * (modelmat * points[2].position);
             if (modelviewTransformed[2].z > -nearPlane) {
                 clip[2] = true;
             }
+
             float u1, u2;
             points[0].position = modelviewTransformed[0];
             points[0].normal = mat4mulvec3(modelmat, points[0].normal);
@@ -662,55 +726,67 @@ struct engine {
             if (cullBackface && vec3::dot(mat4mulvec3(view, points[0].normal), points[0].position) > 0) {
                 continue;
             }
+
+#ifndef PHONG_SHADING
+            fillExtraInformationForGoraudShading(points[0], extraInfoAboutVertex[0]);
+            fillExtraInformationForGoraudShading(points[1], extraInfoAboutVertex[1]);
+            fillExtraInformationForGoraudShading(points[2], extraInfoAboutVertex[2]);
+#endif
+
             if (clip[0] && clip[1] && clip[2]) {
                 continue;
             } else if (clip[0]) {
                 if (clip[1]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 1, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 1, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else if (clip[2]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 2, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 2, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else {
-                    clip1helper(per, modelTransformed, modelviewTransformed, points, 0, t, triangles);
+                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, t, triangles);
                     continue;
                 }
             } else if (clip[1]) {
                 if (clip[2]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 1, 2, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 2, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else if (clip[0]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 1, 0, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 0, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else {
-                    clip1helper(per, modelTransformed, modelviewTransformed, points, 1, t, triangles);
+                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, t, triangles);
                     continue;
                 }
             } else if (clip[2]) {
                 if (clip[0]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 2, 0, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 0, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else if (clip[1]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 2, 1, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 1, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else {
-                    clip1helper(per, modelTransformed, modelviewTransformed, points, 2, t, triangles);
+                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, t, triangles);
                     continue;
                 }
             }
 
-            t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), modelTransformed[0]);
-            t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), modelTransformed[1]);
-            t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), modelTransformed[2]);
+            t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), extraInfoAboutVertex[0]);
+            t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), extraInfoAboutVertex[1]);
+            t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), extraInfoAboutVertex[2]);
 
             triangles.emplace_back(std::move(t));
         }
+    }
+
+    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
+        triangles.clear();
+        makeRequiredTriangles(vertices, indices, modelmat);
         for (auto &tris : triangles) {
             draw_bresenham_adjusted(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y), roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y), color(0, 255, 0));
             draw_bresenham_adjusted(roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y), roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y), color(0, 255, 0));
@@ -720,93 +796,7 @@ struct engine {
 
     void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         triangles.clear();
-        auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
-        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
-        for (size_t i = 0; i < indices.size(); i += 3) {
-            std::array<vec4, 3> modelviewTransformed;
-            std::array<vec4, 3> modelTransformed;
-            std::array<bool, 3> clip;
-            clip[2] = clip[1] = clip[0] = false;
-            Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
-            std::array<Vertex2, 3> t;
-            // Vertex temp;
-
-            modelTransformed[0] = modelmat * points[0].position;
-            modelviewTransformed[0] = view * modelTransformed[0];
-            if (modelviewTransformed[0].z > -nearPlane) {
-                clip[0] = true;
-            }
-
-            modelTransformed[1] = modelmat * points[1].position;
-            modelviewTransformed[1] = view * modelTransformed[1];
-            if (modelviewTransformed[1].z > -nearPlane) {
-                clip[1] = true;
-            }
-
-            modelTransformed[2] = modelmat * points[2].position;
-            modelviewTransformed[2] = view * modelTransformed[2];
-            if (modelviewTransformed[2].z > -nearPlane) {
-                clip[2] = true;
-            }
-            float u1, u2;
-            points[0].position = modelviewTransformed[0];
-            points[0].normal = mat4mulvec3(modelmat, points[0].normal);
-            points[1].position = modelviewTransformed[1];
-            points[1].normal = mat4mulvec3(modelmat, points[1].normal);
-            points[2].position = modelviewTransformed[2];
-            points[2].normal = mat4mulvec3(modelmat, points[2].normal);
-
-            if (cullBackface && vec3::dot(mat4mulvec3(view, points[0].normal), points[0].position) > 0) {
-                continue;
-            }
-            if (clip[0] && clip[1] && clip[2]) {
-                continue;
-            } else if (clip[0]) {
-                if (clip[1]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 1, t);
-                    continue;
-                } else if (clip[2]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 0, 2, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else {
-                    clip1helper(per, modelTransformed, modelviewTransformed, points, 0, t, triangles);
-                    continue;
-                }
-            } else if (clip[1]) {
-                if (clip[2]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 1, 2, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else if (clip[0]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 1, 0, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else {
-                    clip1helper(per, modelTransformed, modelviewTransformed, points, 1, t, triangles);
-                    continue;
-                }
-            } else if (clip[2]) {
-                if (clip[0]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 2, 0, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else if (clip[1]) {
-                    clip2helper(per, modelTransformed, modelviewTransformed, points, 2, 1, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else {
-                    clip1helper(per, modelTransformed, modelviewTransformed, points, 2, t, triangles);
-                    continue;
-                }
-            }
-
-            t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), modelTransformed[0]);
-            t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), modelTransformed[1]);
-            t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), modelTransformed[2]);
-
-            triangles.emplace_back(std::move(t));
-        }
+        makeRequiredTriangles(vertices, indices, modelmat);
         rasterizeTriangles();
     }
 };

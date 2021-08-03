@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <thread>
 
 #include "core.h"
 #include "transformations.h"
@@ -178,14 +179,27 @@ static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     graphicsEngine->fboCPU = new framebuffer(width, height);
 
     glViewport(0, 0, window_width, window_height);
+
+    GLcall(glGenTextures(1, &graphicsEngine->tex));
+    GLcall(glActiveTexture(GL_TEXTURE0));
+    GLcall(glBindTexture(GL_TEXTURE_2D, graphicsEngine->tex));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, graphicsEngine->fboCPU->x_size, graphicsEngine->fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+    GLcall(glBindTexture(GL_TEXTURE_2D, 0));
+
+#ifdef NEWRENDERMETHOD
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0.0, window_width, 0.0, window_height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#endif
 }
 
 int main(int argc, char **argv) {
+
+    auto threads = std::thread::hardware_concurrency();
 
     GLFWwindow *window;
 
@@ -224,6 +238,7 @@ int main(int argc, char **argv) {
 
     auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
     auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
+    auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
 
     float rotation_angle = 0;
     float view_angle = 0.0;
@@ -243,11 +258,11 @@ int main(int argc, char **argv) {
     std::vector<node *> lightmodels;
     lightmodels.push_back(Model::loadModel_obj(path + "/sphere.obj", "light"));
     auto spherescale = trans::scaling3d(0.1);
-    for (auto &mesh : lightmodels) {
-        for (auto &point : mesh->meshes.back()->m_vertices) {
-            point.position = spherescale * point.position;
-        }
-    }
+    //for (auto &mesh : lightmodels) {
+    //    for (auto &point : mesh->meshes.back()->m_vertices) {
+    //        point.position = spherescale * point.position;
+    //    }
+    //}
 
     for (int i = 0; i < graphicsEngine->pointLights.size(); i++) {
         graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
@@ -261,7 +276,7 @@ int main(int argc, char **argv) {
         processHoldEvent(window);
 
         translate3d = trans::translate(vec3(5, 0, -5));
-        scale3d = trans::scaling3d(vec3(2));
+        scale3d = trans::scaling3d(vec3(1));
 
         std::cout << "FPS: " << 1e6 / deltatime << std::endl;
         std::cout << "camera Eye: " << cam1.eye << std::endl;
@@ -277,21 +292,27 @@ int main(int argc, char **argv) {
         graphicsEngine->clear();
 
         m.diffuseColor = color(255, 255, 0);
-        for (auto &mesh : colorCube->meshes) {
-            graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, mat4f());
-            // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
-        }
+        //for (auto &mesh : colorCube->meshes) {
+        //    graphicsEngine->currentMaterial = &mesh->material;
+        //    graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, mat4f());
+        //    // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
+        //}
         for (auto &mesh : textureBox->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             graphicsEngine->currentMaterial->AmbientStrength = 0;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
-            //graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices,  mat4f());
+            // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, translate3d);
         }
+
+        for (auto &mesh : football->meshes) {
+            graphicsEngine->currentMaterial = &mesh->material;
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, scale3d);
+        }
+
         auto lightnode = lightmodels.back();
         for (auto &mesh : lightnode->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, lightnode->matModel);
+            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, lightnode->matModel * spherescale);
         }
         //graphicsEngine->currentMaterial = &m;
         //graphicsEngine->drawTrianglesRasterized(square, square_indices, translate3d);

@@ -15,17 +15,22 @@ const std::string pathDelemeter("/");
 #endif // _WIN32
 
 #ifdef _MSC_VER
-#define DEBUG_BREAK __debugbreak()
 
 #ifdef _DEBUG
 #define MDEBUG
-#endif
 #else
-#define DEBUG_BREAK __builtin_trap()
+#define DEBUG_BREAK
+#endif
+
+#else
 
 #ifndef NDEBUG
+#define DEBUG_BREAK __builtin_trap()
 #define MDEBUG
+#else
+#define DEBUG_BREAK
 #endif
+
 #endif
 
 #ifdef MDEBUG
@@ -43,6 +48,9 @@ const std::string pathDelemeter("/");
 #endif
 
 #define NEWRENDERMETHOD
+// #define PHONG_SHADING
+
+#define EXTRA_VARIABLE_TYPE vec3
 
 inline void GLClearError() {
     while (glGetError() != GL_NO_ERROR)
@@ -105,15 +113,27 @@ struct Vertex {
     Vertex() {}
 
     Vertex operator*(const float &f) const {
+#ifdef PHONG_SHADING
         return Vertex(position * f, normal * f, texCoord * f);
+#else
+        return Vertex(position * f, normal, texCoord * f);
+#endif
     }
     Vertex operator+(const Vertex &f) const {
+#ifdef PHONG_SHADING
         return Vertex(f.position + position, f.normal + normal, f.texCoord + texCoord);
+#else
+        return Vertex(f.position + position, normal, f.texCoord + texCoord);
+#endif
     }
     Vertex operator-(const Vertex &f) const {
+#ifdef PHONG_SHADING
         return Vertex(position - f.position, normal - f.normal, texCoord - f.texCoord);
+#else
+        return Vertex(position - f.position, normal, texCoord - f.texCoord);
+#endif
     }
-    inline Vertex perspectiveMul(const mat4f &per) {
+    Vertex perspectiveMul(const mat4f &per) {
         position = per * position;
         texCoord /= (fabs(position.w) < epsilon ? epsilon : position.w);
         position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), 1 / position.z, 1);
