@@ -238,7 +238,8 @@ int main(int argc, char **argv) {
 
     auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
     auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
-    auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
+    // auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
+    auto football = Model::loadModel_obj(path + "/city/uploads_files_2720101_BusGameMap.obj", "city");
 
     float rotation_angle = 0;
     float view_angle = 0.0;
@@ -276,7 +277,7 @@ int main(int argc, char **argv) {
         processHoldEvent(window);
 
         translate3d = trans::translate(vec3(5, 0, -5));
-        scale3d = trans::scaling3d(vec3(1));
+        scale3d = trans::scaling3d(vec3(0.5));
 
         std::cout << "FPS: " << 1e6 / deltatime << std::endl;
         std::cout << "camera Eye: " << cam1.eye << std::endl;

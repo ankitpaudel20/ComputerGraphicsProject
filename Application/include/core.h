@@ -48,7 +48,7 @@ const std::string pathDelemeter("/");
 #endif
 
 #define NEWRENDERMETHOD
-// #define PHONG_SHADING
+#define PHONG_SHADING
 
 #define EXTRA_VARIABLE_TYPE vec3
 
