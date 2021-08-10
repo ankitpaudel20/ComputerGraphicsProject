@@ -47,10 +47,9 @@ const std::string pathDelemeter("/");
 #define GLcall_P(y, x) y = x
 #endif
 
-#define NEWRENDERMETHOD
 #define PHONG_SHADING
 
-#define EXTRA_VARIABLE_TYPE vec3
+#define vec3 vec3
 
 inline void GLClearError() {
     while (glGetError() != GL_NO_ERROR)

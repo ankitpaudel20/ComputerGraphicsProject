@@ -188,13 +188,7 @@ static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, graphicsEngine->fboCPU->x_size, graphicsEngine->fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
     GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 
-#ifdef NEWRENDERMETHOD
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0.0, window_width, 0.0, window_height);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-#endif
+
 }
 
 int main(int argc, char **argv) {
@@ -207,11 +201,9 @@ int main(int argc, char **argv) {
         return -1;
     glfwSetErrorCallback(error_callback);
 
-#ifdef NEWRENDERMETHOD
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
     window = glfwCreateWindow(640, 480, "main", NULL, NULL);
     if (!(window)) {
         glfwTerminate();
@@ -240,6 +232,7 @@ int main(int argc, char **argv) {
     auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
     auto football = Model::loadModel_obj(path + "/city/uploads_files_2720101_BusGameMap.obj", "city");
+    //auto football = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
 
     float rotation_angle = 0;
     float view_angle = 0.0;
