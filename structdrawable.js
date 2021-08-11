@@ -12,7 +12,6 @@ var structdrawable =
     [ "doLightCalculations", "structdrawable.html#a90cd62c7da943b55063bdde98e2439fa", null ],
     [ "draw", "structdrawable.html#aa630d5857ad25d32c5bd50864b9546c3", null ],
     [ "m_indices", "structdrawable.html#a66e84a9617e01364ed2e4184a08ff10b", null ],
-    [ "m_primitve", "structdrawable.html#a2c48893c7ea3303d61c6272db7235a96", null ],
     [ "m_vertices", "structdrawable.html#af797fdc7c35504231dbad072d173622d", null ],
     [ "material", "structdrawable.html#a920cc25f7fbf317c7fbaea83f9f5b917", null ],
     [ "matModel", "structdrawable.html#ab883c9b636a7f0b8d7cf2b41d86558c9", null ],

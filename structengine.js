@@ -43,6 +43,5 @@ var structengine =
     [ "vao", "structengine.html#aa325f92005e7a1c31ac2fc8880d54c7f", null ],
     [ "vbo", "structengine.html#ae7e6bba7fdac01efa7c2976ffd2d3845", null ],
     [ "vertexShaderSource", "structengine.html#a39ca2556e36ebfc1b548d3fe75f5fb10", null ],
-    [ "vertices", "structengine.html#afc22e2f515f94d6d15a81c989737b23e", null ],
-    [ "written", "structengine.html#aaaa34e9f0f64dde97d15caa7217a0d70", null ]
+    [ "vertices", "structengine.html#afc22e2f515f94d6d15a81c989737b23e", null ]
 ];

@@ -114,12 +114,16 @@ $(document).ready(function(){initNavTree('maths_8h.html',''); initResizable(); }
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvec2___t.html">vec2_T&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">2d Vector class for storing x and y.  <a href="structvec2___t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvec3___t.html">vec3_T&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">3 element Vector class for storing x, y and z.  <a href="structvec3___t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvec4___t.html">vec4_T&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">4 element Vector class for storing x, y, z and w.  <a href="structvec4___t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmat.html">mat&lt; Type, x_dim, y_dim &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A general matrix class for any size of matrix.  <a href="classmat.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
@@ -151,21 +155,24 @@ Typedefs</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:ad41c60a77eb1e21ed25bfc24e24b075e"><td class="memTemplParams" colspan="2">template&lt;class Type , size_t x1, size_t y1, size_t x2&gt; </td></tr>
 <tr class="memitem:ad41c60a77eb1e21ed25bfc24e24b075e"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmat.html">mat</a>&lt; Type, x2, y1 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="maths_8h.html#ad41c60a77eb1e21ed25bfc24e24b075e">operator*</a> (const <a class="el" href="classmat.html">mat</a>&lt; Type, x1, y1 &gt; &amp;first, const <a class="el" href="classmat.html">mat</a>&lt; Type, x2, x1 &gt; &amp;second)</td></tr>
+<tr class="memdesc:ad41c60a77eb1e21ed25bfc24e24b075e"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator overload for matrix multiplication.  <a href="maths_8h.html#ad41c60a77eb1e21ed25bfc24e24b075e">More...</a><br /></td></tr>
 <tr class="separator:ad41c60a77eb1e21ed25bfc24e24b075e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae1134cbb588a6430798d0c85fa128118"><td class="memTemplParams" colspan="2">template&lt;class Type &gt; </td></tr>
 <tr class="memitem:ae1134cbb588a6430798d0c85fa128118"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmat.html">mat</a>&lt; Type, 4, 4 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="maths_8h.html#ae1134cbb588a6430798d0c85fa128118">operator*</a> (const <a class="el" href="classmat.html">mat</a>&lt; Type, 4, 4 &gt; &amp;first, const <a class="el" href="classmat.html">mat</a>&lt; Type, 4, 4 &gt; &amp;second)</td></tr>
+<tr class="memdesc:ae1134cbb588a6430798d0c85fa128118"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator overload for matrix multiplication (specialized for mat4).  <a href="maths_8h.html#ae1134cbb588a6430798d0c85fa128118">More...</a><br /></td></tr>
 <tr class="separator:ae1134cbb588a6430798d0c85fa128118"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae200f10155078d7ebc3352d1c954b0ea"><td class="memTemplParams" colspan="2">template&lt;class Type &gt; </td></tr>
 <tr class="memitem:ae200f10155078d7ebc3352d1c954b0ea"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structvec3___t.html">vec3_T</a>&lt; Type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="maths_8h.html#ae200f10155078d7ebc3352d1c954b0ea">operator*</a> (const <a class="el" href="classmat.html">mat</a>&lt; Type, 4, 4 &gt; &amp;<a class="el" href="classmat.html">mat</a>, const <a class="el" href="structvec3___t.html">vec3_T</a>&lt; Type &gt; &amp;in)</td></tr>
+<tr class="memdesc:ae200f10155078d7ebc3352d1c954b0ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator overload for mat4 multiplication with vec3 .  <a href="maths_8h.html#ae200f10155078d7ebc3352d1c954b0ea">More...</a><br /></td></tr>
 <tr class="separator:ae200f10155078d7ebc3352d1c954b0ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acff2319bd126a964360a48290c3fff27"><td class="memTemplParams" colspan="2">template&lt;class Type &gt; </td></tr>
 <tr class="memitem:acff2319bd126a964360a48290c3fff27"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structvec3___t.html">vec3_T</a>&lt; Type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="maths_8h.html#acff2319bd126a964360a48290c3fff27">operator*</a> (const <a class="el" href="classmat.html">mat</a>&lt; Type, 3, 3 &gt; &amp;<a class="el" href="classmat.html">mat</a>, const <a class="el" href="structvec3___t.html">vec3_T</a>&lt; Type &gt; &amp;in)</td></tr>
+<tr class="memdesc:acff2319bd126a964360a48290c3fff27"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator overload for mat3 multiplication with vec3.  <a href="maths_8h.html#acff2319bd126a964360a48290c3fff27">More...</a><br /></td></tr>
 <tr class="separator:acff2319bd126a964360a48290c3fff27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a942e4f4ad43dcaa87eb78941a32ff934"><td class="memTemplParams" colspan="2">template&lt;class Type &gt; </td></tr>
 <tr class="memitem:a942e4f4ad43dcaa87eb78941a32ff934"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structvec4___t.html">vec4_T</a>&lt; Type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="maths_8h.html#a942e4f4ad43dcaa87eb78941a32ff934">operator*</a> (const <a class="el" href="classmat.html">mat</a>&lt; Type, 4, 4 &gt; &amp;<a class="el" href="classmat.html">mat</a>, const <a class="el" href="structvec4___t.html">vec4_T</a>&lt; Type &gt; &amp;in)</td></tr>
+<tr class="memdesc:a942e4f4ad43dcaa87eb78941a32ff934"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator overload for mat4 multiplication with vec4.  <a href="maths_8h.html#a942e4f4ad43dcaa87eb78941a32ff934">More...</a><br /></td></tr>
 <tr class="separator:a942e4f4ad43dcaa87eb78941a32ff934"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ea1d47bd04023ce9c76379f760d33e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="maths_8h.html#a7ea1d47bd04023ce9c76379f760d33e4">mat4mulvec3</a> (const <a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a> &amp;m, const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;v)</td></tr>
-<tr class="separator:a7ea1d47bd04023ce9c76379f760d33e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -189,7 +196,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00678">678</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00713">713</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -205,7 +212,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00676">676</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00711">711</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -221,7 +228,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00680">680</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00715">715</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -237,7 +244,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00682">682</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00717">717</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -253,7 +260,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00677">677</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00712">712</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -269,7 +276,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00675">675</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00710">710</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -285,7 +292,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00679">679</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00714">714</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -301,7 +308,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00681">681</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00716">716</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -317,7 +324,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00137">137</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00142">142</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -333,7 +340,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00269">269</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00279">279</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -349,49 +356,11 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00384">384</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00399">399</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a7ea1d47bd04023ce9c76379f760d33e4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ea1d47bd04023ce9c76379f760d33e4">&#9670;&nbsp;</a></span>mat4mulvec3()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> mat4mulvec3 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a> &amp;&#160;</td>
-          <td class="paramname"><em>m</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;&#160;</td>
-          <td class="paramname"><em>v</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00684">684</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
-
-</div>
-</div>
 <a id="acff2319bd126a964360a48290c3fff27"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acff2319bd126a964360a48290c3fff27">&#9670;&nbsp;</a></span>operator*() <span class="overload">[1/5]</span></h2>
 
@@ -420,7 +389,9 @@ template&lt;class Type &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00659">659</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p>operator overload for mat3 multiplication with vec3. </p>
+
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00691">691</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -452,7 +423,9 @@ template&lt;class Type &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00631">631</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p>operator overload for matrix multiplication (specialized for mat4). </p>
+
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00657">657</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -484,7 +457,9 @@ template&lt;class Type &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00651">651</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p>operator overload for mat4 multiplication with vec3 . </p>
+
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00680">680</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -516,7 +491,9 @@ template&lt;class Type &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00667">667</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p>operator overload for mat4 multiplication with vec4. </p>
+
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00702">702</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>
@@ -548,7 +525,9 @@ template&lt;class Type , size_t x1, size_t y1, size_t x2&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00617">617</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
+<p>operator overload for matrix multiplication. </p>
+
+<p class="definition">Definition at line <a class="el" href="maths_8h_source.html#l00640">640</a> of file <a class="el" href="maths_8h_source.html">maths.h</a>.</p>
 
 </div>
 </div>

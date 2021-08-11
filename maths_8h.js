@@ -15,7 +15,6 @@ var maths_8h =
     [ "vec2", "maths_8h.html#a421ebad26902800276cfc3af5c467922", null ],
     [ "vec3", "maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d", null ],
     [ "vec4", "maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d", null ],
-    [ "mat4mulvec3", "maths_8h.html#a7ea1d47bd04023ce9c76379f760d33e4", null ],
     [ "operator*", "maths_8h.html#acff2319bd126a964360a48290c3fff27", null ],
     [ "operator*", "maths_8h.html#ae1134cbb588a6430798d0c85fa128118", null ],
     [ "operator*", "maths_8h.html#ae200f10155078d7ebc3352d1c954b0ea", null ],

@@ -5,6 +5,6 @@ var struct_vertex2 =
     [ "operator*", "struct_vertex2.html#ad7ca83fd673a3d64dcede032500eaa08", null ],
     [ "operator+", "struct_vertex2.html#aaa540bafac101aba8e33ea625372a72a", null ],
     [ "operator-", "struct_vertex2.html#a16d26da9b53ac62879ecf505cc86abe5", null ],
-    [ "f_pos", "struct_vertex2.html#a89749cb1e06c6727bb77f670da88c6fb", null ],
+    [ "extraInfoAboutVertex", "struct_vertex2.html#a4f158779fcc04e30abee8068ee086b51", null ],
     [ "v", "struct_vertex2.html#a4714a47a8e42418a7cee777b0355fae7", null ]
 ];
