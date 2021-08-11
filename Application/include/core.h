@@ -17,6 +17,7 @@ const std::string pathDelemeter("/");
 #ifdef _MSC_VER
 
 #ifdef _DEBUG
+#define DEBUG_BREAK __debugbreak()
 #define MDEBUG
 #else
 #define DEBUG_BREAK

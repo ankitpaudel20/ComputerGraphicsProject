@@ -7,20 +7,6 @@
 #include <array>
 #include "glm/glm.hpp"
 
-#ifdef _MSC_VER
-#define DEBUG_BREAK __debugbreak()
-
-#ifdef _DEBUG
-#define MDEBUG
-#endif
-#else
-#define DEBUG_BREAK __builtin_trap()
-
-#ifndef NDEBUG
-#define MDEBUG
-#endif
-#endif
-
 constexpr float radian = 3.14159265f / 180.f;
 constexpr float epsilon = 1e-4f;
 constexpr float pi = 3.14159265f;

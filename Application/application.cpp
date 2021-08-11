@@ -187,8 +187,6 @@ static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     GLcall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, graphicsEngine->fboCPU->x_size, graphicsEngine->fboCPU->y_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
     GLcall(glBindTexture(GL_TEXTURE_2D, 0));
-
-
 }
 
 int main(int argc, char **argv) {
@@ -231,7 +229,8 @@ int main(int argc, char **argv) {
     auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
     auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
-    auto football = Model::loadModel_obj(path + "/city/uploads_files_2720101_BusGameMap.obj", "city");
+    auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
+    // auto football = Model::loadModel_obj(path + "/city/uploads_files_2720101_BusGameMap.obj", "city");
     //auto football = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
 
     float rotation_angle = 0;
@@ -262,6 +261,9 @@ int main(int argc, char **argv) {
         graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
     }
     auto lastframe = std::chrono::high_resolution_clock::now();
+    std::string fpsString = "FPS: ";
+    const auto place = fpsString.find_first_of(" ")+1;
+    
     while (!glfwWindowShouldClose(window)) {
         deltatime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastframe).count();
         lastframe = std::chrono::high_resolution_clock::now();
@@ -272,14 +274,18 @@ int main(int argc, char **argv) {
         translate3d = trans::translate(vec3(5, 0, -5));
         scale3d = trans::scaling3d(vec3(0.5));
 
-        std::cout << "FPS: " << 1e6 / deltatime << std::endl;
-        std::cout << "camera Eye: " << cam1.eye << std::endl;
-        std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
-        std::cout << "pointlight position: " << graphicsEngine->pointLights.back().getpos() << std::endl;
+        fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / deltatime));
+        glfwSetWindowTitle(window, fpsString.c_str());
+        //fpsString.erase(place);
 
-        for (size_t i = 0; i < 4; i++) {
-            printf("\033[F");
-        }
+        //std::cout << "FPS: " << 1e6 / deltatime << std::endl;
+        //std::cout << "camera Eye: " << cam1.eye << std::endl;
+        //std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        //std::cout << "pointlight position: " << graphicsEngine->pointLights.back().getpos() << std::endl;
+
+        //for (size_t i = 0; i < 4; i++) {
+        //    printf("\033[F");
+        //}
 
         color brescolor(0, 255, 0);
 
@@ -291,14 +297,14 @@ int main(int argc, char **argv) {
         //    graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, mat4f());
         //    // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
         //}
-        for (auto &mesh : textureBox->meshes) {
-            graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->currentMaterial->AmbientStrength = 0;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
-            // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, translate3d);
-        }
+        //for (auto &mesh : textureBox->meshes) {
+        //    graphicsEngine->currentMaterial = &mesh->material;
+        //    graphicsEngine->currentMaterial->AmbientStrength = 0;
+        //    graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
+        //    // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, translate3d);
+        //}
 
-        for (auto &mesh : football->meshes) {
+        for (auto &mesh : stupa->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, scale3d);
         }

@@ -6,12 +6,6 @@
 #include "material.h"
 #include "pointLight.h"
 
-// #define STB_IMAGE_IMPLEMENTATION
-// #include "stb_image.h"
-
-// #define STB_IMAGE_WRITE_IMPLEMENTATION
-// #include "stb_image_write.h"
-
 inline int roundfloat(const float &in) {
     return in < 0 ? in - 0.5f : in + 0.5f;
 }
@@ -235,7 +229,7 @@ struct engine {
         GLcall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fboCPU->x_size, fboCPU->y_size, GL_RGBA, GL_UNSIGNED_BYTE, imageData));
         glBindVertexArray(vao);
         GLcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-    }   
+    }
 
     //drawlines using given vertices and indices
     void drawLines(const std::vector<vec2_T<int>> &points, const color &col = color(255), const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
@@ -265,7 +259,7 @@ struct engine {
     float nearPlane = 0.0f;
 
     //switch for backface culling
-    bool cullBackface = true;    
+    bool cullBackface = true;
 
     //which material to use for further render calls
     Material *currentMaterial = nullptr;
@@ -277,7 +271,6 @@ struct engine {
     std::vector<pointLight> pointLights;
 
     camera *cam = nullptr;
-
 
     //essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
     color getcolor(const Vertex2 &v) {
@@ -312,7 +305,7 @@ struct engine {
 #endif
 
         return std::move(result);
-    }    
+    }
 
     void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         triangles.clear();
@@ -330,89 +323,87 @@ struct engine {
         rasterizeTriangles();
     }
 
-    private:
-
-        
+  private:
     inline float max(const float &first, const float &second) {
-          return first > second ? first : second;
-      }
+        return first > second ? first : second;
+    }
 
-      inline vec3 reflect(const vec3 &I, const vec3 &N) {
-          return I - N * 2.0 * vec3::dot(N, I);
-      }
+    inline vec3 reflect(const vec3 &I, const vec3 &N) {
+        return I - N * 2.0 * vec3::dot(N, I);
+    }
 
-      //function to calculate effect of directional light in a fragment with color col
-      inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
-          auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
-          auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
-          color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
-          color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
-          diffuse += specular;
-          diffuse.a() = 255;
-          return std::move(diffuse);
-      }
+    //function to calculate effect of directional light in a fragment with color col
+    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
+        auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
+        auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
+        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
+        color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
+        diffuse += specular;
+        diffuse.a() = 255;
+        return std::move(diffuse);
+    }
 
-      //function to calculate effect of a point light in a fragment with color col
-      color CalcPointLight(const pointLight &light, const vec3 &normal, const vec3 &fragPos, const vec3 &viewDir, const color &diffuseColor, float int_by_at) {
-          const vec3 lightDir = vec3::normalize(light.getpos() - fragPos);
-          const float diff = max(vec3::dot(normal, lightDir), 0.0);
-          const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
-          const float spec = pow(max(vec3::dot(normal, halfwayDir), 0.0), currentMaterial->shininess);
-          const color ambient = diffuseColor * light.get_ambient_color() * (currentMaterial->AmbientStrength * int_by_at);
-          const color diffuse = diffuseColor * light.get_diffuse_color() * (currentMaterial->DiffuseStrength * diff * int_by_at);
-          const color specular = light.get_diffuse_color() * (currentMaterial->SpecularStrength * spec * int_by_at);
-          return (ambient + diffuse + specular);
-      }
+    //function to calculate effect of a point light in a fragment with color col
+    color CalcPointLight(const pointLight &light, const vec3 &normal, const vec3 &fragPos, const vec3 &viewDir, const color &diffuseColor, float int_by_at) {
+        const vec3 lightDir = vec3::normalize(light.getpos() - fragPos);
+        const float diff = max(vec3::dot(normal, lightDir), 0.0);
+        const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
+        const float spec = pow(max(vec3::dot(normal, halfwayDir), 0.0), currentMaterial->shininess);
+        const color ambient = diffuseColor * light.get_ambient_color() * (currentMaterial->AmbientStrength * int_by_at);
+        const color diffuse = diffuseColor * light.get_diffuse_color() * (currentMaterial->DiffuseStrength * diff * int_by_at);
+        const color specular = light.get_diffuse_color() * (currentMaterial->SpecularStrength * spec * int_by_at);
+        return (ambient + diffuse + specular);
+    }
 
-         //putpixel assuming middle of screen to be the origin
-      void putpixel_adjusted(int x, int y, float z, const color &col = 255) {
-          assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
-          const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
-          fboCPU->colorlayer[indx] = col;
-          fboCPU->grid[indx] = true;
-          fboCPU->z[indx] = z;
-      }
+    //putpixel assuming middle of screen to be the origin
+    void putpixel_adjusted(int x, int y, float z, const color &col = 255) {
+        assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
+        const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
+        fboCPU->colorlayer[indx] = col;
+        fboCPU->grid[indx] = true;
+        fboCPU->z[indx] = z;
+    }
 
-      //get z value of specified pixel from framebuffer
-      inline float getpixelZ_adjusted(int x, int y) const {
-          const bool test = ((size_t)x + fboCPU->xmax) < fboCPU->x_size && (x + fboCPU->xmax) >= 0 && ((size_t)y + fboCPU->ymax) < fboCPU->y_size && (y + fboCPU->ymax) >= 0;
-          return test ? fboCPU->z[((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size] : std::numeric_limits<float>::max();
-      }
+    //get z value of specified pixel from framebuffer
+    inline float getpixelZ_adjusted(int x, int y) const {
+        const bool test = ((size_t)x + fboCPU->xmax) < fboCPU->x_size && (x + fboCPU->xmax) >= 0 && ((size_t)y + fboCPU->ymax) < fboCPU->y_size && (y + fboCPU->ymax) >= 0;
+        return test ? fboCPU->z[((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size] : std::numeric_limits<float>::max();
+    }
 
-      //bresenham line drawing function to draw wireframe of objects
-      void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &col = 0) {
-          int dx = abs(x2 - x1);
-          int dy = abs(y2 - y1);
+    //bresenham line drawing function to draw wireframe of objects
+    void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &col = 0) {
+        int dx = abs(x2 - x1);
+        int dy = abs(y2 - y1);
 
-          int lx = x2 > x1 ? 1 : -1;
-          int ly = y2 > y1 ? 1 : -1;
+        int lx = x2 > x1 ? 1 : -1;
+        int ly = y2 > y1 ? 1 : -1;
 
-          int x = x1, y = y1;
-          bool changed = false;
+        int x = x1, y = y1;
+        bool changed = false;
 
-          if (dx <= dy) {
-              changed = true;
-              std::swap(dx, dy);
-              std::swap(lx, ly);
-              std::swap(x, y);
-          }
-          int p = 2 * dy - dx;
-          for (int k = 0; k <= dx; k++) {
-              if (!changed)
-                  putpixel_adjusted(x, y, 1, col);
-              else
-                  putpixel_adjusted(y, x, 1, col);
+        if (dx <= dy) {
+            changed = true;
+            std::swap(dx, dy);
+            std::swap(lx, ly);
+            std::swap(x, y);
+        }
+        int p = 2 * dy - dx;
+        for (int k = 0; k <= dx; k++) {
+            if (!changed)
+                putpixel_adjusted(x, y, 1, col);
+            else
+                putpixel_adjusted(y, x, 1, col);
 
-              if (p < 0) {
-                  x += lx;
-                  p += 2 * dy;
-              } else {
-                  x += lx;
-                  y += ly;
-                  p += 2 * dy - 2 * dx;
-              }
-          }
-      }
+            if (p < 0) {
+                x += lx;
+                p += 2 * dy;
+            } else {
+                x += lx;
+                y += ly;
+                p += 2 * dy - 2 * dx;
+            }
+        }
+    }
     inline void clip1(const std::array<vec4, 3> &tris, unsigned char which, float &u1, float &u2) {
         u1 = -(nearPlane + tris[which].z) / (tris[(which + 1) % 3].z - tris[which].z);
         u2 = -(nearPlane + tris[which].z) / (tris[(which + 2) % 3].z - tris[which].z);
@@ -718,7 +709,7 @@ struct engine {
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else if (clip[1]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 1,0, t);
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 1, 0, t);
                     triangles.emplace_back(std::move(t));
                     continue;
                 } else {
