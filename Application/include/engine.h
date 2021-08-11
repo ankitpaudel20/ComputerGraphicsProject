@@ -15,6 +15,9 @@ inline int rounddouble(const double &in) {
     return in < 0 ? in - 0.5f : in + 0.5f;
 }
 
+/**
+ * @brief Framebuffer implementation for cpu
+ */
 struct framebuffer {
     bool *grid;
     float *z;
@@ -59,29 +62,34 @@ struct framebuffer {
     }
 };
 
-//Vertex + extra info required for shading
+/**
+ * @brief Vertex + extra info required for shading
+ */
 struct Vertex2 {
     Vertex v;
     //fragment Position for phong and INTENSITY for gouraud
-    vec3 f_pos;
-    Vertex2(const Vertex &vin, const vec3 &pos) : v(vin), f_pos(pos) {}
+    vec3 extraInfoAboutVertex;
+    Vertex2(const Vertex &vin, const vec3 &pos) : v(vin), extraInfoAboutVertex(pos) {}
     Vertex2() {}
     Vertex2 operator*(const float &f) const {
-        return Vertex2(v * f, f_pos * f);
+        return Vertex2(v * f, extraInfoAboutVertex * f);
     }
     Vertex2 operator+(const Vertex2 &f) const {
-        return Vertex2(f.v + v, f.f_pos + f_pos);
+        return Vertex2(f.v + v, f.extraInfoAboutVertex + extraInfoAboutVertex);
     }
     Vertex2 operator-(const Vertex2 &f) const {
-        return Vertex2(v - f.v, f_pos - f.f_pos);
+        return Vertex2(v - f.v, extraInfoAboutVertex - f.extraInfoAboutVertex);
     }
 };
 
+/**
+ * @brief backend for all rendering purposes
+ */
 struct engine {
 
-    bool written = false;
     framebuffer *fboCPU;
 
+  private:
     uint32_t vao, vbo, ibo, tex, shader;
 
     const char *vertexShaderSource = R"(#version 330 core
@@ -125,7 +133,10 @@ struct engine {
             0, 1, 2,
             0, 3, 1};
 
-    //constructor and opengl draw surface initialization
+  public:
+    /**
+ * @brief constructor and opengl draw surface initialization
+ */
     engine(const uint32_t &x, const uint32_t &y) {
         fboCPU = new framebuffer(x, y);
 
@@ -206,7 +217,9 @@ struct engine {
         glUseProgram(0);
     }
 
-    //destructor
+    /**
+ * @brief destructor
+ */
     ~engine() {
         delete fboCPU;
         GLcall(glDeleteBuffers(1, &vbo));
@@ -215,14 +228,18 @@ struct engine {
         GLcall(glDeleteProgram(shader));
     }
 
-    //clear all drawing surface
+    /**
+ * @brief clear all drawing surface
+ */
     void clear() {
         triangles.clear();
         glClear(GL_COLOR_BUFFER_BIT);
         fboCPU->clear();
     }
 
-    //send framebuffer from cpu to gpu as texture to be able to render using opengl
+    /**
+ * @brief send framebuffer from cpu to gpu as texture to be able to render using opengl
+ */
     void draw() {
         uint8_t *imageData = (uint8_t *)&fboCPU->colorlayer[0].col;
         glUseProgram(shader);
@@ -232,7 +249,9 @@ struct engine {
         GLcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
     }
 
-    //drawlines using given vertices and indices
+    /**
+ * @brief drawlines using given vertices and indices
+ */
     void drawLines(const std::vector<vec2_T<int>> &points, const color &col = color(255), const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
         if (indices.empty()) {
             for (size_t i = 0; i < points.size(); i += 2) {
@@ -246,34 +265,50 @@ struct engine {
         }
     }
 
-    //draw linestrip fron given set of vertices, indices and color
+    /**
+ * @brief draw linestrip fron given set of vertices, indices and color
+ */
     void drawLinestrip(const std::vector<vec2_T<int>> &points, const color &col = color(255), const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
         for (size_t i = 0; i < points.size(); i++) {
             draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, col);
         }
     }
 
-    //set of triangles to be drawn to screen
+    /**
+ * @brief set of triangles to be drawn to screen
+ */
     std::vector<std::array<Vertex2, 3>> triangles;
 
-    //nearplane of camera for clipping and culling
+    /**
+ * @brief nearplane of camera for clipping and culling
+ */
     float nearPlane = 0.0f;
 
-    //switch for backface culling
+    /**
+ * @brief switch for backface culling
+ */
     bool cullBackface = true;
 
-    //which material to use for further render calls
+    /**
+ * @brief which material to use for further render calls
+ */
     Material *currentMaterial = nullptr;
 
+    /**
+ * @brief lights.
+ */
     float ambientLightIntensity = 0.1f;
     dirLight dirlight;
-
-    //vectors of pointLights.
     std::vector<pointLight> pointLights;
 
+    /**
+ * @brief camera
+ */
     camera *cam = nullptr;
 
-    //essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
+    /**
+ * @brief essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
+ */
     color getcolor(const Vertex2 &v) {
         color col;
         if (currentMaterial->diffuse.w) {
@@ -287,20 +322,20 @@ struct engine {
 
         color result;
 #ifdef PHONG_SHADING
-        auto viewDir = (cam->eye - v.f_pos).normalize();
+        auto viewDir = (cam->eye - v.extraInfoAboutVertex).normalize();
         for (auto &light : pointLights) {
-            float dist = vec3::dist(v.f_pos, light.getpos());
+            float dist = vec3::dist(v.extraInfoAboutVertex, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
             if (int_by_at > 0.04) {
-                result += CalcPointLight(light, v.v.normal, v.f_pos, viewDir, col, int_by_at);
+                result += CalcPointLight(light, v.v.normal, v.extraInfoAboutVertex, viewDir, col, int_by_at);
             }
         }
         result += col * ambientLightIntensity;
 #else
         for (auto &light : pointLights) {
-            result += col * light.get_ambient_color() * v.f_pos.x;
-            result += col * light.get_diffuse_color() * v.f_pos.y;
-            result += light.get_diffuse_color() * v.f_pos.z;
+            result += col * light.get_ambient_color() * v.extraInfoAboutVertex.x;
+            result += col * light.get_diffuse_color() * v.extraInfoAboutVertex.y;
+            result += light.get_diffuse_color() * v.extraInfoAboutVertex.z;
             result += col * ambientLightIntensity;
         }
 #endif
@@ -308,6 +343,9 @@ struct engine {
         return std::move(result);
     }
 
+    /**
+ * @brief draw triangle only using lines (dont fill the triangle)
+ */
     void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         triangles.clear();
         makeRequiredTriangles(vertices, indices, modelmat);
@@ -318,6 +356,9 @@ struct engine {
         }
     }
 
+    /**
+ * @brief draw rasterized triangle
+ */
     void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         triangles.clear();
         makeRequiredTriangles(vertices, indices, modelmat);
@@ -333,7 +374,9 @@ struct engine {
         return I - N * 2.0 * vec3::dot(N, I);
     }
 
-    //function to calculate effect of directional light in a fragment with color col
+    /**
+ * @brief function to calculate effect of directional light in a fragment with color col
+ */
     inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
         auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
         auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
@@ -344,7 +387,9 @@ struct engine {
         return std::move(diffuse);
     }
 
-    //function to calculate effect of a point light in a fragment with color col
+    /**
+ * @brief function to calculate effect of a point light in a fragment with color col
+ */
     color CalcPointLight(const pointLight &light, const vec3 &normal, const vec3 &fragPos, const vec3 &viewDir, const color &diffuseColor, float int_by_at) {
         const vec3 lightDir = vec3::normalize(light.getpos() - fragPos);
         const float diff = max(vec3::dot(normal, lightDir), 0.0);
@@ -356,7 +401,9 @@ struct engine {
         return (ambient + diffuse + specular);
     }
 
-    //putpixel assuming middle of screen to be the origin
+    /**
+ * @brief putpixel assuming middle of screen to be the origin
+ */
     void putpixel_adjusted(int x, int y, float z, const color &col = 255) {
         assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
         const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
@@ -365,13 +412,17 @@ struct engine {
         fboCPU->z[indx] = z;
     }
 
-    //get z value of specified pixel from framebuffer
+    /**
+ * @brief get z value of specified pixel from framebuffer
+ */
     inline float getpixelZ_adjusted(int x, int y) const {
         const bool test = ((size_t)x + fboCPU->xmax) < fboCPU->x_size && (x + fboCPU->xmax) >= 0 && ((size_t)y + fboCPU->ymax) < fboCPU->y_size && (y + fboCPU->ymax) >= 0;
         return test ? fboCPU->z[((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size] : std::numeric_limits<float>::max();
     }
 
-    //bresenham line drawing function to draw wireframe of objects
+    /**
+ * @brief bresenham line drawing function to draw wireframe of objects
+ */
     void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &col = 0) {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
@@ -405,6 +456,7 @@ struct engine {
             }
         }
     }
+
     inline void clip1(const std::array<vec4, 3> &tris, unsigned char which, float &u1, float &u2) {
         u1 = -(nearPlane + tris[which].z) / (tris[(which + 1) % 3].z - tris[which].z);
         u2 = -(nearPlane + tris[which].z) / (tris[(which + 2) % 3].z - tris[which].z);
@@ -415,7 +467,9 @@ struct engine {
         u2 = -(nearPlane + tris[idx2].z) / (tris[rem].z - tris[idx2].z);
     }
 
-    //clips and perspective transforms input triangle vertices if two points are out of clip space
+    /**
+ * @brief clips and perspective transforms input triangle vertices if two points are out of clip space
+ */
     inline void clip2helper(const mat4f &per, const std::array<vec3, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, unsigned char rem, std::array<Vertex2, 3> &t) {
         float u1, u2;
         clip2(modelviewTransformed, idx1, idx2, rem, u1, u2);
@@ -424,7 +478,9 @@ struct engine {
         t[rem] = Vertex2(Vertex(modelviewTransformed[rem], points[rem].normal, points[rem].texCoord).perspectiveMul(per), extraInfoAboutVertex[rem]);
     }
 
-    //clips and perspective transforms input triangle vertices if one point is out of the clip space
+    /**
+ * @brief clips and perspective transforms input triangle vertices if one point is out of the clip space
+ */
     inline void clip1helper(const mat4f &per, const std::array<vec3, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
         float u1, u2;
         unsigned char idx2 = (idx1 + 1) % 3, idx3 = (idx1 + 2) % 3;
@@ -439,7 +495,9 @@ struct engine {
         triangles.emplace_back(std::move(t));
     }
 
-    //rasterize BottomFlatTriangle: p0/first_argument is the top unique point
+    /**
+ * @brief rasterize BottomFlatTriangle: p0/first_argument is the top unique point
+ */
     void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
         double invslope1 = ((double)p0.x - p1.x) / ((double)p0.y - p1.y);
         double invslope2 = ((double)p0.x - p2.x) / ((double)p0.y - p2.y);
@@ -488,7 +546,9 @@ struct engine {
         }
     }
 
-    //rasterize TopFlatTriangle: p2/last_point is the bottom unique point
+    /**
+ * @brief rasterize TopFlatTriangle: p2/last_point is the bottom unique point
+ */
     void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
         const double invslope1 = ((double)p2.x - p1.x) / ((double)p2.y - p1.y);
         const double invslope2 = ((double)p2.x - p0.x) / ((double)p2.y - p0.y);
@@ -538,7 +598,9 @@ struct engine {
         }
     }
 
-    //helper function to sort 3 items
+    /**
+ * @brief helper function to sort 3 items
+ */
     template <class T>
     void sort3Values(T &item0, T &item1, T &item2, std::function<bool(const T &, const T &)> function) {
         // Insert item1
@@ -553,6 +615,9 @@ struct engine {
         }
     }
 
+    /**
+ * @brief helper function to rasterize triangles in vector of triangles.
+ */
     void rasterizeTriangles() {
         for (auto &tris : triangles) {
 
@@ -611,7 +676,9 @@ struct engine {
         int x = 4;
     }
 
-    //fill intensity information for each vertex needed for gouraud shading
+    /**
+ * @brief fill intensity information for each vertex needed for gouraud shading
+ */
     void fillExtraInformationForGoraudShading(Vertex &v, vec3 &extraInfoAboutVertex) {
         auto viewDir = (cam->eye - extraInfoAboutVertex).normalize();
         for (auto &light : pointLights) {
@@ -628,6 +695,9 @@ struct engine {
         }
     }
 
+    /**
+ * @brief fill triangles array by doing required clipping and culling
+ */
     void makeRequiredTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
@@ -660,13 +730,13 @@ struct engine {
 
             float u1, u2;
             points[0].position = modelviewTransformed[0];
-            points[0].normal = mat4mulvec3(modelmat, points[0].normal);
+            points[0].normal = modelmat * points[0].normal;
             points[1].position = modelviewTransformed[1];
-            points[1].normal = mat4mulvec3(modelmat, points[1].normal);
+            points[1].normal = modelmat * points[1].normal;
             points[2].position = modelviewTransformed[2];
-            points[2].normal = mat4mulvec3(modelmat, points[2].normal);
+            points[2].normal = modelmat * points[2].normal;
 
-            if (cullBackface && vec3::dot(mat4mulvec3(view, points[0].normal), points[0].position) > 0) {
+            if (cullBackface && vec3::dot(view * points[0].normal, points[0].position) > 0) {
                 continue;
             }
 

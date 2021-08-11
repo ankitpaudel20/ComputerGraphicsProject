@@ -29,6 +29,9 @@ static std::unordered_map<std::string, node> models_loaded;
 static std::unordered_map<std::string, node *> models_loaded_path;
 static std::unordered_map<std::string, Mesh> meshes_loaded;
 
+/**
+ * @brief all functions related to model loading and managing
+ */
 namespace Model {
 
 #ifdef USEASSIMP
@@ -232,77 +235,9 @@ node *loadModel(std::string const &path, const std::string &name, bool flipUV = 
 }
 #endif
 
-/*void calculate_tangent(Vertex *triangle) {
-
-    const vec3 &pos1 = triangle->position;
-    const vec3 &pos2 = (triangle + 1)->position;
-    const vec3 &pos3 = (triangle + 2)->position;
-    const vec2 &uv1 = triangle->texCoord;
-    const vec2 &uv2 = (triangle + 1)->texCoord;
-    const vec2 &uv3 = (triangle + 2)->texCoord;
-    const vec3 &nm = triangle->normal;
-
-    vec3 edge1 = pos2 - pos1;
-    vec3 edge2 = pos3 - pos1;
-    vec2 deltaUV1 = uv2 - uv1;
-    vec2 deltaUV2 = uv3 - uv1;
-
-    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-    triangle->tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-    (triangle)->tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-    (triangle)->tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-    (triangle + 1)->tangent = (triangle)->tangent;
-    (triangle + 2)->tangent = (triangle)->tangent;
-
-    triangle->bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-    (triangle)->bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-    (triangle)->bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-    (triangle + 1)->bitangent = (triangle)->bitangent;
-    (triangle + 2)->bitangent = (triangle)->bitangent;
-}
-
-void calculate_tangent2(Vertex *triangle) {
-
-    const vec3 &pos1 = triangle->position;
-    const vec3 &pos2 = (triangle + 1)->position;
-    const vec3 &pos3 = (triangle + 2)->position;
-    const vec2 &uv1 = triangle->texCoord;
-    const vec2 &uv2 = (triangle + 1)->texCoord;
-    const vec2 &uv3 = (triangle + 2)->texCoord;
-    const vec3 &nm = triangle->normal;
-
-    // position differences p1->p2 and p1->p3
-    vec3 edge1 = pos2 - pos1, edge2 = pos3 - pos1;
-
-    // texture offset p1->p2 and p1->p3
-    vec2 deltaUV1 = uv2 - uv1;
-    vec2 deltaUV2 = uv3 - uv1;
-
-    float dirCorrection = (deltaUV2.x * deltaUV1.y - deltaUV2.y * deltaUV1.x) < 0.0f ? -1.0f : 1.0f;
-    // when t1, t2, t3 in same position in UV space, just use default UV direction.
-    if (deltaUV1.x * deltaUV2.y == deltaUV1.y * deltaUV2.x) {
-        deltaUV1.x = 0.0;
-        deltaUV1.y = 1.0;
-        deltaUV2.x = 1.0;
-        deltaUV2.y = 0.0;
-    }
-
-    // tangent points in the direction where to positive X axis of the texture coord's would point in model space
-    // bitangent's points along the positive Y axis of the texture coord's, respectively
-    triangle->tangent.x = (edge2.x * deltaUV1.y - edge1.x * deltaUV2.y) * dirCorrection;
-    triangle->tangent.y = (edge2.y * deltaUV1.y - edge1.y * deltaUV2.y) * dirCorrection;
-    triangle->tangent.z = (edge2.z * deltaUV1.y - edge1.z * deltaUV2.y) * dirCorrection;
-    triangle->tangent.normalize();
-    (triangle + 1)->tangent = (triangle)->tangent;
-    (triangle + 2)->tangent = (triangle)->tangent;
-    triangle->bitangent.x = (edge2.x * deltaUV1.x - edge1.x * deltaUV2.x) * dirCorrection;
-    triangle->bitangent.y = (edge2.y * deltaUV1.x - edge1.y * deltaUV2.x) * dirCorrection;
-    triangle->bitangent.z = (edge2.z * deltaUV1.x - edge1.z * deltaUV2.x) * dirCorrection;
-    triangle->bitangent.normalize();
-    (triangle + 1)->bitangent = (triangle)->bitangent;
-    (triangle + 2)->bitangent = (triangle)->bitangent;
-}*/
-
+/**
+ * @brief loads model with given path and register it with given name.
+ */
 node *loadModel_obj(std::string const &path, const std::string &name, bool flipUV = false) {
 
     if (models_loaded_path.find(path) != models_loaded_path.end()) {

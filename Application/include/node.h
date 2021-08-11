@@ -8,12 +8,9 @@
  * anything that can be transformed( has modelmatrix )
  */
 struct node {
-    //node* children=nullptr;
-    //uint32_t nosChildren=0;
     std::unordered_map<std::string, node *> children;
     std::vector<Mesh *> meshes;
     mat4f matModel = mat4f();
-    // std::string shaderName;
 
     void delpos(const vec3 &delta) {
         translation = trans::translate((delta)) * translation;

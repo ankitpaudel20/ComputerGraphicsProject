@@ -1,19 +1,17 @@
 #pragma once
 
-//#include <utility>
-
 #include "core.h"
 #include "material.h"
 #include "transformations.h"
 
-struct entity;
-
+/**
+ * @brief this class represents all drawable entities that has a material and vertices
+ */
 template <class T>
 struct drawable {
 
     std::vector<T> m_vertices;
     std::vector<uint32_t> m_indices;
-    uint32_t m_primitve = GL_TRIANGLES;
     Material material;
     bool doLightCalculations = true;
     std::string name;

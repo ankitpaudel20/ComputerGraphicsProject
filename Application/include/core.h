@@ -137,7 +137,6 @@ struct Vertex {
         position = per * position;
         texCoord /= (fabs(position.w) < epsilon ? epsilon : position.w);
         position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), 1 / position.z, 1);
-        // position = position / (fabs(position.w) < epsilon ? epsilon : position.w);
         return *this;
     }
 
@@ -146,6 +145,9 @@ struct Vertex {
     }
 };
 
+/**
+ * @brief class that holds color with 8 bits per channel with 4 channels rgba.
+ */
 struct color {
     uint32_t col;
     color() : color(0) {}
@@ -238,6 +240,9 @@ struct color {
     bool operator==(const color &in) { return col == in.col; }
 };
 
+/**
+ * @brief helper function to search folder with 3d objects and textures in it.
+ */
 std::string searchRes() {
     auto currentPath = fs::current_path();
 

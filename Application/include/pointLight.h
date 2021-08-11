@@ -3,6 +3,9 @@
 #include "core.h"
 #include "node.h"
 
+/**
+ * @brief pointlight
+ */
 struct pointLight {
   private:
     vec3 position;

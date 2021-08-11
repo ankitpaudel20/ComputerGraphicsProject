@@ -4,14 +4,19 @@
 #pragma once
 
 #include "core.h"
+/**
+ * @brief Texture class to hold image data.
+ */
 struct texture {
-    unsigned char* m_data=nullptr;
+    unsigned char *m_data = nullptr;
 
     int w = 0, h = 0, m_bpp;
     ~texture() { delete[] m_data; }
-
 };
 
+/**
+ * @brief class to store information about material read from .mtl file along with obj
+ */
 struct Material {
     int id = -1;
     float AmbientStrength = 0.7;

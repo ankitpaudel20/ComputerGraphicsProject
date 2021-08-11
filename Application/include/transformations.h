@@ -1,6 +1,9 @@
 #pragma once
 #include "maths.h"
 
+/**
+ * @brief namespace that has all transformation matrices
+ */
 namespace trans {
 mat3f translate(const vec2 &value) {
     mat3f trans_matrix;

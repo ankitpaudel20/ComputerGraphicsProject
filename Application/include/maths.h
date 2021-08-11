@@ -16,6 +16,11 @@ struct vec4_T;
 template <class T>
 struct vec3_T;
 
+/**
+ * @brief 2d Vector class for storing x and y.
+ * 
+ * @tparam Type of vector
+ */
 template <class T>
 struct vec2_T {
     T x, y;
@@ -136,6 +141,11 @@ struct vec2_T {
 };
 typedef vec2_T<float> vec2;
 
+/**
+ * @brief 3 element Vector class for storing x, y and z.
+ * 
+ * @tparam Type of vector
+ */
 template <class T>
 struct vec3_T {
     T x, y, z;
@@ -268,6 +278,11 @@ struct vec3_T {
 };
 typedef vec3_T<float> vec3;
 
+/**
+ * @brief 4 element Vector class for storing x, y, z and w.
+ * 
+ * @tparam Type of vector
+ */
 template <class T>
 struct vec4_T {
     T x, y, z, w;
@@ -383,6 +398,11 @@ struct vec4_T {
 };
 typedef vec4_T<float> vec4;
 
+/**
+ * @brief A general matrix class for any size of matrix.
+ * 
+ * @tparam Type of vector
+ */
 template <class Type, size_t x_dim, size_t y_dim>
 class mat {
   protected:
@@ -613,6 +633,9 @@ class mat {
     }
 };
 
+/** 
+ * @brief operator overload for matrix multiplication.
+*/
 template <class Type, size_t x1, size_t y1, size_t x2>
 mat<Type, x2, y1> operator*(const mat<Type, x1, y1> &first, const mat<Type, x2, x1> &second) {
     mat<Type, x2, y1> ret;
@@ -627,6 +650,9 @@ mat<Type, x2, y1> operator*(const mat<Type, x1, y1> &first, const mat<Type, x2, 
     return ret;
 }
 
+/** 
+ * @brief operator overload for matrix multiplication (specialized for mat4).
+*/
 template <class Type>
 mat<Type, 4, 4> operator*(const mat<Type, 4, 4> &first, const mat<Type, 4, 4> &second) {
     return mat<Type, 4, 4>({first.at(0, 0) * second.at(0, 0) + first.at(0, 1) * second.at(1, 0) + first.at(0, 2) * second.at(2, 0) + first.at(0, 3) * second.at(3, 0),
@@ -647,6 +673,9 @@ mat<Type, 4, 4> operator*(const mat<Type, 4, 4> &first, const mat<Type, 4, 4> &s
                             first.at(3, 0) * second.at(0, 3) + first.at(3, 1) * second.at(1, 3) + first.at(3, 2) * second.at(2, 3) + first.at(3, 3) * second.at(3, 3)});
 }
 
+/** 
+ * @brief operator overload for mat4 multiplication with vec3 .
+*/
 template <class Type>
 vec3_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec3_T<Type> &in) {
     return vec3_T<Type>(
@@ -655,6 +684,9 @@ vec3_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec3_T<Type> &in) {
         mat.at(2, 0) * in.x + mat.at(2, 1) * in.y + mat.at(2, 2) * in.z);
 }
 
+/** 
+ * @brief operator overload for mat3 multiplication with vec3.
+*/
 template <class Type>
 vec3_T<Type> operator*(const mat<Type, 3, 3> &mat, const vec3_T<Type> &in) {
     return vec3_T<Type>(
@@ -663,6 +695,9 @@ vec3_T<Type> operator*(const mat<Type, 3, 3> &mat, const vec3_T<Type> &in) {
         mat.at(2, 0) * in.x + mat.at(2, 1) * in.y + mat.at(2, 2) * in.z);
 }
 
+/** 
+ * @brief operator overload for mat4 multiplication with vec4.
+*/
 template <class Type>
 vec4_T<Type> operator*(const mat<Type, 4, 4> &mat, const vec4_T<Type> &in) {
     return vec4_T<Type>(
@@ -680,12 +715,3 @@ typedef mat<int, 4, 4> mat4i;
 typedef mat<int, 3, 3> mat3i;
 typedef mat<unsigned int, 4, 4> mat4u;
 typedef mat<unsigned int, 3, 3> mat3u;
-
-inline vec3 mat4mulvec3(const mat4f &m, const vec3 &v) {
-    vec3 ret;
-
-    ret.x = m(0, 0) * v.x + m(0, 1) * v.y + m(0, 2) * v.z;
-    ret.y = m(1, 0) * v.x + m(1, 1) * v.y + m(1, 2) * v.z;
-    ret.z = m(2, 0) * v.x + m(2, 1) * v.y + m(2, 2) * v.z;
-    return std::move(ret);
-}

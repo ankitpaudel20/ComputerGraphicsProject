@@ -1,7 +1,7 @@
 #pragma once
 #include "transformations.h"
-/*
- camera class implementing simple camera movement
+/**
+ * camera class implementing simple camera movement
  */
 class camera {
   public:
@@ -28,8 +28,6 @@ class camera {
         viewDir = std::move(dir);
         up = vec3(0, 1, 0);
         correct();
-        // up += diff;
-        // up.normalize();
     }
 
     void newDelYaw(float angle_in_deg) {
