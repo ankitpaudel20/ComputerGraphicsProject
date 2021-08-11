@@ -4,8 +4,6 @@ var maths_8h =
     [ "vec3_T", "structvec3___t.html", "structvec3___t" ],
     [ "vec4_T", "structvec4___t.html", "structvec4___t" ],
     [ "mat", "classmat.html", "classmat" ],
-    [ "DEBUG_BREAK", "maths_8h.html#a3d93354890ac62b45842cac3737212c4", null ],
-    [ "MDEBUG", "maths_8h.html#ad769dc7be0dc5189e019d56664a18655", null ],
     [ "mat3d", "maths_8h.html#a0d1ca851855c4c88773c2fad2c5bcfa0", null ],
     [ "mat3f", "maths_8h.html#a014ca575307f5863ada781279a033e12", null ],
     [ "mat3i", "maths_8h.html#af5826e6d95afa742b1b67a9fde0f9323", null ],

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['debug_5fbreak_39',['DEBUG_BREAK',['../core_8h.html#a3d93354890ac62b45842cac3737212c4',1,'DEBUG_BREAK():&#160;core.h'],['../maths_8h.html#a3d93354890ac62b45842cac3737212c4',1,'DEBUG_BREAK():&#160;maths.h']]],
+  ['debug_5fbreak_39',['DEBUG_BREAK',['../core_8h.html#a3d93354890ac62b45842cac3737212c4',1,'core.h']]],
   ['delpitch_40',['DelPitch',['../classcamera.html#a0b6c9685182c0635ed08f23e36aa2bbe',1,'camera']]],
   ['delpos_41',['delpos',['../structdrawable.html#a512492c36684f17b9178c74529fdb967',1,'drawable::delpos()'],['../structnode.html#ac4124cb9d847183938d304e7bf55dd68',1,'node::delpos()'],['../structpoint_light.html#ab989f1bf9f756c0f2269e403fc0b0d97',1,'pointLight::delpos()']]],
   ['delroll_42',['DelRoll',['../classcamera.html#a8f4d6ad3389bf917840058eb17a901b1',1,'camera']]],
@@ -19,7 +19,7 @@ var searchData=
   ['dot_55',['dot',['../structvec2___t.html#aa6f184df215b382341b69511263bb75e',1,'vec2_T::dot()'],['../structvec3___t.html#a33b4e6f1d2301d11a73b334ad57e2325',1,'vec3_T::dot()'],['../structvec4___t.html#a0ad2d68d71de79669763dfa6a66c39e8',1,'vec4_T::dot()']]],
   ['draw_56',['draw',['../structdrawable.html#aa630d5857ad25d32c5bd50864b9546c3',1,'drawable::draw()'],['../structengine.html#a7f3244be45685880daaa54fb60b65e2a',1,'engine::draw()']]],
   ['draw_5fbresenham_5fadjusted_57',['draw_bresenham_adjusted',['../structengine.html#af55a0732a19a726bb772c9011d724ab1',1,'engine']]],
-  ['drawable_58',['drawable',['../structdrawable.html',1,'drawable&lt; T &gt;'],['../structdrawable.html#afb64e541ec53ff2264b0ddcc2b0a1644',1,'drawable::drawable(const std::vector&lt; T &gt; &amp;vertices, std::vector&lt; unsigned &gt; indices, const std::string &amp;n)'],['../structdrawable.html#ab2d91bb30ad16e1b9d5c5cd27adb7014',1,'drawable::drawable()=default']]],
+  ['drawable_58',['drawable',['../structdrawable.html#ab2d91bb30ad16e1b9d5c5cd27adb7014',1,'drawable::drawable()=default'],['../structdrawable.html#afb64e541ec53ff2264b0ddcc2b0a1644',1,'drawable::drawable(const std::vector&lt; T &gt; &amp;vertices, std::vector&lt; unsigned &gt; indices, const std::string &amp;n)'],['../structdrawable.html',1,'drawable&lt; T &gt;']]],
   ['drawable_2eh_59',['drawable.h',['../drawable_8h.html',1,'']]],
   ['drawlines_60',['drawLines',['../structengine.html#abedd2c8d7fec36b0c18ee56466c1c00f',1,'engine']]],
   ['drawlinestrip_61',['drawLinestrip',['../structengine.html#a6128769e9af37eca4d978e9583ecefca',1,'engine']]],

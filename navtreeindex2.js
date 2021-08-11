@@ -1,7 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"structvec4___t.html#aad78a96ce5135f85972665b048addd01":[1,0,16,0],
-"structvec4___t.html#abffeb1fa8e0c52389f7dd7968f1ce12e":[1,0,16,19],
 "structvec4___t.html#ac183fef1df63b54e7eb72742fe6f317d":[1,0,16,11],
 "structvec4___t.html#ac460eef125612d2d8ceec604969ef7eb":[1,0,16,6],
 "structvec4___t.html#ac8cecfe4bef5cfd06521518e5059d59f":[1,0,16,13],
