@@ -1,11 +1,14 @@
 # Computer Graphics Project
 
-3D City graphics project in openGL
+OBJ renderer made with software renderer from scratch.
 
 ![C++][C++]&nbsp;
 ![Git][Git]&nbsp;
 ![Visual Studio Code][Visual Studio Code]&nbsp;
 ![Visual Studio 2019][Visual Studio 2019]&nbsp;
+
+## Documentation
+[Documentation Here](https://ankitpaudel20.github.io/ComputerGraphicsProject/structengine.html)
 
 [C++]: https://img.shields.io/badge/-C++-00599C?style=flat-square&logo=C%2B%2B&logoColor=ffffff
 [Git]: https://img.shields.io/badge/-Git-F05032?style=flat-square&logo=git&logoColor=ffffff
