@@ -3,6 +3,7 @@
 #include <functional>
 #include <algorithm>
 #include <limits>
+#include <functional>
 #include "material.h"
 #include "pointLight.h"
 

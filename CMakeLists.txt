@@ -8,7 +8,7 @@ target_include_directories(Application PRIVATE Application/vendor/tinyobj Applic
 
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_link_options(Application PRIVATE PROFILE)
+    # target_link_options(Application PRIVATE PROFILE)
     find_package(GLEW REQUIRED)
     target_link_libraries(Application PRIVATE GLEW::GLEW)
     find_package(glfw3 CONFIG REQUIRED)
