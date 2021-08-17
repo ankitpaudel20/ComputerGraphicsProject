@@ -137,6 +137,7 @@ struct Vertex {
         position = per * position;
         texCoord /= (fabs(position.w) < epsilon ? epsilon : position.w);
         position = vec4(position.x / (fabs(position.w) < epsilon ? epsilon : position.w), position.y / (fabs(position.w) < epsilon ? epsilon : position.w), 1 / position.z, 1);
+        normal /= (fabs(position.w) < epsilon ? epsilon : position.w);
         return *this;
     }
 

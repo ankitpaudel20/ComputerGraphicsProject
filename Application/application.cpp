@@ -189,6 +189,16 @@ static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        auto eng = (engine *)glfwGetWindowUserPointer(window);
+        glfwGetCursorPos(window, &mx, &my);
+        size_t index = (eng->fboCPU->y_size - my) * eng->fboCPU->x_size + mx;
+        color col = eng->fboCPU->colorlayer[index];
+        printf("clicked color: (%d,%d,%d)\n", col.r(), col.g(), col.b());
+    }
+}
+
 int main(int argc, char **argv) {
 
     auto threads = std::thread::hardware_concurrency();
@@ -211,6 +221,7 @@ int main(int argc, char **argv) {
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     glfwMakeContextCurrent(window);
 
@@ -223,6 +234,7 @@ int main(int argc, char **argv) {
 
     glfwGetFramebufferSize(window, &window_width, &window_height);
     graphicsEngine = new engine(window_width, window_height);
+    glfwSetWindowUserPointer(window, graphicsEngine);
 
     auto path = searchRes();
 

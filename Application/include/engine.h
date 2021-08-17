@@ -322,15 +322,16 @@ struct engine {
 
         color result;
 #ifdef PHONG_SHADING
-        auto viewDir = (cam->eye - v.extraInfoAboutVertex).normalize();
+        const auto fragpos = v.extraInfoAboutVertex / v.v.position.z;
+        const auto viewDir = (cam->eye - fragpos).normalize();
         for (auto &light : pointLights) {
-            float dist = vec3::dist(v.extraInfoAboutVertex, light.getpos());
+            float dist = vec3::dist(fragpos, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
-            if (int_by_at > 0.04) {
-                result += CalcPointLight(light, v.v.normal, v.extraInfoAboutVertex, viewDir, col, int_by_at);
+            if (int_by_at > 0.01) {
+                result += CalcPointLight(light, v.v.normal / v.v.position.z, fragpos, viewDir, col, int_by_at);
             }
         }
-        result += CalcDirLight(v.v.normal, viewDir, col);
+        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col);
         result += col * ambientLightIntensity;
 #else
         for (auto &light : pointLights) {
@@ -475,9 +476,14 @@ struct engine {
     inline void clip2helper(const mat4f &per, const std::array<vec3, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, unsigned char rem, std::array<Vertex2, 3> &t) {
         float u1, u2;
         clip2(modelviewTransformed, idx1, idx2, rem, u1, u2);
+
         t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[rem] - points[idx1]) * u1, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[rem] - extraInfoAboutVertex[idx1]) * u1);
         t[idx2] = Vertex2(Vertex::perspectiveMul(points[idx2] + (points[rem] - points[idx2]) * u2, per), extraInfoAboutVertex[idx2] + (extraInfoAboutVertex[rem] - extraInfoAboutVertex[idx2]) * u2);
         t[rem] = Vertex2(Vertex(modelviewTransformed[rem], points[rem].normal, points[rem].texCoord).perspectiveMul(per), extraInfoAboutVertex[rem]);
+
+        t[idx1].extraInfoAboutVertex *= t[idx1].v.position.z;
+        t[idx2].extraInfoAboutVertex *= t[idx2].v.position.z;
+        t[rem].extraInfoAboutVertex *= t[rem].v.position.z;
     }
 
     /**
@@ -491,9 +497,13 @@ struct engine {
         t[idx1] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx2] - points[idx1]) * u1, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[idx2] - extraInfoAboutVertex[idx1]) * u1);
         t[idx2] = Vertex2(Vertex(modelviewTransformed[idx2], points[idx2].normal, points[idx2].texCoord).perspectiveMul(per), extraInfoAboutVertex[idx2]);
         t[idx3] = Vertex2(Vertex(modelviewTransformed[idx3], points[idx3].normal, points[idx3].texCoord).perspectiveMul(per), extraInfoAboutVertex[idx3]);
+        t[idx1].extraInfoAboutVertex *= t[idx1].v.position.z;
+        t[idx2].extraInfoAboutVertex *= t[idx2].v.position.z;
+        t[idx3].extraInfoAboutVertex *= t[idx3].v.position.z;
         triangles.emplace_back(t);
         t[idx2] = t[idx3];
         t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3] - points[idx1]) * u2, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[idx3] - extraInfoAboutVertex[idx1]) * u2);
+        t[idx3].extraInfoAboutVertex *= t[idx3].v.position.z;
         triangles.emplace_back(std::move(t));
     }
 
@@ -794,6 +804,9 @@ struct engine {
             t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), extraInfoAboutVertex[0]);
             t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), extraInfoAboutVertex[1]);
             t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), extraInfoAboutVertex[2]);
+            t[0].extraInfoAboutVertex *= t[0].v.position.z;
+            t[1].extraInfoAboutVertex *= t[1].v.position.z;
+            t[2].extraInfoAboutVertex *= t[2].v.position.z;
 
             triangles.emplace_back(std::move(t));
         }
