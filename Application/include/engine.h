@@ -89,9 +89,9 @@ struct engine {
 
     framebuffer *fboCPU;
 
-  private:
     uint32_t vao, vbo, ibo, tex, shader;
 
+  private:
     const char *vertexShaderSource = R"(#version 330 core
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in vec2 texCoord;
@@ -330,6 +330,7 @@ struct engine {
                 result += CalcPointLight(light, v.v.normal, v.extraInfoAboutVertex, viewDir, col, int_by_at);
             }
         }
+        result += CalcDirLight(v.v.normal, viewDir, col);
         result += col * ambientLightIntensity;
 #else
         for (auto &light : pointLights) {
@@ -341,6 +342,7 @@ struct engine {
 #endif
 
         return std::move(result);
+        // return vec3::normalize(pointLights[0].getpos() - v.extraInfoAboutVertex);
     }
 
     /**

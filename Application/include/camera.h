@@ -24,7 +24,6 @@ class camera {
     }
 
     void changeDir(vec3 dir) {
-        auto diff = dir.normalize() - viewDir;
         viewDir = std::move(dir);
         up = vec3(0, 1, 0);
         correct();

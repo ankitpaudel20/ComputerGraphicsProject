@@ -42,7 +42,7 @@ engine *graphicsEngine;
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     // auto dir = cam1.center - cam1.eye;
     // const float cameraSpeed = 2.5 * s.deltatime;
-    vec3 left = vec3::cross(cam1.getUp(), cam1.getViewDir());
+    // vec3 left = vec3::cross(cam1.getUp(), cam1.getViewDir());
     switch (action) {
     case GLFW_PRESS:
         switch (key) {
@@ -94,7 +94,7 @@ void processHoldEvent(GLFWwindow *window) {
     }
 
     float factor = 1;
-    auto light_speed = 0.05;
+    auto light_speed = 0.3;
 
     if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) {
         graphicsEngine->pointLights.back().delpos(cam1.getViewDir() * light_speed);
@@ -123,7 +123,7 @@ void processHoldEvent(GLFWwindow *window) {
     //if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS) {
     //    graphicsEngine->pointLights.back().delpos(cam1.getUp() * light_speed);
     //}
-    //
+
     //if (glfwGetKey(window, GLFW_KEY_KP_0) == GLFW_PRESS) {
     //    graphicsEngine->pointLights.back().delpos(-cam1.getUp() * light_speed);
     //}
@@ -226,11 +226,11 @@ int main(int argc, char **argv) {
 
     auto path = searchRes();
 
-    auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
-    auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
+    // auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
+    // auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
-    auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
-    // auto football = Model::loadModel_obj(path + "/city/uploads_files_2720101_BusGameMap.obj", "city");
+    // auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
+    auto football = Model::loadModel_obj(path + "/city/clean_city.obj", "city");
     //auto football = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
 
     float rotation_angle = 0;
@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
     Material m;
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->currentMaterial = &m;
-    graphicsEngine->cullBackface = true;
+    graphicsEngine->cullBackface = false;
     graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
     graphicsEngine->pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3);
@@ -260,13 +260,16 @@ int main(int argc, char **argv) {
     for (int i = 0; i < graphicsEngine->pointLights.size(); i++) {
         graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
     }
+
     auto lastframe = std::chrono::high_resolution_clock::now();
     std::string fpsString = "FPS: ";
-    const auto place = fpsString.find_first_of(" ")+1;
-    
+    const auto place = fpsString.find_first_of(" ") + 1;
+
     while (!glfwWindowShouldClose(window)) {
         deltatime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastframe).count();
         lastframe = std::chrono::high_resolution_clock::now();
+
+        // graphicsEngine->pointLights.back().setpos(graphicsEngine->cam->eye);
 
         glfwPollEvents();
         processHoldEvent(window);
@@ -303,8 +306,7 @@ int main(int argc, char **argv) {
         //    graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
         //    // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, translate3d);
         //}
-
-        for (auto &mesh : stupa->meshes) {
+        for (auto &mesh : football->meshes) {
             graphicsEngine->currentMaterial = &mesh->material;
             graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, scale3d);
         }
