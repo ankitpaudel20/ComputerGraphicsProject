@@ -14,6 +14,5 @@ var core_8h =
     [ "GLClearError", "core_8h.html#a6103a9a9cceabf330103f2502f088649", null ],
     [ "GLLogCall", "core_8h.html#a0938526e2235478e088c2532d575094d", null ],
     [ "operator*", "core_8h.html#a59cd165625a9bfb717859a38af76384a", null ],
-    [ "pathDelemeter", "core_8h.html#a143ff972c29926ce702843593b4d0a4e", null ],
-    [ "searchRes", "core_8h.html#a832c6e53f62a4e915731f596c5e8846d", null ]
+    [ "pathDelemeter", "core_8h.html#a143ff972c29926ce702843593b4d0a4e", null ]
 ];

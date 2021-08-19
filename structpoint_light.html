@@ -107,6 +107,15 @@ $(document).ready(function(){initNavTree('structpoint_light.html',''); initResiz
  <a href="structpoint_light.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="point_light_8h_source.html">pointLight.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for pointLight:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="structpoint_light.png" usemap="#pointLight_map" alt=""/>
+  <map id="pointLight_map" name="pointLight_map">
+<area href="structnode.html" title="anything that can be transformed( has modelmatrix )" alt="node" shape="rect" coords="0,0,66,24"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -116,33 +125,47 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ab989f1bf9f756c0f2269e403fc0b0d97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af687a3837f11eaad3fa637a13980ab0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#af687a3837f11eaad3fa637a13980ab0d">setpos</a> (const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;newPos)</td></tr>
 <tr class="separator:af687a3837f11eaad3fa637a13980ab0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85fa5285efd56b8ca585406e401e5a83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a85fa5285efd56b8ca585406e401e5a83">setmodel</a> (<a class="el" href="structnode.html">node</a> *<a class="el" href="structpoint_light.html#a592326b025a1ff66d90ad502d4df1f21">model</a>)</td></tr>
-<tr class="separator:a85fa5285efd56b8ca585406e401e5a83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01f789fc79b960eaa592a800e2221b2c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a01f789fc79b960eaa592a800e2221b2c">setdiffColor</a> (const <a class="el" href="structcolor.html">color</a> &amp;<a class="el" href="structcolor.html">color</a>)</td></tr>
 <tr class="separator:a01f789fc79b960eaa592a800e2221b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5fc99efca3faab86fa1afb7e249ace4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#aa5fc99efca3faab86fa1afb7e249ace4">setColor</a> (const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;<a class="el" href="structcolor.html">color</a>)</td></tr>
-<tr class="separator:aa5fc99efca3faab86fa1afb7e249ace4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a481dea322dd0cfb6274069e2f57b4aba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a481dea322dd0cfb6274069e2f57b4aba">setColor</a> (const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;col)</td></tr>
+<tr class="separator:a481dea322dd0cfb6274069e2f57b4aba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceef3e481a7931299ad606106883b518"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#aceef3e481a7931299ad606106883b518">getpos</a> () const</td></tr>
 <tr class="separator:aceef3e481a7931299ad606106883b518"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d07f95edbf8025aefe94012b47c99ba"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structcolor.html">color</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a9d07f95edbf8025aefe94012b47c99ba">get_diffuse_color</a> () const</td></tr>
 <tr class="separator:a9d07f95edbf8025aefe94012b47c99ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af80594e8b48a4a80b1bb8b14906a892c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structcolor.html">color</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#af80594e8b48a4a80b1bb8b14906a892c">get_ambient_color</a> () const</td></tr>
 <tr class="separator:af80594e8b48a4a80b1bb8b14906a892c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a583d9a4fba7cc45a7a3ed6c45e9d805b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnode.html">node</a> *&amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a583d9a4fba7cc45a7a3ed6c45e9d805b">getModel</a> ()</td></tr>
-<tr class="separator:a583d9a4fba7cc45a7a3ed6c45e9d805b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_structnode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structnode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structnode.html">node</a></td></tr>
+<tr class="memitem:ac4124cb9d847183938d304e7bf55dd68 inherit pub_methods_structnode"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#ac4124cb9d847183938d304e7bf55dd68">delpos</a> (const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;delta)</td></tr>
+<tr class="separator:ac4124cb9d847183938d304e7bf55dd68 inherit pub_methods_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a768706516352ec5c014561ae0ea889af inherit pub_methods_structnode"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#a768706516352ec5c014561ae0ea889af">setpos</a> (const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;position)</td></tr>
+<tr class="separator:a768706516352ec5c014561ae0ea889af inherit pub_methods_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec486daddee83f61ce284a74baaaa719 inherit pub_methods_structnode"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#aec486daddee83f61ce284a74baaaa719">setScale</a> (const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;scale)</td></tr>
+<tr class="separator:aec486daddee83f61ce284a74baaaa719 inherit pub_methods_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afabbbba74e66364da6fbf00a426b49f3 inherit pub_methods_structnode"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#afabbbba74e66364da6fbf00a426b49f3">setRotation</a> (float angle, const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;axis)</td></tr>
+<tr class="separator:afabbbba74e66364da6fbf00a426b49f3 inherit pub_methods_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3949fe2fd27e8dcb215df074192beac3 inherit pub_methods_structnode"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#a3949fe2fd27e8dcb215df074192beac3">refreshModel</a> ()</td></tr>
+<tr class="separator:a3949fe2fd27e8dcb215df074192beac3 inherit pub_methods_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b7192b30b711196dd7cb0efd21adab4 inherit pub_methods_structnode"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#a1b7192b30b711196dd7cb0efd21adab4">draw</a> (<a class="el" href="structengine.html">engine</a> &amp;<a class="el" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>, <a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a> matModel_in=<a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a>())</td></tr>
+<tr class="separator:a1b7192b30b711196dd7cb0efd21adab4 inherit pub_methods_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a66e0dac9c5d75e37d133a4f297e82b66"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a66e0dac9c5d75e37d133a4f297e82b66">intensity</a></td></tr>
 <tr class="separator:a66e0dac9c5d75e37d133a4f297e82b66"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adef581003fd71772e7b04b79479c604d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#adef581003fd71772e7b04b79479c604d">radius</a> = 11</td></tr>
-<tr class="separator:adef581003fd71772e7b04b79479c604d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af13e3baa0d63f791780a9684582879fe"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#af13e3baa0d63f791780a9684582879fe">constant</a> = 0.85</td></tr>
+<tr class="memitem:af13e3baa0d63f791780a9684582879fe"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#af13e3baa0d63f791780a9684582879fe">constant</a> = 1</td></tr>
 <tr class="separator:af13e3baa0d63f791780a9684582879fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac98185569f638380b3254b85467bbfb7"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#ac98185569f638380b3254b85467bbfb7">linear</a> = 1.0</td></tr>
+<tr class="memitem:ac98185569f638380b3254b85467bbfb7"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#ac98185569f638380b3254b85467bbfb7">linear</a> = 0.09</td></tr>
 <tr class="separator:ac98185569f638380b3254b85467bbfb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7cfdfb70d606f083de17f4bacdf983bc"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a7cfdfb70d606f083de17f4bacdf983bc">quadratic</a> = 0.06</td></tr>
+<tr class="memitem:a7cfdfb70d606f083de17f4bacdf983bc"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a7cfdfb70d606f083de17f4bacdf983bc">quadratic</a> = 0.032</td></tr>
 <tr class="separator:a7cfdfb70d606f083de17f4bacdf983bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_attribs_structnode"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structnode')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structnode.html">node</a></td></tr>
+<tr class="memitem:af3c4c502aba3fdf8e3a5b8dafcdfc3af inherit pub_attribs_structnode"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, <a class="el" href="structnode.html">node</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#af3c4c502aba3fdf8e3a5b8dafcdfc3af">children</a></td></tr>
+<tr class="separator:af3c4c502aba3fdf8e3a5b8dafcdfc3af inherit pub_attribs_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8951d352f778bb5c5d66cf6d7b30e84e inherit pub_attribs_structnode"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structdrawable.html">drawable</a>&lt; <a class="el" href="struct_vertex.html">Vertex</a> &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">meshes</a></td></tr>
+<tr class="separator:a8951d352f778bb5c5d66cf6d7b30e84e inherit pub_attribs_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a86e67037d33b042f7ab395c1b5a723 inherit pub_attribs_structnode"><td class="memItemLeft" align="right" valign="top"><a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnode.html#a9a86e67037d33b042f7ab395c1b5a723">matModel</a> = <a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a>()</td></tr>
+<tr class="separator:a9a86e67037d33b042f7ab395c1b5a723 inherit pub_attribs_structnode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -152,8 +175,6 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a7acb38d033db99c0e188310f2a473ebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d202e8226e555d6c9c6f27024502d54"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structcolor.html">color</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a4d202e8226e555d6c9c6f27024502d54">ambientColor</a> = <a class="el" href="structcolor.html">color</a>(255)</td></tr>
 <tr class="separator:a4d202e8226e555d6c9c6f27024502d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a592326b025a1ff66d90ad502d4df1f21"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnode.html">node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpoint_light.html#a592326b025a1ff66d90ad502d4df1f21">model</a> = nullptr</td></tr>
-<tr class="separator:a592326b025a1ff66d90ad502d4df1f21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>pointlight </p>
@@ -200,7 +221,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00027">27</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00026">26</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -229,7 +250,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00029">29</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00028">28</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -256,7 +277,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00065">65</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00061">61</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -283,34 +304,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00064">64</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
-
-</div>
-</div>
-<a id="a583d9a4fba7cc45a7a3ed6c45e9d805b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a583d9a4fba7cc45a7a3ed6c45e9d805b">&#9670;&nbsp;</a></span>getModel()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structnode.html">node</a>*&amp; pointLight::getModel </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00066">66</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00060">60</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -337,12 +331,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00063">63</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00059">59</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
-<a id="aa5fc99efca3faab86fa1afb7e249ace4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5fc99efca3faab86fa1afb7e249ace4">&#9670;&nbsp;</a></span>setColor()</h2>
+<a id="a481dea322dd0cfb6274069e2f57b4aba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a481dea322dd0cfb6274069e2f57b4aba">&#9670;&nbsp;</a></span>setColor()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -354,7 +348,7 @@ Private Attributes</h2></td></tr>
           <td class="memname">void pointLight::setColor </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;&#160;</td>
-          <td class="paramname"><em>color</em></td><td>)</td>
+          <td class="paramname"><em>col</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -365,7 +359,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00058">58</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00054">54</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -393,35 +387,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00048">48</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
-
-</div>
-</div>
-<a id="a85fa5285efd56b8ca585406e401e5a83"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a85fa5285efd56b8ca585406e401e5a83">&#9670;&nbsp;</a></span>setmodel()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void pointLight::setmodel </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structnode.html">node</a> *&#160;</td>
-          <td class="paramname"><em>model</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00043">43</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00046">46</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -449,7 +415,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00036">36</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00033">33</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -485,12 +451,12 @@ Private Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float pointLight::constant = 0.85</td>
+          <td class="memname">float pointLight::constant = 1</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00023">23</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00019">19</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -541,36 +507,12 @@ Private Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float pointLight::linear = 1.0</td>
+          <td class="memname">float pointLight::linear = 0.09</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00024">24</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
-
-</div>
-</div>
-<a id="a592326b025a1ff66d90ad502d4df1f21"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a592326b025a1ff66d90ad502d4df1f21">&#9670;&nbsp;</a></span>model</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structnode.html">node</a>* pointLight::model = nullptr</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00014">14</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00020">20</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>
@@ -605,28 +547,12 @@ Private Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float pointLight::quadratic = 0.06</td>
+          <td class="memname">float pointLight::quadratic = 0.032</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00025">25</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
-
-</div>
-</div>
-<a id="adef581003fd71772e7b04b79479c604d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adef581003fd71772e7b04b79479c604d">&#9670;&nbsp;</a></span>radius</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float pointLight::radius = 11</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00018">18</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="point_light_8h_source.html#l00021">21</a> of file <a class="el" href="point_light_8h_source.html">pointLight.h</a>.</p>
 
 </div>
 </div>

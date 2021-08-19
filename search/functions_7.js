@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['inverse_384',['inverse',['../classmat.html#ad56f69d17fe39ce7a1e2c4b759c685b7',1,'mat']]]
+  ['inverse_368',['inverse',['../classmat.html#ad56f69d17fe39ce7a1e2c4b759c685b7',1,'mat']]]
 ];

@@ -175,6 +175,8 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a2ad58255f5bdcb443a28e9d68a9d9e84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcamera.html">camera</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a2ad58255f5bdcb443a28e9d68a9d9e84">cam</a> = nullptr</td></tr>
 <tr class="memdesc:a2ad58255f5bdcb443a28e9d68a9d9e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">camera  <a href="structengine.html#a2ad58255f5bdcb443a28e9d68a9d9e84">More...</a><br /></td></tr>
 <tr class="separator:a2ad58255f5bdcb443a28e9d68a9d9e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fdc50163d14c9695bcbafa84eb56dea"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a7fdc50163d14c9695bcbafa84eb56dea">doLightCalculations</a> = true</td></tr>
+<tr class="separator:a7fdc50163d14c9695bcbafa84eb56dea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -188,19 +190,19 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:ab2ab93c25b1abffaf540e1e936f8ae02"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structcolor.html">color</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#ab2ab93c25b1abffaf540e1e936f8ae02">CalcPointLight</a> (const <a class="el" href="structpoint_light.html">pointLight</a> &amp;light, const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;normal, const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;fragPos, const <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a> &amp;viewDir, const <a class="el" href="structcolor.html">color</a> &amp;diffuseColor, float int_by_at)</td></tr>
 <tr class="memdesc:ab2ab93c25b1abffaf540e1e936f8ae02"><td class="mdescLeft">&#160;</td><td class="mdescRight">function to calculate effect of a point light in a fragment with color col  <a href="structengine.html#ab2ab93c25b1abffaf540e1e936f8ae02">More...</a><br /></td></tr>
 <tr class="separator:ab2ab93c25b1abffaf540e1e936f8ae02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4dae70e5bce6f2d93b957e9ea0398bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#af4dae70e5bce6f2d93b957e9ea0398bc">putpixel_adjusted</a> (int x, int y, float z, const <a class="el" href="structcolor.html">color</a> &amp;col=255)</td></tr>
-<tr class="memdesc:af4dae70e5bce6f2d93b957e9ea0398bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">putpixel assuming middle of screen to be the origin  <a href="structengine.html#af4dae70e5bce6f2d93b957e9ea0398bc">More...</a><br /></td></tr>
-<tr class="separator:af4dae70e5bce6f2d93b957e9ea0398bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ca3a5b616dbaeabecb9f1c3f63a0c31"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a7ca3a5b616dbaeabecb9f1c3f63a0c31">putpixel_adjusted</a> (int x, int y, float z, const <a class="el" href="structcolor.html">color</a> &amp;col=<a class="el" href="structcolor.html">color</a>(255))</td></tr>
+<tr class="memdesc:a7ca3a5b616dbaeabecb9f1c3f63a0c31"><td class="mdescLeft">&#160;</td><td class="mdescRight">putpixel assuming middle of screen to be the origin  <a href="structengine.html#a7ca3a5b616dbaeabecb9f1c3f63a0c31">More...</a><br /></td></tr>
+<tr class="separator:a7ca3a5b616dbaeabecb9f1c3f63a0c31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03aaf5b54a23f355194d7a2165917474"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a03aaf5b54a23f355194d7a2165917474">getpixelZ_adjusted</a> (int x, int y) const</td></tr>
 <tr class="memdesc:a03aaf5b54a23f355194d7a2165917474"><td class="mdescLeft">&#160;</td><td class="mdescRight">get z value of specified pixel from framebuffer  <a href="structengine.html#a03aaf5b54a23f355194d7a2165917474">More...</a><br /></td></tr>
 <tr class="separator:a03aaf5b54a23f355194d7a2165917474"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af55a0732a19a726bb772c9011d724ab1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#af55a0732a19a726bb772c9011d724ab1">draw_bresenham_adjusted</a> (int x1, int y1, int x2, int y2, const <a class="el" href="structcolor.html">color</a> &amp;col=0)</td></tr>
-<tr class="memdesc:af55a0732a19a726bb772c9011d724ab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">bresenham line drawing function to draw wireframe of objects  <a href="structengine.html#af55a0732a19a726bb772c9011d724ab1">More...</a><br /></td></tr>
-<tr class="separator:af55a0732a19a726bb772c9011d724ab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a308628fdea9865650e18c1836ad4d627"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a308628fdea9865650e18c1836ad4d627">clip1</a> (const std::array&lt; <a class="el" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>, 3 &gt; &amp;tris, unsigned char which, float &amp;u1, float &amp;u2)</td></tr>
-<tr class="separator:a308628fdea9865650e18c1836ad4d627"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1893d7f278d03216638a06f91e8191ff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a1893d7f278d03216638a06f91e8191ff">clip2</a> (const std::array&lt; <a class="el" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>, 3 &gt; &amp;tris, unsigned char idx1, unsigned char idx2, unsigned char rem, float &amp;u1, float &amp;u2)</td></tr>
-<tr class="separator:a1893d7f278d03216638a06f91e8191ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a480de39f213a6a6121074a6c0797758d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a480de39f213a6a6121074a6c0797758d">draw_bresenham_adjusted</a> (int x1, int y1, int x2, int y2, const <a class="el" href="structcolor.html">color</a> &amp;col=<a class="el" href="structcolor.html">color</a>(0))</td></tr>
+<tr class="memdesc:a480de39f213a6a6121074a6c0797758d"><td class="mdescLeft">&#160;</td><td class="mdescRight">bresenham line drawing function to draw wireframe of objects  <a href="structengine.html#a480de39f213a6a6121074a6c0797758d">More...</a><br /></td></tr>
+<tr class="separator:a480de39f213a6a6121074a6c0797758d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18b000736c2e0f21d5926ef0e4db5a74"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a18b000736c2e0f21d5926ef0e4db5a74">clip1</a> (const std::array&lt; <a class="el" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>, 3 &gt; &amp;tris, unsigned char which, float &amp;u1, float &amp;u2) const</td></tr>
+<tr class="separator:a18b000736c2e0f21d5926ef0e4db5a74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad00966806e4218bc7be9c898225ae912"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#ad00966806e4218bc7be9c898225ae912">clip2</a> (const std::array&lt; <a class="el" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>, 3 &gt; &amp;tris, unsigned char idx1, unsigned char idx2, unsigned char rem, float &amp;u1, float &amp;u2) const</td></tr>
+<tr class="separator:ad00966806e4218bc7be9c898225ae912"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a410748653e7d079a6a83f24d0f8f60df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structengine.html#a410748653e7d079a6a83f24d0f8f60df">clip2helper</a> (const <a class="el" href="maths_8h.html#a1b9d4f1bb4912ad44a6c51e38b7aadde">mat4f</a> &amp;per, const std::array&lt; <a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>, 3 &gt; &amp;extraInfoAboutVertex, const std::array&lt; <a class="el" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>, 3 &gt; &amp;modelviewTransformed, <a class="el" href="struct_vertex.html">Vertex</a> *points, unsigned char idx1, unsigned char idx2, unsigned char rem, std::array&lt; <a class="el" href="struct_vertex2.html">Vertex2</a>, 3 &gt; &amp;t)</td></tr>
 <tr class="memdesc:a410748653e7d079a6a83f24d0f8f60df"><td class="mdescLeft">&#160;</td><td class="mdescRight">clips and perspective transforms input triangle vertices if two points are out of clip space  <a href="structengine.html#a410748653e7d079a6a83f24d0f8f60df">More...</a><br /></td></tr>
 <tr class="separator:a410748653e7d079a6a83f24d0f8f60df"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,7 +243,7 @@ Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>backend for all rendering purposes </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00088">88</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00089">89</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a52c2c5e7677866fa3daf5f2e342bf9b5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a52c2c5e7677866fa3daf5f2e342bf9b5">&#9670;&nbsp;</a></span>engine()</h2>
@@ -279,7 +281,7 @@ Private Attributes</h2></td></tr>
 
 <p>constructor and opengl draw surface initialization </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00140">140</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00141">141</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -308,7 +310,7 @@ Private Attributes</h2></td></tr>
 
 <p>destructor </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00223">223</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00224">224</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -355,7 +357,7 @@ Private Attributes</h2></td></tr>
 
 <p>function to calculate effect of directional light in a fragment with color col </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00383">383</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00389">389</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -419,7 +421,7 @@ Private Attributes</h2></td></tr>
 
 <p>function to calculate effect of a point light in a fragment with color col </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00396">396</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00402">402</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -448,12 +450,12 @@ Private Attributes</h2></td></tr>
 
 <p>clear all drawing surface </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00234">234</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00235">235</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
-<a id="a308628fdea9865650e18c1836ad4d627"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a308628fdea9865650e18c1836ad4d627">&#9670;&nbsp;</a></span>clip1()</h2>
+<a id="a18b000736c2e0f21d5926ef0e4db5a74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18b000736c2e0f21d5926ef0e4db5a74">&#9670;&nbsp;</a></span>clip1()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -488,7 +490,7 @@ Private Attributes</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
@@ -498,7 +500,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00463">463</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00469">469</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -568,12 +570,12 @@ Private Attributes</h2></td></tr>
 
 <p>clips and perspective transforms input triangle vertices if one point is out of the clip space </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00492">492</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00498">498</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
-<a id="a1893d7f278d03216638a06f91e8191ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1893d7f278d03216638a06f91e8191ff">&#9670;&nbsp;</a></span>clip2()</h2>
+<a id="ad00966806e4218bc7be9c898225ae912"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad00966806e4218bc7be9c898225ae912">&#9670;&nbsp;</a></span>clip2()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -620,7 +622,7 @@ Private Attributes</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
@@ -630,7 +632,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00468">468</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00474">474</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -706,7 +708,7 @@ Private Attributes</h2></td></tr>
 
 <p>clips and perspective transforms input triangle vertices if two points are out of clip space </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00476">476</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00482">482</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -735,12 +737,12 @@ Private Attributes</h2></td></tr>
 
 <p>send framebuffer from cpu to gpu as texture to be able to render using opengl </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00243">243</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00244">244</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
-<a id="af55a0732a19a726bb772c9011d724ab1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af55a0732a19a726bb772c9011d724ab1">&#9670;&nbsp;</a></span>draw_bresenham_adjusted()</h2>
+<a id="a480de39f213a6a6121074a6c0797758d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a480de39f213a6a6121074a6c0797758d">&#9670;&nbsp;</a></span>draw_bresenham_adjusted()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -776,7 +778,7 @@ Private Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structcolor.html">color</a> &amp;&#160;</td>
-          <td class="paramname"><em>col</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>col</em> = <code><a class="el" href="structcolor.html">color</a>(0)</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -793,7 +795,7 @@ Private Attributes</h2></td></tr>
 
 <p>bresenham line drawing function to draw wireframe of objects </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00429">429</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00435">435</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -839,7 +841,7 @@ Private Attributes</h2></td></tr>
 
 <p>drawlines using given vertices and indices </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00255">255</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00256">256</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -885,7 +887,7 @@ Private Attributes</h2></td></tr>
 
 <p>draw linestrip fron given set of vertices, indices and color </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00271">271</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00272">272</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -931,7 +933,7 @@ Private Attributes</h2></td></tr>
 
 <p>draw triangle only using lines (dont fill the triangle) </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00352">352</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00358">358</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -977,7 +979,7 @@ Private Attributes</h2></td></tr>
 
 <p>draw rasterized triangle </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00365">365</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00371">371</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1041,7 +1043,7 @@ Private Attributes</h2></td></tr>
 
 <p>rasterize BottomFlatTriangle: p0/first_argument is the top unique point </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00513">513</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00519">519</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1081,7 +1083,7 @@ Private Attributes</h2></td></tr>
 
 <p>fill intensity information for each vertex needed for gouraud shading </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00694">694</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00700">700</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1145,7 +1147,7 @@ Private Attributes</h2></td></tr>
 
 <p>rasterize TopFlatTriangle: p2/last_point is the bottom unique point </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00564">564</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00570">570</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1175,7 +1177,7 @@ Private Attributes</h2></td></tr>
 
 <p>essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00312">312</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00315">315</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1215,7 +1217,7 @@ Private Attributes</h2></td></tr>
 
 <p>get z value of specified pixel from framebuffer </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00421">421</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00427">427</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1261,7 +1263,7 @@ Private Attributes</h2></td></tr>
 
 <p>fill triangles array by doing required clipping and culling </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00713">713</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00719">719</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1299,12 +1301,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00372">372</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00378">378</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
-<a id="af4dae70e5bce6f2d93b957e9ea0398bc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af4dae70e5bce6f2d93b957e9ea0398bc">&#9670;&nbsp;</a></span>putpixel_adjusted()</h2>
+<a id="a7ca3a5b616dbaeabecb9f1c3f63a0c31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ca3a5b616dbaeabecb9f1c3f63a0c31">&#9670;&nbsp;</a></span>putpixel_adjusted()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1334,7 +1336,7 @@ Private Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structcolor.html">color</a> &amp;&#160;</td>
-          <td class="paramname"><em>col</em> = <code>255</code>&#160;</td>
+          <td class="paramname"><em>col</em> = <code><a class="el" href="structcolor.html">color</a>(255)</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1351,7 +1353,7 @@ Private Attributes</h2></td></tr>
 
 <p>putpixel assuming middle of screen to be the origin </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00410">410</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00416">416</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1380,7 +1382,7 @@ Private Attributes</h2></td></tr>
 
 <p>helper function to rasterize triangles in vector of triangles. </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00633">633</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00639">639</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1418,7 +1420,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00376">376</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00382">382</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1472,7 +1474,7 @@ template&lt;class T &gt; </div>
 
 <p>helper function to sort 3 items </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00617">617</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00623">623</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1491,7 +1493,7 @@ template&lt;class T &gt; </div>
 
 <p>lights. </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00300">300</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00301">301</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1509,7 +1511,7 @@ template&lt;class T &gt; </div>
 
 <p>camera </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00307">307</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00308">308</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1527,7 +1529,7 @@ template&lt;class T &gt; </div>
 
 <p>switch for backface culling </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00290">290</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00291">291</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1545,7 +1547,7 @@ template&lt;class T &gt; </div>
 
 <p>which material to use for further render calls </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00295">295</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00296">296</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1561,7 +1563,23 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00301">301</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00302">302</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+
+</div>
+</div>
+<a id="a7fdc50163d14c9695bcbafa84eb56dea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fdc50163d14c9695bcbafa84eb56dea">&#9670;&nbsp;</a></span>doLightCalculations</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool engine::doLightCalculations = true</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00310">310</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1577,7 +1595,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00090">90</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00091">91</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1614,7 +1632,7 @@ template&lt;class T &gt; </div>
 <div class="line"><span class="stringliteral">    }</span></div>
 <div class="line"><span class="stringliteral">    )&quot;</span></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00106">106</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00107">107</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1630,7 +1648,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00092">92</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00093">93</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1661,7 +1679,7 @@ template&lt;class T &gt; </div>
 <div class="line">            0, 1, 2,</div>
 <div class="line">            0, 3, 1}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00128">128</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00129">129</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1679,7 +1697,7 @@ template&lt;class T &gt; </div>
 
 <p>nearplane of camera for clipping and culling </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00285">285</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00286">286</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1695,7 +1713,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00302">302</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00303">303</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1711,7 +1729,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00092">92</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00093">93</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1727,7 +1745,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00092">92</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00093">93</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1745,7 +1763,7 @@ template&lt;class T &gt; </div>
 
 <p>set of triangles to be drawn to screen </p>
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00280">280</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00281">281</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1761,7 +1779,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00092">92</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00093">93</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1777,7 +1795,7 @@ template&lt;class T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00092">92</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00093">93</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1811,7 +1829,7 @@ template&lt;class T &gt; </div>
 <div class="line"><span class="stringliteral">    }</span></div>
 <div class="line"><span class="stringliteral">    )&quot;</span></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00095">95</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00096">96</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
@@ -1842,7 +1860,7 @@ template&lt;class T &gt; </div>
 <div class="line">            -1.0f, 1.0f, -0.0f, 0.f, 1.f,</div>
 <div class="line">            1.0f, -1.0f, -0.0f, 1.f, 0.f}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00120">120</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00121">121</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>

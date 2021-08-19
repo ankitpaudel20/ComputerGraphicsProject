@@ -293,7 +293,7 @@ $(document).ready(function(){initNavTree('model_8h_source.html',''); initResizab
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160; </div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;            temp_mesh.<a class="code" href="structdrawable.html#a276cce345e8aa5264602ca9aaa575427">name</a> = name;</div>
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            meshes_loaded[temp_mesh.<a class="code" href="structdrawable.html#a276cce345e8aa5264602ca9aaa575427">name</a>] = std::move(temp_mesh);</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;            temp.<a class="code" href="structnode.html#a8c1b0e5f525162ba0703e894a4112477">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;            temp.<a class="code" href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        }</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        models_loaded[name] = std::move(temp);</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        <span class="keywordflow">return</span> &amp;models_loaded[name];</div>
@@ -323,7 +323,7 @@ $(document).ready(function(){initNavTree('model_8h_source.html',''); initResizab
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="comment">// std::vector&lt;drawable&lt;Vertex&gt;&gt; meshes;</span></div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160; </div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="comment">// process ASSIMP&#39;s root node recursively</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    processNode(scene-&gt;mRootNode, scene, temp.<a class="code" href="structnode.html#a8c1b0e5f525162ba0703e894a4112477">meshes</a>, 0);</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    processNode(scene-&gt;mRootNode, scene, temp.<a class="code" href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">meshes</a>, 0);</div>
 <div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160; </div>
 <div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    models_loaded[name] = std::move(temp);</div>
 <div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    models_loaded_path[path] = &amp;models_loaded[name];</div>
@@ -351,7 +351,7 @@ $(document).ready(function(){initNavTree('model_8h_source.html',''); initResizab
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160; </div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;            temp_mesh.<a class="code" href="structdrawable.html#a276cce345e8aa5264602ca9aaa575427">name</a> = name;</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;            meshes_loaded[temp_mesh.<a class="code" href="structdrawable.html#a276cce345e8aa5264602ca9aaa575427">name</a>] = std::move(temp_mesh);</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;            temp.<a class="code" href="structnode.html#a8c1b0e5f525162ba0703e894a4112477">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;            temp.<a class="code" href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;        }</div>
 <div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160; </div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;        models_loaded[name] = std::move(temp);</div>
@@ -422,7 +422,7 @@ $(document).ready(function(){initNavTree('model_8h_source.html',''); initResizab
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;                }</div>
 <div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;                m1-&gt;<a class="code" href="structdrawable.html#a276cce345e8aa5264602ca9aaa575427">name</a> = name;</div>
 <div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                meshes_loaded[name] = std::move(*m1);</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                temp.<a class="code" href="structnode.html#a8c1b0e5f525162ba0703e894a4112477">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                temp.<a class="code" href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;                current_index = 0;</div>
 <div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;                <a class="code" href="structdrawable.html">Mesh</a> *t = m1;</div>
 <div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;                <span class="comment">//delete m1;</span></div>
@@ -516,7 +516,7 @@ $(document).ready(function(){initNavTree('model_8h_source.html',''); initResizab
 <div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160; </div>
 <div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;            m1-&gt;<a class="code" href="structdrawable.html#a276cce345e8aa5264602ca9aaa575427">name</a> = name;</div>
 <div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;            meshes_loaded[name] = std::move(*m1);</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;            temp.<a class="code" href="structnode.html#a8c1b0e5f525162ba0703e894a4112477">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;            temp.<a class="code" href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">meshes</a>.push_back(&amp;meshes_loaded[name]);</div>
 <div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;        }</div>
 <div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;    }</div>
 <div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160; </div>
@@ -552,8 +552,8 @@ $(document).ready(function(){initNavTree('model_8h_source.html',''); initResizab
 <div class="ttc" id="astructdrawable_html_a66e84a9617e01364ed2e4184a08ff10b"><div class="ttname"><a href="structdrawable.html#a66e84a9617e01364ed2e4184a08ff10b">drawable::m_indices</a></div><div class="ttdeci">std::vector&lt; uint32_t &gt; m_indices</div><div class="ttdef"><b>Definition:</b> <a href="drawable_8h_source.html#l00014">drawable.h:14</a></div></div>
 <div class="ttc" id="astructdrawable_html_a920cc25f7fbf317c7fbaea83f9f5b917"><div class="ttname"><a href="structdrawable.html#a920cc25f7fbf317c7fbaea83f9f5b917">drawable::material</a></div><div class="ttdeci">Material material</div><div class="ttdef"><b>Definition:</b> <a href="drawable_8h_source.html#l00015">drawable.h:15</a></div></div>
 <div class="ttc" id="astructdrawable_html_af797fdc7c35504231dbad072d173622d"><div class="ttname"><a href="structdrawable.html#af797fdc7c35504231dbad072d173622d">drawable::m_vertices</a></div><div class="ttdeci">std::vector&lt; T &gt; m_vertices</div><div class="ttdef"><b>Definition:</b> <a href="drawable_8h_source.html#l00013">drawable.h:13</a></div></div>
-<div class="ttc" id="astructnode_html"><div class="ttname"><a href="structnode.html">node</a></div><div class="ttdoc">anything that can be transformed( has modelmatrix )</div><div class="ttdef"><b>Definition:</b> <a href="node_8h_source.html#l00010">node.h:10</a></div></div>
-<div class="ttc" id="astructnode_html_a8c1b0e5f525162ba0703e894a4112477"><div class="ttname"><a href="structnode.html#a8c1b0e5f525162ba0703e894a4112477">node::meshes</a></div><div class="ttdeci">std::vector&lt; Mesh * &gt; meshes</div><div class="ttdef"><b>Definition:</b> <a href="node_8h_source.html#l00012">node.h:12</a></div></div>
+<div class="ttc" id="astructnode_html"><div class="ttname"><a href="structnode.html">node</a></div><div class="ttdoc">anything that can be transformed( has modelmatrix )</div><div class="ttdef"><b>Definition:</b> <a href="node_8h_source.html#l00013">node.h:13</a></div></div>
+<div class="ttc" id="astructnode_html_a8951d352f778bb5c5d66cf6d7b30e84e"><div class="ttname"><a href="structnode.html#a8951d352f778bb5c5d66cf6d7b30e84e">node::meshes</a></div><div class="ttdeci">std::vector&lt; drawable&lt; Vertex &gt; * &gt; meshes</div><div class="ttdef"><b>Definition:</b> <a href="node_8h_source.html#l00015">node.h:15</a></div></div>
 <div class="ttc" id="astructtexture_html_a00f24e3f453f51cfee0167e47e04cbe3"><div class="ttname"><a href="structtexture.html#a00f24e3f453f51cfee0167e47e04cbe3">texture::h</a></div><div class="ttdeci">int h</div><div class="ttdef"><b>Definition:</b> <a href="material_8h_source.html#l00013">material.h:13</a></div></div>
 <div class="ttc" id="astructtexture_html_a3a937b9d62b79f01bd754a3cfd45827c"><div class="ttname"><a href="structtexture.html#a3a937b9d62b79f01bd754a3cfd45827c">texture::m_bpp</a></div><div class="ttdeci">int m_bpp</div><div class="ttdef"><b>Definition:</b> <a href="material_8h_source.html#l00013">material.h:13</a></div></div>
 <div class="ttc" id="astructtexture_html_aa6f6eff44246f73e5e2b2d0dee1afc62"><div class="ttname"><a href="structtexture.html#aa6f6eff44246f73e5e2b2d0dee1afc62">texture::w</a></div><div class="ttdeci">int w</div><div class="ttdef"><b>Definition:</b> <a href="material_8h_source.html#l00013">material.h:13</a></div></div>
