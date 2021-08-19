@@ -89,8 +89,6 @@ inline bool GLLogCall(const char *function, const char *file, int line) {
     return true;
 }
 
-//#define _DEBUG
-
 #define ASSERT(x)      \
     if (!(x)) {        \
         DEBUG_BREAK;   \
@@ -156,26 +154,33 @@ struct color {
     color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {}
     explicit color(const vec3 &in) : color(in.x * 255, in.y * 255, in.z * 255) {}
 
-    vec4 getcolor() {
+    vec4 getcolor() const {
         auto temp = (uint8_t *)&col;
         return vec4(temp[0], temp[1], temp[2], temp[3]) / 255;
     }
-    [[nodiscard]] inline uint8_t r()const  {
+
+    vec3 getcolorVec3() const {
+        auto temp = (uint8_t *)&col;
+        return vec3(temp[0], temp[1], temp[2]) / 255;
+    }
+
+    [[nodiscard]] inline uint8_t r() const {
         auto temp = (uint8_t *)&col;
         return temp[0];
     }
-    [[nodiscard]] inline uint8_t g() const{
+    [[nodiscard]] inline uint8_t g() const {
         auto temp = (uint8_t *)&col;
         return temp[1];
     }
-    [[nodiscard]] inline uint8_t b() const{
+    [[nodiscard]] inline uint8_t b() const {
         auto temp = (uint8_t *)&col;
         return temp[2];
     }
-    [[nodiscard]] inline uint8_t a() const{
+    [[nodiscard]] inline uint8_t a() const {
         auto temp = (uint8_t *)&col;
         return temp[3];
     }
+
     [[nodiscard]] inline uint8_t &r() {
         auto temp = (uint8_t *)&col;
         return temp[0];
@@ -191,6 +196,22 @@ struct color {
     [[nodiscard]] inline uint8_t &a() {
         auto temp = (uint8_t *)&col;
         return temp[3];
+    }
+
+    color operator*(const vec3 &in) const {
+        auto temp = (uint8_t *)&col;
+        unsigned short r = (unsigned short)temp[0] * in.x;
+        unsigned short g = (unsigned short)temp[1] * in.y;
+        unsigned short b = (unsigned short)temp[2] * in.z;
+        return color(r > 255 ? 255 : r, g > 255 ? 255 : g, b > 255 ? 255 : b, a());
+    }
+
+    void operator*=(const vec3 &in) {
+        auto temp = (uint8_t *)&col;
+        unsigned short r = (unsigned short)temp[0] * in.x;
+        unsigned short g = (unsigned short)temp[1] * in.y;
+        unsigned short b = (unsigned short)temp[2] * in.z;
+        col = ((a() << 24u) | (b > 255 ? 255 : b << 16u) | (g > 255 ? 255 : g << 8u) | r > 255 ? 255 : r);
     }
 
     color operator*(const color &in) const {

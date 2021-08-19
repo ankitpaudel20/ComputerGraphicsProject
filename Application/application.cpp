@@ -191,7 +191,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
         auto eng = (engine *)glfwGetWindowUserPointer(window);
         glfwGetCursorPos(window, &mx, &my);
         const size_t index = (eng->fboCPU->y_size - my) * eng->fboCPU->x_size + mx;
-        const color col = eng->fboCPU->colorlayer[index];
+        color col = eng->fboCPU->colorlayer[index];
         printf("clicked color: (%d,%d,%d)\n", col.r(), col.g(), col.b());
     }
 }
@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
         //}
        for (auto &mesh : football->meshes) {
            graphicsEngine->currentMaterial = &mesh->material;
-           graphicsEngine->doLightCalculations=mesh->doLightCalculations;
+        //    graphicsEngine->doLightCalculations=mesh->doLightCalculations;
            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, scale3d);
        }
 

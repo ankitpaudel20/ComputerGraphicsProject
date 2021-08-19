@@ -33,7 +33,7 @@ void node::draw(engine &graphicsEngine, mat4f matModel_in) {
     matModel_in = matModel * matModel_in;
     for (auto &mesh : meshes) {
         if (mesh->draw) {
-            graphicsEngine.doLightCalculations = mesh->doLightCalculations;
+            // graphicsEngine.doLightCalculations = mesh->doLightCalculations;
             graphicsEngine.currentMaterial = &mesh->material;
             graphicsEngine.drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, mesh->matModel * matModel_in);
         }

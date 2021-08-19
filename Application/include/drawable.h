@@ -3,6 +3,7 @@
 #include "core.h"
 #include "material.h"
 #include "transformations.h"
+#include <vector>
 
 /**
  * @brief this class represents all drawable entities that has a material and vertices

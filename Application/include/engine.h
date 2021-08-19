@@ -7,12 +7,13 @@
 #include "material.h"
 #include "pointLight.h"
 #include "camera.h"
+#include "thread_pool.hpp"
 
-inline int roundfloat(const float &in) {
+inline static int roundfloat(const float &in) {
     return in < 0 ? in - 0.5f : in + 0.5f;
 }
 
-inline int rounddouble(const double &in) {
+inline static int rounddouble(const double &in) {
     return in < 0 ? in - 0.5f : in + 0.5f;
 }
 
@@ -63,14 +64,20 @@ struct framebuffer {
     }
 };
 
+#ifdef PHONG_SHADING
+#define EXTRA_VERTEX_INFO vec3
+#else
+#define EXTRA_VERTEX_INFO vec3_T<vec3>
+#endif
+
 /**
  * @brief Vertex + extra info required for shading
  */
 struct Vertex2 {
     Vertex v;
     //fragment Position for phong and INTENSITY for gouraud
-    vec3 extraInfoAboutVertex;
-    Vertex2(const Vertex &vin, const vec3 &pos) : v(vin), extraInfoAboutVertex(pos) {}
+    EXTRA_VERTEX_INFO extraInfoAboutVertex;
+    Vertex2(const Vertex &vin, const EXTRA_VERTEX_INFO &pos) : v(vin), extraInfoAboutVertex(pos) {}
     Vertex2() {}
     Vertex2 operator*(const float &f) const {
         return Vertex2(v * f, extraInfoAboutVertex * f);
@@ -93,6 +100,8 @@ struct engine {
     uint32_t vao, vbo, ibo, tex, shader;
 
   private:
+    thread_pool pool;
+
     const char *vertexShaderSource = R"(#version 330 core
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in vec2 texCoord;
@@ -311,8 +320,7 @@ struct engine {
     /**
  * @brief essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
  */
-    color
-    getcolor(const Vertex2 &v) {
+    color getcolor(const Vertex2 &v) {
         color col;
         if (currentMaterial->diffuse.w) {
             float intpart;
@@ -339,15 +347,12 @@ struct engine {
             }
         }
 //        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col);
-//        result += col * ambientLightIntensity;
 #else
-        for (auto &light : pointLights) {
-            result += col * light.get_ambient_color() * v.extraInfoAboutVertex.x;
-            result += col * light.get_diffuse_color() * v.extraInfoAboutVertex.y;
-            result += light.get_diffuse_color() * v.extraInfoAboutVertex.z;
-            result += col * ambientLightIntensity;
-        }
+        result += col * (v.extraInfoAboutVertex.x / v.v.position.z);
+        result += col * (v.extraInfoAboutVertex.y / v.v.position.z);
+        result += color(v.extraInfoAboutVertex.z / v.v.position.z);
 #endif
+        // result += col * ambientLightIntensity;
 
         return result;
     }
@@ -479,7 +484,7 @@ struct engine {
     /**
  * @brief clips and perspective transforms input triangle vertices if two points are out of clip space
  */
-    inline void clip2helper(const mat4f &per, const std::array<vec3, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, unsigned char rem, std::array<Vertex2, 3> &t) {
+    inline void clip2helper(const mat4f &per, const std::array<EXTRA_VERTEX_INFO, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, unsigned char idx2, unsigned char rem, std::array<Vertex2, 3> &t) {
         float u1, u2;
         clip2(modelviewTransformed, idx1, idx2, rem, u1, u2);
 
@@ -495,7 +500,7 @@ struct engine {
     /**
  * @brief clips and perspective transforms input triangle vertices if one point is out of the clip space
  */
-    inline void clip1helper(const mat4f &per, const std::array<vec3, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
+    inline void clip1helper(const mat4f &per, const std::array<EXTRA_VERTEX_INFO, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
         float u1, u2;
         unsigned char idx2 = (idx1 + 1) % 3, idx3 = (idx1 + 2) % 3;
         clip1(modelviewTransformed, idx1, u1, u2);
@@ -632,11 +637,72 @@ struct engine {
                 std::swap(item1, item0);
         }
     }
+    // #define MULTITHREADED
 
     /**
  * @brief helper function to rasterize triangles in vector of triangles.
  */
     void rasterizeTriangles() {
+
+#ifdef MULTITHREADED
+        pool.parallelize_loop(0, triangles.size(), [this](const unsigned int start, const unsigned int end) {
+            for (unsigned int i = start; i < end; i++) {
+                auto &tris = triangles[i];
+                sort3Values<Vertex2>(tris[0], tris[1], tris[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+                //std::sort(tris.begin(), tris.end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+
+                vec2_T<int> points[3];
+                points[0] = vec2_T<int>(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y));
+                points[1] = vec2_T<int>(roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y));
+                points[2] = vec2_T<int>(roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y));
+
+                if (points[0].y == points[1].y) // natural flat top
+                {
+                    //sorting top vertices by x
+                    if (points[1].x > points[0].x) {
+                        std::swap(tris[0], tris[1]);
+                        std::swap(points[0], points[1]);
+                    }
+
+                    fillTopFlatTriangle(points[0], points[1], points[2], tris[0], tris[1], tris[2]);
+                    return;
+                } else if (points[1].y == points[2].y) // natural flat bottom
+                {
+                    // sorting bottom vertices by x
+                    if (points[2].x < points[1].x) {
+                        std::swap(tris[1], tris[2]);
+                        std::swap(points[1], points[2]);
+                    }
+
+                    fillBottomFlatTriangle(points[0], points[1], points[2], tris[0], tris[1], tris[2]);
+                    return;
+                } else // general triangle
+                {
+                    // find splitting vertex interpolant
+                    const float alphaSplit = ((float)points[1].y - points[0].y) / ((float)points[2].y - points[0].y);
+
+                    const auto diff = tris[2] - tris[0];
+                    //checkTexcoords(diff.v.texCoord);
+                    const auto vi = tris[0] + diff * alphaSplit;
+
+                    //checkTexcoords(vi.v.texCoord);
+                    auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
+                    pi.y = points[1].y;
+
+                    if (points[1].x < pi.x) // major right
+                    {
+                        fillBottomFlatTriangle(points[0], points[1], pi, tris[0], tris[1], vi);
+                        fillTopFlatTriangle(pi, points[1], points[2], vi, tris[1], tris[2]);
+                    } else // major left
+                    {
+                        fillBottomFlatTriangle(points[0], pi, points[1], tris[0], vi, tris[1]);
+                        fillTopFlatTriangle(points[1], pi, points[2], tris[1], vi, tris[2]);
+                    }
+                }
+            }
+        });
+
+#else
         for (auto &tris : triangles) {
 
             sort3Values<Vertex2>(tris[0], tris[1], tris[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
@@ -691,27 +757,31 @@ struct engine {
                 }
             }
         }
-        int x = 4;
+#endif
     }
 
     /**
  * @brief fill intensity information for each vertex needed for gouraud shading
  */
-    void fillExtraInformationForGoraudShading(Vertex &v, vec3 &extraInfoAboutVertex) {
-        auto viewDir = (cam->eye - extraInfoAboutVertex).normalize();
+#ifndef PHONG_SHADING
+    void fillExtraInformationForGoraudShading(Vertex &v, EXTRA_VERTEX_INFO &vertPos) {
+        auto viewDir = (cam->eye - vertPos.x).normalize();
         for (auto &light : pointLights) {
-            float dist = vec3::dist(extraInfoAboutVertex, light.getpos());
+            float dist = vec3::dist(vertPos.x, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
-            const vec3 lightDir = vec3::normalize(light.getpos() - extraInfoAboutVertex);
-            extraInfoAboutVertex = vec3();
-            if (int_by_at > 0.04) {
+            const vec3 lightDir = vec3::normalize(light.getpos() - vertPos.x);
+            vertPos = {{0}, {0}, {0}};
+            if (int_by_at > 0.01) {
                 const float diff = max(vec3::dot(v.normal, lightDir), 0.0);
                 const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
                 const float spec = std::pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMaterial->shininess);
-                extraInfoAboutVertex += vec3(currentMaterial->AmbientStrength * int_by_at, currentMaterial->DiffuseStrength * diff * int_by_at, currentMaterial->SpecularStrength * spec * int_by_at);
+                vertPos.x += light.get_ambient_color().getcolorVec3() * currentMaterial->AmbientStrength * int_by_at;
+                vertPos.y += light.get_diffuse_color().getcolorVec3() * currentMaterial->DiffuseStrength * diff * int_by_at;
+                vertPos.z += light.get_diffuse_color().getcolorVec3() * currentMaterial->SpecularStrength * spec * int_by_at;
             }
         }
     }
+#endif
 
     /**
  * @brief fill triangles array by doing required clipping and culling
@@ -720,15 +790,20 @@ struct engine {
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
         for (size_t i = 0; i < indices.size(); i += 3) {
-            std::array<bool, 3> clip{false,false,false};
+            std::array<bool, 3> clip{false, false, false};
             Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
             std::array<Vertex2, 3> t;
+// Vertex temp;
+#ifdef PHONG_SHADING
+            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex{modelmat * points[0].position, modelmat * points[1].position, modelmat * points[2].position};
+#else
+            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex;
+            extraInfoAboutVertex[0].x = modelmat * points[0].position;
+            extraInfoAboutVertex[1].x = modelmat * points[1].position;
+            extraInfoAboutVertex[2].x = modelmat * points[2].position;
+#endif
+            std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position), view * (modelmat * points[1].position), view * (modelmat * points[2].position)};
 
-            // Vertex temp;
-            std::array<vec3, 3> extraInfoAboutVertex{modelmat * points[0].position,modelmat * points[1].position,modelmat * points[2].position};
-
-
-            std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position),view * (modelmat * points[1].position),view * (modelmat * points[2].position)};
             if (modelviewTransformed[0].z > -nearPlane) {
                 clip[0] = true;
             }

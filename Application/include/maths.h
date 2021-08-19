@@ -192,7 +192,8 @@ struct vec3_T {
         return vec3_T<T>(x * b.x, y * b.y, z * b.z);
     }
 
-    vec3_T<T> operator*(const T &a) const {
+    template <class U>
+    vec3_T<T> operator*(const U &a) const {
         return vec3_T<T>(x * a, y * a, z * a);
     }
 
@@ -200,7 +201,8 @@ struct vec3_T {
         return vec3_T<T>(x / b.x, y / b.y, z / b.z);
     }
 
-    vec3_T<T> operator/(T a) const {
+    template <class U>
+    vec3_T<T> operator/(const U &a) const {
         return vec3_T<T>(x / a, y / a, z / a);
     }
 
@@ -227,6 +229,13 @@ struct vec3_T {
         y *= in.y;
         z *= in.z;
         return *this;
+    }
+
+    template <class U>
+    void operator*=(const U &a) {
+        x *= a;
+        y *= a;
+        z *= a;
     }
 
     vec3_T<T> operator/=(const vec3_T<T> &in) {
@@ -317,14 +326,16 @@ struct vec4_T {
         return vec4_T<T>(x - a, y - a, z - a, w - a);
     }
 
-    vec4_T<T> operator*(const T &a) const {
+    template <class U>
+    vec4_T<T> operator*(const U &a) const {
         return vec4_T<T>(x * a, y * a, z * a, w * a);
     }
     vec4_T<T> operator/(const vec4_T<T> &b) const {
         return vec4_T<T>(x / b.x, y / b.y, z / b.z, w / b.w);
     }
 
-    vec4_T<T> operator/(T a) const {
+    template <class U>
+    vec4_T<T> operator/(const U &a) const {
         return vec4_T<T>(x / a, y / a, z / a, w / a);
     }
 
