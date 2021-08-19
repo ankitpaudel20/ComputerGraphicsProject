@@ -5,14 +5,14 @@
  * @brief namespace that has all transformation matrices
  */
 namespace trans {
-mat3f translate(const vec2 &value) {
+static mat3f translate(const vec2 &value) {
     mat3f trans_matrix;
     trans_matrix(0, 2) = value.x;
     trans_matrix(1, 2) = value.y;
     return trans_matrix;
 }
 
-mat4f translate(const vec3 &value) {
+static mat4f translate(const vec3 &value) {
     mat4f trans_matrix;
     trans_matrix(0, 3) = value.x;
     trans_matrix(1, 3) = value.y;
@@ -20,7 +20,7 @@ mat4f translate(const vec3 &value) {
     return trans_matrix;
 }
 
-mat4f x_rotation(float angle) {
+static mat4f x_rotation(float angle) {
     angle *= radian;
     mat4f rot_matrix;
     rot_matrix(1, 1) = std::cos(angle);
@@ -30,7 +30,7 @@ mat4f x_rotation(float angle) {
     return rot_matrix;
 }
 
-mat4f y_rotation(float angle) {
+static mat4f y_rotation(float angle) {
     angle *= radian;
     mat4f rot_matrix;
     rot_matrix(2, 2) = std::cos(angle);
@@ -40,7 +40,7 @@ mat4f y_rotation(float angle) {
     return rot_matrix;
 }
 
-mat4f z_rotation(float angle) {
+static mat4f z_rotation(float angle) {
     angle *= radian;
     mat4f rot_matrix;
     rot_matrix(0, 0) = std::cos(angle);
@@ -50,20 +50,7 @@ mat4f z_rotation(float angle) {
     return rot_matrix;
 }
 
-//mat4f rotation3D(float angle, const vec3& dir) {
-//    auto a = dir.x;
-//    auto b = dir.y;
-//    auto c = dir.z;
-//    auto d = sqrtf(b * b + c * c);
-//    auto l = sqrtf(a * a + d * d);
-//    mat4f result({ 1, 0, 0, 0, 0, c / d, -b / d, 0, 0, b / d, c / d, 0, 0, 0, 0, 1 });
-//    result = mat4({ d / l, 0, -a / l, 0, 0, 1, 0, 0, a / l, 0, d / l, 0, 0, 0, 0, 1 }) * result;
-//    auto mid = result;
-//    result = z_rotation(angle) * result;
-//    return mid.inverse() * result;
-//}
-
-mat4f rotation(float angle, const vec3 &v) {
+static mat4f rotation(float angle, const vec3 &v) {
     float const a = angle;
     float const c = cos(a);
     float const s = sin(a);
@@ -86,7 +73,7 @@ mat4f rotation(float angle, const vec3 &v) {
     return Rotate;
 }
 
-mat3f rotation(const float &angle, const vec2 &about = 0) {
+static mat3f rotation(const float &angle, const vec2 &about = 0) {
     mat3f rot_matrix;
     rot_matrix(0, 0) = std::cos(angle);
     rot_matrix(0, 1) = -std::sin(angle);
@@ -97,7 +84,7 @@ mat3f rotation(const float &angle, const vec2 &about = 0) {
     return translate(about) * rot_matrix * translate(-about);
 }
 
-mat3f scaling(const vec2 &value, const vec2 &about = 0, const float &angle_offset = 0) {
+static mat3f scaling(const vec2 &value, const vec2 &about = 0, const float &angle_offset = 0) {
     mat3f scale;
     scale(0, 0) = value.x;
     scale(1, 1) = value.y;
@@ -110,7 +97,7 @@ mat3f scaling(const vec2 &value, const vec2 &about = 0, const float &angle_offse
     return scale;
 }
 
-mat4f scaling3d(const vec3 &value) {
+static mat4f scaling3d(const vec3 &value) {
     mat4f scale;
     scale(0, 0) = value.x;
     scale(1, 1) = value.y;
@@ -119,7 +106,7 @@ mat4f scaling3d(const vec3 &value) {
     return scale;
 }
 
-mat3f shearing(const vec2 &values, const vec2 &ref = 0) {
+static mat3f shearing(const vec2 &values, const vec2 &ref = 0) {
     mat3f shear;
     shear(0, 1) = values.x;
     shear(1, 0) = values.y;
@@ -131,7 +118,7 @@ mat3f shearing(const vec2 &values, const vec2 &ref = 0) {
 }
 
 //input a line in the form of y=mx+c
-mat3f reflection(const float &m, const float &c) {
+static mat3f reflection(const float &m, const float &c) {
     float angle = std::atan(m);
     mat3f refl;
     refl(0, 0) = cos(2 * angle);
@@ -144,7 +131,7 @@ mat3f reflection(const float &m, const float &c) {
     return refl;
 }
 
-mat4f lookAt(const vec3 &eye, const vec3 &center, const vec3 &up) {
+static mat4f lookAt(const vec3 &eye, const vec3 &center, const vec3 &up) {
     const vec3 z = (eye - center).normalize();
     const vec3 y = vec3::normalize(up);
     const vec3 x = vec3::cross(y, z).normalize();
@@ -156,7 +143,7 @@ mat4f lookAt(const vec3 &eye, const vec3 &center, const vec3 &up) {
                   0, 0, 0, 1});
 }
 
-mat4f persp(const float &w, const float &h, const float &fovx, float fovy = 0) {
+static mat4f persp(const float &w, const float &h, const float &fovx, float fovy = 0) {
     float D2R = 3.14159265 / 180.0;
 
     fovy = fovy == 0 ? fovx * h / w : fovy;
@@ -166,7 +153,7 @@ mat4f persp(const float &w, const float &h, const float &fovx, float fovy = 0) {
                   0, 0, 1, 0});
 }
 
-mat4f my_PerspectiveFOV(float fov, float aspect, float n, float f) {
+static mat4f my_PerspectiveFOV(float fov, float aspect, float n, float f) {
     float D2R = 3.14159265 / 180.0;
     float yScale = 1.0 / tan(D2R * fov / 2);
     float xScale = yScale / aspect;
@@ -179,7 +166,7 @@ mat4f my_PerspectiveFOV(float fov, float aspect, float n, float f) {
     return ret;
 }
 
-mat4f perspective(float x, float y, float z, float zvp) {
+static mat4f perspective(float x, float y, float z, float zvp) {
     float dp = z - zvp;
     if (!dp) {
         printf("DP is zero");
@@ -199,7 +186,7 @@ mat4f perspective(float x, float y, float z, float zvp) {
 }
 
 // oblique
-mat4f oblique_projection(float alpha, float theta) {
+static mat4f oblique_projection(float alpha, float theta) {
     float pi = 3.14159265;
     if (alpha == 0 || alpha == 180 || alpha == 360)
         return mat4f();

@@ -152,27 +152,43 @@ struct Vertex {
 struct color {
     uint32_t col;
     color() : color(0) {}
-    color(uint8_t r) : color(r, r, r) {}
+    explicit color(uint8_t r) : color(r, r, r) {}
     color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {}
-    color(const vec3 &in) : color(in.x * 255, in.y * 255, in.z * 255) {}
+    explicit color(const vec3 &in) : color(in.x * 255, in.y * 255, in.z * 255) {}
 
     vec4 getcolor() {
         auto temp = (uint8_t *)&col;
         return vec4(temp[0], temp[1], temp[2], temp[3]) / 255;
     }
-    inline uint8_t &r() {
+    [[nodiscard]] inline uint8_t r()const  {
         auto temp = (uint8_t *)&col;
         return temp[0];
     }
-    inline uint8_t &g() {
+    [[nodiscard]] inline uint8_t g() const{
         auto temp = (uint8_t *)&col;
         return temp[1];
     }
-    inline uint8_t &b() {
+    [[nodiscard]] inline uint8_t b() const{
         auto temp = (uint8_t *)&col;
         return temp[2];
     }
-    inline uint8_t &a() {
+    [[nodiscard]] inline uint8_t a() const{
+        auto temp = (uint8_t *)&col;
+        return temp[3];
+    }
+    [[nodiscard]] inline uint8_t &r() {
+        auto temp = (uint8_t *)&col;
+        return temp[0];
+    }
+    [[nodiscard]] inline uint8_t &g() {
+        auto temp = (uint8_t *)&col;
+        return temp[1];
+    }
+    [[nodiscard]] inline uint8_t &b() {
+        auto temp = (uint8_t *)&col;
+        return temp[2];
+    }
+    [[nodiscard]] inline uint8_t &a() {
         auto temp = (uint8_t *)&col;
         return temp[3];
     }
@@ -244,7 +260,7 @@ struct color {
 /**
  * @brief helper function to search folder with 3d objects and textures in it.
  */
-std::string searchRes() {
+static std::string searchRes() {
     auto currentPath = fs::current_path();
 
     auto orgiPath = currentPath;

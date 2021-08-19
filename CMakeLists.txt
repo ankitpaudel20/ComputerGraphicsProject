@@ -3,7 +3,9 @@ project(computerGraphicsProject)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Application Application/application.cpp Application/vendor/tinyobj/tiny_obj_loader.cc)
+add_executable(Application Application/application.cpp
+                Application/node.cpp
+        Application/vendor/tinyobj/tiny_obj_loader.cc)
 target_include_directories(Application PRIVATE Application/vendor/tinyobj Application/vendor Application/include)
 
 

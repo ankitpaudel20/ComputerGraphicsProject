@@ -6,6 +6,7 @@
 #include <functional>
 #include "material.h"
 #include "pointLight.h"
+#include "camera.h"
 
 inline int roundfloat(const float &in) {
     return in < 0 ? in - 0.5f : in + 0.5f;
@@ -306,10 +307,12 @@ struct engine {
  */
     camera *cam = nullptr;
 
+    bool doLightCalculations = true;
     /**
  * @brief essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
  */
-    color getcolor(const Vertex2 &v) {
+    color
+    getcolor(const Vertex2 &v) {
         color col;
         if (currentMaterial->diffuse.w) {
             float intpart;
@@ -319,6 +322,10 @@ struct engine {
             col = color(*ret, *(ret + 1), *(ret + 2));
         } else
             col = currentMaterial->diffuseColor;
+
+        if (!doLightCalculations) {
+            return col;
+        }
 
         color result;
 #ifdef PHONG_SHADING
@@ -331,8 +338,8 @@ struct engine {
                 result += CalcPointLight(light, v.v.normal / v.v.position.z, fragpos, viewDir, col, int_by_at);
             }
         }
-        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col);
-        result += col * ambientLightIntensity;
+//        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col);
+//        result += col * ambientLightIntensity;
 #else
         for (auto &light : pointLights) {
             result += col * light.get_ambient_color() * v.extraInfoAboutVertex.x;
@@ -342,8 +349,7 @@ struct engine {
         }
 #endif
 
-        return std::move(result);
-        // return vec3::normalize(pointLights[0].getpos() - v.extraInfoAboutVertex);
+        return result;
     }
 
     /**
@@ -407,7 +413,7 @@ struct engine {
     /**
  * @brief putpixel assuming middle of screen to be the origin
  */
-    void putpixel_adjusted(int x, int y, float z, const color &col = 255) {
+    void putpixel_adjusted(int x, int y, float z, const color &col = color(255)) {
         assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
         const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
         fboCPU->colorlayer[indx] = col;
@@ -426,7 +432,7 @@ struct engine {
     /**
  * @brief bresenham line drawing function to draw wireframe of objects
  */
-    void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &col = 0) {
+    void draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &col = color(0)) {
         int dx = abs(x2 - x1);
         int dy = abs(y2 - y1);
 
@@ -460,12 +466,12 @@ struct engine {
         }
     }
 
-    inline void clip1(const std::array<vec4, 3> &tris, unsigned char which, float &u1, float &u2) {
+    inline void clip1(const std::array<vec4, 3> &tris, unsigned char which, float &u1, float &u2) const {
         u1 = -(nearPlane + tris[which].z) / (tris[(which + 1) % 3].z - tris[which].z);
         u2 = -(nearPlane + tris[which].z) / (tris[(which + 2) % 3].z - tris[which].z);
     }
 
-    inline void clip2(const std::array<vec4, 3> &tris, unsigned char idx1, unsigned char idx2, unsigned char rem, float &u1, float &u2) {
+    inline void clip2(const std::array<vec4, 3> &tris, unsigned char idx1, unsigned char idx2, unsigned char rem, float &u1, float &u2) const {
         u1 = -(nearPlane + tris[idx1].z) / (tris[rem].z - tris[idx1].z);
         u2 = -(nearPlane + tris[idx2].z) / (tris[rem].z - tris[idx2].z);
     }
@@ -664,7 +670,7 @@ struct engine {
             } else // general triangle
             {
                 // find splitting vertex interpolant
-                const double alphaSplit = ((double)points[1].y - points[0].y) / ((double)points[2].y - points[0].y);
+                const float alphaSplit = ((float)points[1].y - points[0].y) / ((float)points[2].y - points[0].y);
 
                 const auto diff = tris[2] - tris[0];
                 //checkTexcoords(diff.v.texCoord);
@@ -701,7 +707,7 @@ struct engine {
             if (int_by_at > 0.04) {
                 const float diff = max(vec3::dot(v.normal, lightDir), 0.0);
                 const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
-                const float spec = pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMaterial->shininess);
+                const float spec = std::pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMaterial->shininess);
                 extraInfoAboutVertex += vec3(currentMaterial->AmbientStrength * int_by_at, currentMaterial->DiffuseStrength * diff * int_by_at, currentMaterial->SpecularStrength * spec * int_by_at);
             }
         }
@@ -714,33 +720,27 @@ struct engine {
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
         for (size_t i = 0; i < indices.size(); i += 3) {
-            std::array<vec4, 3> modelviewTransformed;
-            std::array<vec3, 3> extraInfoAboutVertex;
-            std::array<bool, 3> clip;
-            clip[2] = clip[1] = clip[0] = false;
+            std::array<bool, 3> clip{false,false,false};
             Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
             std::array<Vertex2, 3> t;
-            // Vertex temp;
-            extraInfoAboutVertex[0] = modelmat * points[0].position;
-            extraInfoAboutVertex[1] = modelmat * points[1].position;
-            extraInfoAboutVertex[2] = modelmat * points[2].position;
 
-            modelviewTransformed[0] = view * (modelmat * points[0].position);
+            // Vertex temp;
+            std::array<vec3, 3> extraInfoAboutVertex{modelmat * points[0].position,modelmat * points[1].position,modelmat * points[2].position};
+
+
+            std::array<vec4, 3> modelviewTransformed{modelmat * points[0].position,modelmat * points[1].position,modelmat * points[2].position};
             if (modelviewTransformed[0].z > -nearPlane) {
                 clip[0] = true;
             }
 
-            modelviewTransformed[1] = view * (modelmat * points[1].position);
             if (modelviewTransformed[1].z > -nearPlane) {
                 clip[1] = true;
             }
 
-            modelviewTransformed[2] = view * (modelmat * points[2].position);
             if (modelviewTransformed[2].z > -nearPlane) {
                 clip[2] = true;
             }
 
-            float u1, u2;
             points[0].position = modelviewTransformed[0];
             points[0].normal = modelmat * points[0].normal;
             points[1].position = modelviewTransformed[1];

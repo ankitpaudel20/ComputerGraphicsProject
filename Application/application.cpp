@@ -94,7 +94,7 @@ void processHoldEvent(GLFWwindow *window) {
     }
 
     float factor = 1;
-    auto light_speed = 0.3;
+    auto light_speed = 0.3f;
 
     if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) {
         graphicsEngine->pointLights.back().delpos(cam1.getViewDir() * light_speed);
@@ -157,11 +157,10 @@ static void cursor_position_callback(GLFWwindow *window, double x, double y) {
         mx = x;
         my = y;
 
-        float sensitivity = 0.09;
         xoffset *= cam1.sensitivity * deltatime;
         yoffset *= cam1.sensitivity * deltatime;
-
-        cam1.newDelYaw(-xoffset);
+        const float bias=1.f-fabs(vec3::dot(cam1.getViewDir(),vec3(0,1,0)));
+        cam1.newDelYaw(-xoffset* bias);
         cam1.DelPitch(-yoffset);
     }
 }
@@ -169,8 +168,6 @@ static void cursor_position_callback(GLFWwindow *window, double x, double y) {
 int window_width, window_height;
 
 static void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    // auto oldWidth = window_width;
-    // auto oldHeight = window_height;
 
     window_height = height;
     window_width = width;
@@ -190,11 +187,11 @@ static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 }
 
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT&&action==GLFW_PRESS) {
         auto eng = (engine *)glfwGetWindowUserPointer(window);
         glfwGetCursorPos(window, &mx, &my);
-        size_t index = (eng->fboCPU->y_size - my) * eng->fboCPU->x_size + mx;
-        color col = eng->fboCPU->colorlayer[index];
+        const size_t index = (eng->fboCPU->y_size - my) * eng->fboCPU->x_size + mx;
+        const color col = eng->fboCPU->colorlayer[index];
         printf("clicked color: (%d,%d,%d)\n", col.r(), col.g(), col.b());
     }
 }
@@ -238,17 +235,16 @@ int main(int argc, char **argv) {
 
     auto path = searchRes();
 
+    node rootNode;
+
     // auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
     // auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
     // auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
     auto football = Model::loadModel_obj(path + "/city/clean_city.obj", "city");
     //auto football = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
+    rootNode.children["city"] = football;
 
-    float rotation_angle = 0;
-    float view_angle = 0.0;
-    float angle_rotated = 0;
-    float zvp = 50, zprp = -500;
 
     cam1.eye = vec3(-1.25065, 3.78314, -1.36433);
     cam1.changeDir(vec3(0.353761, -0.850367, 0.389523));
@@ -256,22 +252,29 @@ int main(int argc, char **argv) {
     Material m;
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->currentMaterial = &m;
-    graphicsEngine->cullBackface = false;
+    graphicsEngine->cullBackface = true;
     graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
+
     graphicsEngine->pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3);
-    std::vector<node *> lightmodels;
-    lightmodels.push_back(Model::loadModel_obj(path + "/sphere.obj", "light"));
-    auto spherescale = trans::scaling3d(0.1);
+    auto lightModel=Model::loadModel_obj(path + "/sphere.obj", "light")->meshes;
+    for (auto & mesh:lightModel) {
+        mesh->doLightCalculations= false;
+    }
+    graphicsEngine->pointLights.back().meshes=lightModel;
+    graphicsEngine->pointLights.back().setScale(vec3(0.1));
+
+    //std::vector<node *> lightmodels;
+    //lightmodels.push_back(Model::loadModel_obj(path + "/sphere.obj", "light"));
+    //auto spherescale = trans::scaling3d(0.1);
     //for (auto &mesh : lightmodels) {
     //    for (auto &point : mesh->meshes.back()->m_vertices) {
     //        point.position = spherescale * point.position;
     //    }
     //}
-
-    for (int i = 0; i < graphicsEngine->pointLights.size(); i++) {
-        graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
-    }
+    //for (int i = 0; i < graphicsEngine->pointLights.size(); i++) {
+    //    graphicsEngine->pointLights[i].setmodel(lightmodels[i]);
+    //}
 
     auto lastframe = std::chrono::high_resolution_clock::now();
     std::string fpsString = "FPS: ";
@@ -318,16 +321,17 @@ int main(int argc, char **argv) {
         //    graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, translate3d);
         //    // graphicsEngine->drawTriangles(mesh->m_vertices, mesh->m_indices, translate3d);
         //}
-        for (auto &mesh : football->meshes) {
-            graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, scale3d);
-        }
+       for (auto &mesh : football->meshes) {
+           graphicsEngine->currentMaterial = &mesh->material;
+           graphicsEngine->doLightCalculations=mesh->doLightCalculations;
+           graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, scale3d);
+       }
 
-        auto lightnode = lightmodels.back();
-        for (auto &mesh : lightnode->meshes) {
-            graphicsEngine->currentMaterial = &mesh->material;
-            graphicsEngine->drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, lightnode->matModel * spherescale);
-        }
+       for (auto &light:graphicsEngine->pointLights) {
+           light.draw(*graphicsEngine);
+       }
+
+        //rootNode.draw(*graphicsEngine);
         //graphicsEngine->currentMaterial = &m;
         //graphicsEngine->drawTrianglesRasterized(square, square_indices, translate3d);
         graphicsEngine->draw();
