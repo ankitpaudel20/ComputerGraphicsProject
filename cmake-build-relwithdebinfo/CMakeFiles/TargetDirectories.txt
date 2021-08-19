@@ -1,3 +1,0 @@
-D:/repos/c++/ComputerGraphicsProject/cmake-build-relwithdebinfo/CMakeFiles/rebuild_cache.dir
-D:/repos/c++/ComputerGraphicsProject/cmake-build-relwithdebinfo/CMakeFiles/Application.dir
-D:/repos/c++/ComputerGraphicsProject/cmake-build-relwithdebinfo/CMakeFiles/edit_cache.dir
