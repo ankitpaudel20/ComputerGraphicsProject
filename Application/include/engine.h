@@ -728,7 +728,7 @@ struct engine {
             std::array<vec3, 3> extraInfoAboutVertex{modelmat * points[0].position,modelmat * points[1].position,modelmat * points[2].position};
 
 
-            std::array<vec4, 3> modelviewTransformed{modelmat * points[0].position,modelmat * points[1].position,modelmat * points[2].position};
+            std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position),view * (modelmat * points[1].position),view * (modelmat * points[2].position)};
             if (modelviewTransformed[0].z > -nearPlane) {
                 clip[0] = true;
             }
