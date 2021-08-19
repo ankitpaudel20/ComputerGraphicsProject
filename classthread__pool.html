@@ -118,9 +118,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac9d8f108fa2419441aba432f8ca98eae"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#ac9d8f108fa2419441aba432f8ca98eae">~thread_pool</a> ()</td></tr>
 <tr class="memdesc:ac9d8f108fa2419441aba432f8ca98eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destruct the thread pool.  <a href="classthread__pool.html#ac9d8f108fa2419441aba432f8ca98eae">More...</a><br /></td></tr>
 <tr class="separator:ac9d8f108fa2419441aba432f8ca98eae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88d94c6c8cdf115a9d2e7501d92aea31"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#a88d94c6c8cdf115a9d2e7501d92aea31">get_tasks_queued</a> () const</td></tr>
-<tr class="memdesc:a88d94c6c8cdf115a9d2e7501d92aea31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of tasks currently waiting in the queue to be executed by the threads.  <a href="classthread__pool.html#a88d94c6c8cdf115a9d2e7501d92aea31">More...</a><br /></td></tr>
-<tr class="separator:a88d94c6c8cdf115a9d2e7501d92aea31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afcb577953c6d5f797a79b8ea5dc6ca2a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classthread__pool.html#ad74183606469099690be268f4a9ac099">ui64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#afcb577953c6d5f797a79b8ea5dc6ca2a">get_tasks_queued</a> () const</td></tr>
+<tr class="memdesc:afcb577953c6d5f797a79b8ea5dc6ca2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of tasks currently waiting in the queue to be executed by the threads.  <a href="classthread__pool.html#afcb577953c6d5f797a79b8ea5dc6ca2a">More...</a><br /></td></tr>
+<tr class="separator:afcb577953c6d5f797a79b8ea5dc6ca2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2b7074a626d50f846e75119421567f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classthread__pool.html#a9a54befa558b9d426a5ef18118de6185">ui32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#af2b7074a626d50f846e75119421567f1">get_tasks_running</a> () const</td></tr>
 <tr class="memdesc:af2b7074a626d50f846e75119421567f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of tasks currently being executed by the threads.  <a href="classthread__pool.html#af2b7074a626d50f846e75119421567f1">More...</a><br /></td></tr>
 <tr class="separator:af2b7074a626d50f846e75119421567f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -130,10 +130,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9878745e655fa3db5c7c16af9766fc59"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classthread__pool.html#a9a54befa558b9d426a5ef18118de6185">ui32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#a9878745e655fa3db5c7c16af9766fc59">get_thread_count</a> () const</td></tr>
 <tr class="memdesc:a9878745e655fa3db5c7c16af9766fc59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of threads in the pool.  <a href="classthread__pool.html#a9878745e655fa3db5c7c16af9766fc59">More...</a><br /></td></tr>
 <tr class="separator:a9878745e655fa3db5c7c16af9766fc59"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affc0a6e9a59d7a2464ae4c454d4271a8"><td class="memTemplParams" colspan="2">template&lt;typename T , typename F &gt; </td></tr>
-<tr class="memitem:affc0a6e9a59d7a2464ae4c454d4271a8"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classthread__pool.html#affc0a6e9a59d7a2464ae4c454d4271a8">parallelize_loop</a> (T first_index, T last_index, const F &amp;loop, <a class="el" href="classthread__pool.html#a9a54befa558b9d426a5ef18118de6185">ui32</a> num_tasks=0)</td></tr>
-<tr class="memdesc:affc0a6e9a59d7a2464ae4c454d4271a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parallelize a loop by splitting it into blocks, submitting each block separately to the thread pool, and waiting for all blocks to finish executing.  <a href="classthread__pool.html#affc0a6e9a59d7a2464ae4c454d4271a8">More...</a><br /></td></tr>
-<tr class="separator:affc0a6e9a59d7a2464ae4c454d4271a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9903782df9a91cfbc56f71ec3f596feb"><td class="memTemplParams" colspan="2">template&lt;typename T1 , typename T2 , typename F &gt; </td></tr>
+<tr class="memitem:a9903782df9a91cfbc56f71ec3f596feb"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classthread__pool.html#a9903782df9a91cfbc56f71ec3f596feb">parallelize_loop</a> (const T1 &amp;first_index, const T2 &amp;index_after_last, const F &amp;loop, <a class="el" href="classthread__pool.html#a9a54befa558b9d426a5ef18118de6185">ui32</a> num_blocks=0)</td></tr>
+<tr class="memdesc:a9903782df9a91cfbc56f71ec3f596feb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parallelize a loop by splitting it into blocks, submitting each block separately to the thread pool, and waiting for all blocks to finish executing.  <a href="classthread__pool.html#a9903782df9a91cfbc56f71ec3f596feb">More...</a><br /></td></tr>
+<tr class="separator:a9903782df9a91cfbc56f71ec3f596feb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e9d8436b3eb525ae5fee597740a86f4"><td class="memTemplParams" colspan="2">template&lt;typename F &gt; </td></tr>
 <tr class="memitem:a3e9d8436b3eb525ae5fee597740a86f4"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classthread__pool.html#a3e9d8436b3eb525ae5fee597740a86f4">push_task</a> (const F &amp;task)</td></tr>
 <tr class="memdesc:a3e9d8436b3eb525ae5fee597740a86f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a function with no arguments or return value into the task queue.  <a href="classthread__pool.html#a3e9d8436b3eb525ae5fee597740a86f4">More...</a><br /></td></tr>
@@ -170,6 +170,8 @@ Public Attributes</h2></td></tr>
 Private Types</h2></td></tr>
 <tr class="memitem:a9a54befa558b9d426a5ef18118de6185"><td class="memItemLeft" align="right" valign="top">typedef std::uint_fast32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#a9a54befa558b9d426a5ef18118de6185">ui32</a></td></tr>
 <tr class="separator:a9a54befa558b9d426a5ef18118de6185"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad74183606469099690be268f4a9ac099"><td class="memItemLeft" align="right" valign="top">typedef std::uint_fast64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classthread__pool.html#ad74183606469099690be268f4a9ac099">ui64</a></td></tr>
+<tr class="separator:ad74183606469099690be268f4a9ac099"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -240,6 +242,30 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="ad74183606469099690be268f4a9ac099"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad74183606469099690be268f4a9ac099">&#9670;&nbsp;</a></span>ui64</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::uint_fast64_t <a class="el" href="classthread__pool.html#ad74183606469099690be268f4a9ac099">thread_pool::ui64</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00038">38</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="afc887e2c84ebe8176ce44a9065d780b5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afc887e2c84ebe8176ce44a9065d780b5">&#9670;&nbsp;</a></span>thread_pool()</h2>
@@ -273,7 +299,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00049">49</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00050">50</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -303,7 +329,7 @@ Private Attributes</h2></td></tr>
 <p>Destruct the thread pool. </p>
 <p>Waits for all tasks to complete, then destroys all threads. Note that if the variable paused is set to true, then any tasks still in the queue will never be executed. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00057">57</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00058">58</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -333,7 +359,7 @@ Private Attributes</h2></td></tr>
 
 <p>Create the threads in the pool and assign a worker to each thread. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00281">281</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00291">291</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -362,12 +388,12 @@ Private Attributes</h2></td></tr>
 
 <p>Destroy the threads in the pool by joining them. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00290">290</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00300">300</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
-<a id="a88d94c6c8cdf115a9d2e7501d92aea31"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a88d94c6c8cdf115a9d2e7501d92aea31">&#9670;&nbsp;</a></span>get_tasks_queued()</h2>
+<a id="afcb577953c6d5f797a79b8ea5dc6ca2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afcb577953c6d5f797a79b8ea5dc6ca2a">&#9670;&nbsp;</a></span>get_tasks_queued()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -376,7 +402,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">size_t thread_pool::get_tasks_queued </td>
+          <td class="memname"><a class="el" href="classthread__pool.html#ad74183606469099690be268f4a9ac099">ui64</a> thread_pool::get_tasks_queued </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -392,7 +418,7 @@ Private Attributes</h2></td></tr>
 <p>Get the number of tasks currently waiting in the queue to be executed by the threads. </p>
 <dl class="section return"><dt>Returns</dt><dd>The number of queued tasks. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00072">72</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00073">73</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -422,7 +448,7 @@ Private Attributes</h2></td></tr>
 <p>Get the number of tasks currently being executed by the threads. </p>
 <dl class="section return"><dt>Returns</dt><dd>The number of running tasks. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00082">82</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00083">83</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -452,7 +478,7 @@ Private Attributes</h2></td></tr>
 <p>Get the total number of unfinished tasks - either still in the queue, or running in a thread. </p>
 <dl class="section return"><dt>Returns</dt><dd>The total number of tasks. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00091">91</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00092">92</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -482,17 +508,17 @@ Private Attributes</h2></td></tr>
 <p>Get the number of threads in the pool. </p>
 <dl class="section return"><dt>Returns</dt><dd>The number of threads. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00100">100</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00101">101</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
-<a id="affc0a6e9a59d7a2464ae4c454d4271a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#affc0a6e9a59d7a2464ae4c454d4271a8">&#9670;&nbsp;</a></span>parallelize_loop()</h2>
+<a id="a9903782df9a91cfbc56f71ec3f596feb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9903782df9a91cfbc56f71ec3f596feb">&#9670;&nbsp;</a></span>parallelize_loop()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T , typename F &gt; </div>
+template&lt;typename T1 , typename T2 , typename F &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -500,14 +526,14 @@ template&lt;typename T , typename F &gt; </div>
         <tr>
           <td class="memname">void thread_pool::parallelize_loop </td>
           <td>(</td>
-          <td class="paramtype">T&#160;</td>
+          <td class="paramtype">const T1 &amp;&#160;</td>
           <td class="paramname"><em>first_index</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">T&#160;</td>
-          <td class="paramname"><em>last_index</em>, </td>
+          <td class="paramtype">const T2 &amp;&#160;</td>
+          <td class="paramname"><em>index_after_last</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -519,7 +545,7 @@ template&lt;typename T , typename F &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classthread__pool.html#a9a54befa558b9d426a5ef18118de6185">ui32</a>&#160;</td>
-          <td class="paramname"><em>num_tasks</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>num_blocks</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -535,25 +561,26 @@ template&lt;typename T , typename F &gt; </div>
 </div><div class="memdoc">
 
 <p>Parallelize a loop by splitting it into blocks, submitting each block separately to the thread pool, and waiting for all blocks to finish executing. </p>
-<p>The loop will be equivalent to: for (T i = first_index; i &lt;= last_index; i++) loop(i);</p>
+<p>The user supplies a loop function, which will be called once per block and should iterate over the block's range.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">T</td><td>The type of the loop index. Should be a signed or unsigned integer. </td></tr>
+    <tr><td class="paramname">T1</td><td>The type of the first index in the loop. Should be a signed or unsigned integer. </td></tr>
+    <tr><td class="paramname">T2</td><td>The type of the index after the last index in the loop. Should be a signed or unsigned integer. If T1 is not the same as T2, a common type will be automatically inferred. </td></tr>
     <tr><td class="paramname">F</td><td>The type of the function to loop through. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">first_index</td><td>The first index in the loop (inclusive). </td></tr>
-    <tr><td class="paramname">last_index</td><td>The last index in the loop (inclusive). </td></tr>
-    <tr><td class="paramname">loop</td><td>The function to loop through. Should take exactly one argument, the loop index. </td></tr>
-    <tr><td class="paramname">num_tasks</td><td>The maximum number of tasks to split the loop into. The default is to use the number of threads in the pool. </td></tr>
+    <tr><td class="paramname">first_index</td><td>The first index in the loop. </td></tr>
+    <tr><td class="paramname">index_after_last</td><td>The index after the last index in the loop. The loop will iterate from first_index to (index_after_last - 1) inclusive. In other words, it will be equivalent to "for (T i = first_index; i &lt; index_after_last; i++)". Note that if first_index == index_after_last, the function will terminate without doing anything. </td></tr>
+    <tr><td class="paramname">loop</td><td>The function to loop through. Will be called once per block. Should take exactly two arguments: the first index in the block and the index after the last index in the block. loop(start, end) should typically involve a loop of the form "for (T i = start; i &lt; end; i++)". </td></tr>
+    <tr><td class="paramname">num_blocks</td><td>The maximum number of blocks to split the loop into. The default is to use the number of threads in the pool. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00115">115</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00117">117</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -590,7 +617,7 @@ template&lt;typename T , typename F &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if a task was found, false if the queue is empty. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00302">302</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00312">312</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -634,7 +661,7 @@ template&lt;typename F &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00149">149</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00159">159</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -691,7 +718,7 @@ template&lt;typename F , typename... A&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00167">167</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00177">177</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -728,7 +755,7 @@ template&lt;typename F , typename... A&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00176">176</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00186">186</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -758,7 +785,7 @@ template&lt;typename F , typename... A&gt; </div>
 <p>Sleep for sleep_duration microseconds. </p>
 <p>If that variable is set to zero, yield instead. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00317">317</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00327">327</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -815,7 +842,7 @@ template&lt;typename F , typename... A, typename  = std::enable_if_t&lt;std::is_
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A future to be used later to check if the function has finished its execution. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00199">199</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00209">209</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -873,7 +900,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A future to be used later to obtain the function's returned value, waiting for it to finish its execution if needed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00227">227</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00237">237</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -903,7 +930,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 <p>Wait for tasks to be completed. </p>
 <p>Normally, this function waits for all tasks, both those that are currently running in the threads and those that are still waiting in the queue. However, if the variable paused is set to true, this function only waits for the currently running tasks (otherwise it would wait forever). To wait for a specific task, use <a class="el" href="classthread__pool.html#a91ee29ce90f73aa17e80527775ee2493" title="Submit a function with zero or more arguments and no return value into the task queue,...">submit()</a> instead, and call the wait() member function of the generated future. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00246">246</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00256">256</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -933,7 +960,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 <p>A worker function to be assigned to each thread in the pool. </p>
 <p>Continuously pops tasks out of the queue and executes them, as long as the atomic variable running is set to true. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00327">327</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00337">337</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -953,7 +980,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 <p>An atomic variable indicating to the workers to pause. </p>
 <p>When set to true, the workers temporarily stop popping new tasks out of the queue, although any tasks already executed will keep running until they are done. Set to false again to resume popping tasks. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00266">266</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00276">276</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -979,7 +1006,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 
 <p>A mutex to synchronize access to the task queue by different threads. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00346">346</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00356">356</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -1006,7 +1033,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 <p>An atomic variable indicating to the workers to keep running. </p>
 <p>When set to false, the workers permanently stop working. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00351">351</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00361">361</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -1025,7 +1052,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 <p>The duration, in microseconds, that the worker function should sleep for when it cannot find any tasks in the queue. </p>
 <p>If set to 0, then instead of sleeping, the worker function will execute std::this_thread::yield() if there are no tasks in the queue. The default value is 1000. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00271">271</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00281">281</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -1051,7 +1078,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 
 <p>A queue of tasks to be executed by the threads. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00356">356</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00366">366</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -1077,7 +1104,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 
 <p>An atomic variable to keep track of the total number of unfinished tasks - either still in the queue, or running in a thread. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00371">371</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00381">381</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -1103,7 +1130,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 
 <p>The number of threads in the pool. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00361">361</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00371">371</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>
@@ -1129,7 +1156,7 @@ template&lt;typename F , typename... A, typename R  = std::invoke_result_t&lt;st
 
 <p>A smart pointer to manage the memory allocated for the threads. </p>
 
-<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00366">366</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="thread__pool_8hpp_source.html#l00376">376</a> of file <a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>.</p>
 
 </div>
 </div>

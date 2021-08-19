@@ -1,15 +1,16 @@
 var classthread__pool =
 [
     [ "ui32", "classthread__pool.html#a9a54befa558b9d426a5ef18118de6185", null ],
+    [ "ui64", "classthread__pool.html#ad74183606469099690be268f4a9ac099", null ],
     [ "thread_pool", "classthread__pool.html#afc887e2c84ebe8176ce44a9065d780b5", null ],
     [ "~thread_pool", "classthread__pool.html#ac9d8f108fa2419441aba432f8ca98eae", null ],
     [ "create_threads", "classthread__pool.html#a9c1e1a00bf0f12c5e4c1422d5eadca94", null ],
     [ "destroy_threads", "classthread__pool.html#a7ceb7a2d9745499649a4e32ea5fcb72b", null ],
-    [ "get_tasks_queued", "classthread__pool.html#a88d94c6c8cdf115a9d2e7501d92aea31", null ],
+    [ "get_tasks_queued", "classthread__pool.html#afcb577953c6d5f797a79b8ea5dc6ca2a", null ],
     [ "get_tasks_running", "classthread__pool.html#af2b7074a626d50f846e75119421567f1", null ],
     [ "get_tasks_total", "classthread__pool.html#ac2f208d87fb7cc624097b6316f65fac4", null ],
     [ "get_thread_count", "classthread__pool.html#a9878745e655fa3db5c7c16af9766fc59", null ],
-    [ "parallelize_loop", "classthread__pool.html#affc0a6e9a59d7a2464ae4c454d4271a8", null ],
+    [ "parallelize_loop", "classthread__pool.html#a9903782df9a91cfbc56f71ec3f596feb", null ],
     [ "pop_task", "classthread__pool.html#aa156bf8fb5803cb0e56b4b5f4f6f2010", null ],
     [ "push_task", "classthread__pool.html#a3e9d8436b3eb525ae5fee597740a86f4", null ],
     [ "push_task", "classthread__pool.html#ae37f7cf895480503583a852c30947794", null ],

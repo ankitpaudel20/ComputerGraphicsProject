@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['glcall_562',['GLcall',['../core_8h.html#a66f3cd543bb8c0e9377d45b494166685',1,'core.h']]],
-  ['glcall_5fp_563',['GLcall_P',['../core_8h.html#ab6255d1e6246a657a8a762b04e3069b3',1,'core.h']]]
+  ['extra_5fvertex_5finfo_564',['EXTRA_VERTEX_INFO',['../engine_8h.html#a556c604d47dbd45fbef21a6438a1a646',1,'engine.h']]]
 ];

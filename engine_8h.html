@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('engine_8h.html',''); initResizable(); 
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#define-members">Macros</a>  </div>
   <div class="headertitle">
 <div class="title">engine.h File Reference</div>  </div>
 </div><!--header-->
@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('engine_8h.html',''); initResizable(); 
 <code>#include &quot;<a class="el" href="material_8h_source.html">material.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="point_light_8h_source.html">pointLight.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="camera_8h_source.html">camera.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="thread__pool_8hpp_source.html">thread_pool.hpp</a>&quot;</code><br />
 </div>
 <p><a href="engine_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -122,67 +123,25 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">backend for all rendering purposes  <a href="structengine.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a1949eca6082a82968ca785ff7d759ec4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="engine_8h.html#a1949eca6082a82968ca785ff7d759ec4">roundfloat</a> (const float &amp;in)</td></tr>
-<tr class="separator:a1949eca6082a82968ca785ff7d759ec4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf6c8366f32951f2c652598052e70028"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="engine_8h.html#acf6c8366f32951f2c652598052e70028">rounddouble</a> (const double &amp;in)</td></tr>
-<tr class="separator:acf6c8366f32951f2c652598052e70028"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a556c604d47dbd45fbef21a6438a1a646"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="engine_8h.html#a556c604d47dbd45fbef21a6438a1a646">EXTRA_VERTEX_INFO</a>&#160;&#160;&#160;<a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a></td></tr>
+<tr class="separator:a556c604d47dbd45fbef21a6438a1a646"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="acf6c8366f32951f2c652598052e70028"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acf6c8366f32951f2c652598052e70028">&#9670;&nbsp;</a></span>rounddouble()</h2>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a556c604d47dbd45fbef21a6438a1a646"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a556c604d47dbd45fbef21a6438a1a646">&#9670;&nbsp;</a></span>EXTRA_VERTEX_INFO</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">int rounddouble </td>
-          <td>(</td>
-          <td class="paramtype">const double &amp;&#160;</td>
-          <td class="paramname"><em>in</em></td><td>)</td>
-          <td></td>
+          <td class="memname">#define EXTRA_VERTEX_INFO&#160;&#160;&#160;<a class="el" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00015">15</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
-
-</div>
-</div>
-<a id="a1949eca6082a82968ca785ff7d759ec4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1949eca6082a82968ca785ff7d759ec4">&#9670;&nbsp;</a></span>roundfloat()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int roundfloat </td>
-          <td>(</td>
-          <td class="paramtype">const float &amp;&#160;</td>
-          <td class="paramname"><em>in</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00011">11</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="engine_8h_source.html#l00068">68</a> of file <a class="el" href="engine_8h_source.html">engine.h</a>.</p>
 
 </div>
 </div>
