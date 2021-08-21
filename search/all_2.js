@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['calcdirlight_9',['CalcDirLight',['../structengine.html#a8382d80f0fdbff250280ee746759efcf',1,'engine']]],
-  ['calcpointlight_10',['CalcPointLight',['../structengine.html#ab2ab93c25b1abffaf540e1e936f8ae02',1,'engine']]],
+  ['calcdirlight_9',['CalcDirLight',['../structengine.html#a556c01f32ca0419f120eff70308d137f',1,'engine']]],
+  ['calcpointlight_10',['CalcPointLight',['../structengine.html#a6147d950c73713f6746152c018798ea7',1,'engine']]],
   ['cam_11',['cam',['../structengine.html#a2ad58255f5bdcb443a28e9d68a9d9e84',1,'engine']]],
   ['cam1_12',['cam1',['../application_8cpp.html#a5685796ceec109235de8239351f6ecd3',1,'application.cpp']]],
   ['camera_13',['camera',['../classcamera.html',1,'camera'],['../classcamera.html#abc72563193b22c523ad004af04146009',1,'camera::camera()'],['../classcamera.html#a33798f3a49839a5297ede474d7d161b0',1,'camera::camera(const vec3 &amp;pos, const vec3 &amp;up, const vec3 &amp;dir)']]],
@@ -14,7 +14,7 @@ var searchData=
   ['clearedgrid_20',['clearedgrid',['../structframebuffer.html#a3d40036782e6fa504774fb55f87573a6',1,'framebuffer']]],
   ['clearedz_21',['clearedz',['../structframebuffer.html#a16d859e25c7c13f89221a7e00eb93ca3',1,'framebuffer']]],
   ['clip1_22',['clip1',['../structengine.html#a18b000736c2e0f21d5926ef0e4db5a74',1,'engine']]],
-  ['clip1helper_23',['clip1helper',['../structengine.html#ac65d760074a0da6a512e7f4ad6a2bc25',1,'engine']]],
+  ['clip1helper_23',['clip1helper',['../structengine.html#a416ec0ba5394e65c0c69a2f6ce2d1c69',1,'engine']]],
   ['clip2_24',['clip2',['../structengine.html#ad00966806e4218bc7be9c898225ae912',1,'engine']]],
   ['clip2helper_25',['clip2helper',['../structengine.html#a03388348d6696667c22c0a04bd1c42e8',1,'engine']]],
   ['col_26',['col',['../structcolor.html#acda5fd88ec6ea2f9c74889c7150de895',1,'color::col()'],['../structdir_light.html#a1b85bd61bcc7db6112c354983a78e7ce',1,'dirLight::col()']]],
@@ -29,5 +29,5 @@ var searchData=
   ['cube_5findices_35',['cube_indices',['../application_8cpp.html#ad1b9afa4126d4c070079dca645f3f494',1,'application.cpp']]],
   ['cube_5findices_5ftriangles_36',['cube_indices_triangles',['../application_8cpp.html#aee9b82d8effd87291bf77fec356de50f',1,'application.cpp']]],
   ['cullbackface_37',['cullBackface',['../structengine.html#a6f9dd3ab9157db6b786d6b9d07a9c238',1,'engine']]],
-  ['currentmaterial_38',['currentMaterial',['../structengine.html#ab3f09a2a4f0e4dd3dd372adce418e8db',1,'engine']]]
+  ['currentmesh_38',['currentMesh',['../structengine.html#a6833999ec9c46969ab6164c4cb048baa',1,'engine']]]
 ];

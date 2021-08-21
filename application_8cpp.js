@@ -1,5 +1,6 @@
 var application_8cpp =
 [
+    [ "getCenterOfMass", "application_8cpp.html#aa0147e155473fc8b08d4c0e4b006a24f", null ],
     [ "key_callback", "application_8cpp.html#a286930f4e8ede059b83ff6eafa2ff718", null ],
     [ "main", "application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627", null ],
     [ "mouse_button_callback", "application_8cpp.html#a5515d805e76ce6728de3c0dc5e187c86", null ],
