@@ -3,7 +3,6 @@
 #include "transformations.h"
 #include "engine.h"
 
-
 void node::delpos(const vec3 &delta) {
     translation = trans::translate((delta)) * translation;
     refreshModel();
@@ -29,16 +28,23 @@ const mat4f &node::refreshModel() {
     return matModel;
 }
 
+static vec3 getCenterOfMass(const Vertex *vertices, const unsigned int size) {
+    vec3 center(0);
+    for (unsigned int i = 0; i < size; i++) {
+        center += vertices[i].position;
+    }
+    return center / size;
+}
+
 void node::draw(engine &graphicsEngine, mat4f matModel_in) {
     matModel_in = matModel * matModel_in;
     for (auto &mesh : meshes) {
-        if (mesh->draw) {
-            // graphicsEngine.doLightCalculations = mesh->doLightCalculations;
-            graphicsEngine.currentMaterial = &mesh->material;
-            graphicsEngine.drawTrianglesRasterized(mesh->m_vertices, mesh->m_indices, mesh->matModel * matModel_in);
-        }
+        //printf("model matrix: \n");
+        //(mesh->matModel * matModel_in).print();
+        graphicsEngine.currentMesh = mesh;
+        graphicsEngine.makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, matModel_in);
     }
-    for (auto &child : children) {
-        child.second->draw(graphicsEngine, matModel_in);
-    }
+    //for (auto &child : children) {
+    //    child.second->draw(graphicsEngine, matModel_in);
+    //}
 }

@@ -2,28 +2,33 @@
 
 #include "core.h"
 #include "node.h"
-#include"drawable.h"
+#include "drawable.h"
 /**
  * @brief pointlight
  */
-struct pointLight: public node {
+struct pointLight : public node {
   private:
     vec3 position;
     color diffuseColor;
     color ambientColor = color(255);
-//    node *model = nullptr;
 
   public:
     float intensity;
 
-     float constant = 1;
-     float linear = 0.09;
-     float quadratic = 0.032;
-//    float constant = 0.85;
-//    float linear = 1.0;
-//    float quadratic = 0.06;
+    float constant = 1;
+    float linear = 0.09;
+    float quadratic = 0.032;
+    //    float constant = 0.85;
+    //    float linear = 1.0;
+    //    float quadratic = 0.06;
 
-    pointLight(const vec3 &pos, const float &intensity, const color &diffcol = color(255)) : position(pos), diffuseColor(diffcol), intensity(intensity), ambientColor(diffcol) {}
+    pointLight(const vec3 &pos, const float &intensity, Mesh *mesh = nullptr, const color &diffcol = color(255)) : position(pos), diffuseColor(diffcol), intensity(intensity), ambientColor(diffcol) {
+        if (mesh) {
+            meshes.emplace_back(mesh);
+            node::setpos(pos);
+            mesh->doLightCalculations = false;
+        }
+    }
 
     void delpos(const vec3 &delta) {
         position += delta;
@@ -35,17 +40,17 @@ struct pointLight: public node {
         node::setpos(newPos);
     }
 
-//    void setmodel(node *model_in) {
-//        model = model_in;
-//        model->setpos(position);
-//        if (!model->meshes.empty()){
-//            model->meshes[0]->doLightCalculations=false;
-//        }
-//    }
+    //    void setmodel(node *model_in) {
+    //        model = model_in;
+    //        model->setpos(position);
+    //        if (!model->meshes.empty()){
+    //            model->meshes[0]->doLightCalculations=false;
+    //        }
+    //    }
 
     void setdiffColor(const color &color) {
         diffuseColor = color;
-        for (auto   &mesh :node::meshes ) {
+        for (auto &mesh : node::meshes) {
             mesh->material.diffuseColor = color;
             mesh->material.specularColor = color;
         }

@@ -251,6 +251,7 @@ struct engine {
  * @brief send framebuffer from cpu to gpu as texture to be able to render using opengl
  */
     void draw() {
+        rasterizeTriangles();
         uint8_t *imageData = (uint8_t *)&fboCPU->colorlayer[0].col;
         glUseProgram(shader);
         GLcall(glBindTexture(GL_TEXTURE_2D, tex));
@@ -287,7 +288,7 @@ struct engine {
     /**
  * @brief set of triangles to be drawn to screen
  */
-    std::vector<std::array<Vertex2, 3>> triangles;
+    std::vector<std::tuple<std::array<Vertex2, 3>, Mesh *>> triangles;
 
     /**
  * @brief nearplane of camera for clipping and culling
@@ -302,7 +303,7 @@ struct engine {
     /**
  * @brief which material to use for further render calls
  */
-    Material *currentMaterial = nullptr;
+    Mesh *currentMesh = nullptr;
 
     /**
  * @brief lights.
@@ -316,22 +317,23 @@ struct engine {
  */
     camera *cam = nullptr;
 
-    bool doLightCalculations = true;
+    bool wireframe = false;
+
     /**
  * @brief essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
  */
-    color getcolor(const Vertex2 &v) {
+    color getcolor(const Vertex2 &v, Mesh *mesh) const {
         color col;
-        if (currentMaterial->diffuse.w) {
+        if (mesh->material.diffuse.w) {
             float intpart;
-            int tx = roundfloat(std::modf(v.v.texCoord.x / v.v.position.z, &intpart) * (currentMaterial->diffuse.w - 1));
-            int ty = roundfloat(std::modf(v.v.texCoord.y / v.v.position.z, &intpart) * (currentMaterial->diffuse.h - 1));
-            auto ret = &currentMaterial->diffuse.m_data[(abs(tx) + currentMaterial->diffuse.w * abs(ty)) * currentMaterial->diffuse.m_bpp];
+            int tx = roundfloat(std::modf(v.v.texCoord.x / v.v.position.z, &intpart) * (mesh->material.diffuse.w - 1));
+            int ty = roundfloat(std::modf(v.v.texCoord.y / v.v.position.z, &intpart) * (mesh->material.diffuse.h - 1));
+            auto ret = &mesh->material.diffuse.m_data[(abs(tx) + mesh->material.diffuse.w * abs(ty)) * mesh->material.diffuse.m_bpp];
             col = color(*ret, *(ret + 1), *(ret + 2));
         } else
-            col = currentMaterial->diffuseColor;
+            col = mesh->material.diffuseColor;
 
-        if (!doLightCalculations) {
+        if (!mesh->doLightCalculations) {
             return col;
         }
 
@@ -343,16 +345,16 @@ struct engine {
             float dist = vec3::dist(fragpos, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
             if (int_by_at > 0.01) {
-                result += CalcPointLight(light, v.v.normal / v.v.position.z, fragpos, viewDir, col, int_by_at);
+                result += CalcPointLight(light, v.v.normal / v.v.position.z, fragpos, viewDir, col, int_by_at, &mesh->material);
             }
         }
-//        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col);
+//        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col, &mesh->material);
 #else
         result += col * (v.extraInfoAboutVertex.x / v.v.position.z);
         result += col * (v.extraInfoAboutVertex.y / v.v.position.z);
         result += color(v.extraInfoAboutVertex.z / v.v.position.z);
 #endif
-        // result += col * ambientLightIntensity;
+        result += col * ambientLightIntensity;
 
         return result;
     }
@@ -360,42 +362,140 @@ struct engine {
     /**
  * @brief draw triangle only using lines (dont fill the triangle)
  */
-    void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
-        triangles.clear();
-        makeRequiredTriangles(vertices, indices, modelmat);
-        for (auto &tris : triangles) {
-            draw_bresenham_adjusted(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y), roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y), color(0, 255, 0));
-            draw_bresenham_adjusted(roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y), roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y), color(0, 255, 0));
-            draw_bresenham_adjusted(roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y), roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y), color(0, 255, 0));
-        }
-    }
+    //void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
+    //    triangles.clear();
+    //    makeRequiredTriangles(vertices, indices, modelmat);
+    //    for (auto &tris : triangles) {
+    //        draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y), roundfloat(std::get<0>(tris)[1].v.//position.x), roundfloat(std::get<0>(tris)[1].v.position.y), color(0, 255, 0));
+    //        draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y), roundfloat(std::get<0>(tris)[2].v.//position.x), roundfloat(std::get<0>(tris)[2].v.position.y), color(0, 255, 0));
+    //        draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y), roundfloat(std::get<0>(tris)[0].v.//position.x), roundfloat(std::get<0>(tris)[0].v.position.y), color(0, 255, 0));
+    //    }
+    //}
 
     /**
  * @brief draw rasterized triangle
  */
-    void drawTrianglesRasterized(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
-        triangles.clear();
-        makeRequiredTriangles(vertices, indices, modelmat);
-        rasterizeTriangles();
+    /**
+ * @brief fill triangles array by doing required clipping and culling
+ */
+    void makeRequiredTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
+        auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
+        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            std::array<bool, 3> clip{false, false, false};
+            Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
+            std::array<Vertex2, 3> t;
+// Vertex temp;
+#ifdef PHONG_SHADING
+            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex{modelmat * points[0].position, modelmat * points[1].position, modelmat * points[2].position};
+#else
+            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex;
+            extraInfoAboutVertex[0].x = modelmat * points[0].position;
+            extraInfoAboutVertex[1].x = modelmat * points[1].position;
+            extraInfoAboutVertex[2].x = modelmat * points[2].position;
+#endif
+            std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position), view * (modelmat * points[1].position), view * (modelmat * points[2].position)};
+
+            if (modelviewTransformed[0].z > -nearPlane) {
+                clip[0] = true;
+            }
+
+            if (modelviewTransformed[1].z > -nearPlane) {
+                clip[1] = true;
+            }
+
+            if (modelviewTransformed[2].z > -nearPlane) {
+                clip[2] = true;
+            }
+
+            points[0].position = modelviewTransformed[0];
+            points[0].normal = modelmat * points[0].normal;
+            points[1].position = modelviewTransformed[1];
+            points[1].normal = modelmat * points[1].normal;
+            points[2].position = modelviewTransformed[2];
+            points[2].normal = modelmat * points[2].normal;
+
+            if (cullBackface && vec3::dot(view * points[0].normal, points[0].position) > 0) {
+                continue;
+            }
+
+#ifndef PHONG_SHADING
+            fillExtraInformationForGoraudShading(points[0], extraInfoAboutVertex[0]);
+            fillExtraInformationForGoraudShading(points[1], extraInfoAboutVertex[1]);
+            fillExtraInformationForGoraudShading(points[2], extraInfoAboutVertex[2]);
+#endif
+
+            if (clip[0] && clip[1] && clip[2]) {
+                continue;
+            } else if (clip[0]) {
+                if (clip[1]) {
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 1, 2, t);
+                    triangles.emplace_back(std::make_tuple(t, currentMesh));
+                    continue;
+                } else if (clip[2]) {
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 2, 1, t);
+                    triangles.emplace_back(std::make_tuple(t, currentMesh));
+                    continue;
+                } else {
+                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, t, triangles);
+                    continue;
+                }
+            } else if (clip[1]) {
+                if (clip[2]) {
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 2, 0, t);
+                    triangles.emplace_back(std::make_tuple(t, currentMesh));
+                    continue;
+                } else if (clip[0]) {
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 0, 2, t);
+                    triangles.emplace_back(std::make_tuple(t, currentMesh));
+                    continue;
+                } else {
+                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, t, triangles);
+                    continue;
+                }
+            } else if (clip[2]) {
+                if (clip[0]) {
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 0, 1, t);
+                    triangles.emplace_back(std::make_tuple(t, currentMesh));
+                    continue;
+                } else if (clip[1]) {
+                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 1, 0, t);
+                    triangles.emplace_back(std::make_tuple(t, currentMesh));
+                    continue;
+                } else {
+                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, t, triangles);
+                    continue;
+                }
+            }
+
+            t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), extraInfoAboutVertex[0]);
+            t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), extraInfoAboutVertex[1]);
+            t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), extraInfoAboutVertex[2]);
+            t[0].extraInfoAboutVertex *= t[0].v.position.z;
+            t[1].extraInfoAboutVertex *= t[1].v.position.z;
+            t[2].extraInfoAboutVertex *= t[2].v.position.z;
+
+            triangles.emplace_back(std::make_tuple(t, currentMesh));
+        }
     }
 
   private:
-    inline float max(const float &first, const float &second) {
+    static inline float max(const float &first, const float &second) {
         return first > second ? first : second;
     }
 
-    inline vec3 reflect(const vec3 &I, const vec3 &N) {
+    static inline vec3 reflect(const vec3 &I, const vec3 &N) {
         return I - N * 2.0 * vec3::dot(N, I);
     }
 
     /**
  * @brief function to calculate effect of directional light in a fragment with color col
  */
-    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col) {
+    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col, const Material *material) const {
         auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
-        auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), currentMaterial->shininess);
-        color diffuse = col * dirlight.col * dirlight.intensity * currentMaterial->DiffuseStrength * diff;
-        color specular = dirlight.col * dirlight.intensity * currentMaterial->SpecularStrength * spec;
+        auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), material->shininess);
+        color diffuse = col * dirlight.col * dirlight.intensity * material->DiffuseStrength * diff;
+        color specular = dirlight.col * dirlight.intensity * material->SpecularStrength * spec;
         diffuse += specular;
         diffuse.a() = 255;
         return std::move(diffuse);
@@ -404,16 +504,19 @@ struct engine {
     /**
  * @brief function to calculate effect of a point light in a fragment with color col
  */
-    color CalcPointLight(const pointLight &light, const vec3 &normal, const vec3 &fragPos, const vec3 &viewDir, const color &diffuseColor, float int_by_at) {
+    static color CalcPointLight(const pointLight &light, const vec3 &normal, const vec3 &fragPos, const vec3 &viewDir, const color &diffuseColor, float int_by_at, const Material *material) {
         const vec3 lightDir = vec3::normalize(light.getpos() - fragPos);
         const float diff = max(vec3::dot(normal, lightDir), 0.0);
         const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
-        const float spec = pow(max(vec3::dot(normal, halfwayDir), 0.0), currentMaterial->shininess);
-        const color ambient = diffuseColor * light.get_ambient_color() * (currentMaterial->AmbientStrength * int_by_at);
-        const color diffuse = diffuseColor * light.get_diffuse_color() * (currentMaterial->DiffuseStrength * diff * int_by_at);
-        const color specular = light.get_diffuse_color() * (currentMaterial->SpecularStrength * spec * int_by_at);
-        return (ambient + diffuse + specular);
+        const float spec = pow(max(vec3::dot(normal, halfwayDir), 0.0), material->shininess);
+        const color ambient = diffuseColor * light.get_ambient_color() * (material->AmbientStrength * int_by_at);
+        const color diffuse = diffuseColor * light.get_diffuse_color() * (material->DiffuseStrength * diff * int_by_at);
+        const color specular = light.get_diffuse_color() * (material->SpecularStrength * spec * int_by_at);
+        // return (ambient + diffuse + specular);
+        return (diffuse + specular);
     }
+
+    std::mutex fboCPUMutex;
 
     /**
  * @brief putpixel assuming middle of screen to be the origin
@@ -421,6 +524,9 @@ struct engine {
     void putpixel_adjusted(int x, int y, float z, const color &col = color(255)) {
         assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
         const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
+#ifdef MULTITHREADED
+        const std::lock_guard<std::mutex> lock(fboCPUMutex);
+#endif
         fboCPU->colorlayer[indx] = col;
         fboCPU->grid[indx] = true;
         fboCPU->z[indx] = z;
@@ -500,7 +606,7 @@ struct engine {
     /**
  * @brief clips and perspective transforms input triangle vertices if one point is out of the clip space
  */
-    inline void clip1helper(const mat4f &per, const std::array<EXTRA_VERTEX_INFO, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::array<Vertex2, 3>> &triangles) {
+    inline void clip1helper(const mat4f &per, const std::array<EXTRA_VERTEX_INFO, 3> &extraInfoAboutVertex, const std::array<vec4, 3> &modelviewTransformed, Vertex *points, unsigned char idx1, std::array<Vertex2, 3> &t, std::vector<std::tuple<std::array<Vertex2, 3>, Mesh *>> &triangles) {
         float u1, u2;
         unsigned char idx2 = (idx1 + 1) % 3, idx3 = (idx1 + 2) % 3;
         clip1(modelviewTransformed, idx1, u1, u2);
@@ -511,17 +617,17 @@ struct engine {
         t[idx1].extraInfoAboutVertex *= t[idx1].v.position.z;
         t[idx2].extraInfoAboutVertex *= t[idx2].v.position.z;
         t[idx3].extraInfoAboutVertex *= t[idx3].v.position.z;
-        triangles.emplace_back(t);
+        triangles.emplace_back(std::make_tuple(t, currentMesh));
         t[idx2] = t[idx3];
         t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3] - points[idx1]) * u2, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[idx3] - extraInfoAboutVertex[idx1]) * u2);
         t[idx3].extraInfoAboutVertex *= t[idx3].v.position.z;
-        triangles.emplace_back(std::move(t));
+        triangles.emplace_back(std::make_tuple(t, currentMesh));
     }
 
     /**
  * @brief rasterize BottomFlatTriangle: p0/first_argument is the top unique point
  */
-    void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
+    void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
         double invslope1 = ((double)p0.x - p1.x) / ((double)p0.y - p1.y);
         double invslope2 = ((double)p0.x - p2.x) / ((double)p0.y - p2.y);
 
@@ -559,8 +665,8 @@ struct engine {
                 if (gotz < z) {
                     vx3 = vx1 + diff3 * u3;
 
-                    if (currentMaterial) {
-                        putpixel_adjusted(i, scanlineY, z, getcolor(vx3));
+                    if (mesh) {
+                        putpixel_adjusted(i, scanlineY, z, getcolor(vx3, mesh));
                     } else {
                         putpixel_adjusted(i, scanlineY, z, color(255, 0, 0));
                     }
@@ -572,7 +678,7 @@ struct engine {
     /**
  * @brief rasterize TopFlatTriangle: p2/last_point is the bottom unique point
  */
-    void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2) {
+    void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
         const double invslope1 = ((double)p2.x - p1.x) / ((double)p2.y - p1.y);
         const double invslope2 = ((double)p2.x - p0.x) / ((double)p2.y - p0.y);
 
@@ -611,8 +717,8 @@ struct engine {
                 const auto gotz = getpixelZ_adjusted(i, scanlineY);
                 if (gotz < z) {
                     vx3 = vx1 + diff3 * u3;
-                    if (currentMaterial) {
-                        putpixel_adjusted(i, scanlineY, z, getcolor(vx3));
+                    if (mesh) {
+                        putpixel_adjusted(i, scanlineY, z, getcolor(vx3, mesh));
                     } else {
                         putpixel_adjusted(i, scanlineY, z, color(255, 255, 255));
                     }
@@ -637,7 +743,6 @@ struct engine {
                 std::swap(item1, item0);
         }
     }
-    // #define MULTITHREADED
 
     /**
  * @brief helper function to rasterize triangles in vector of triangles.
@@ -645,45 +750,45 @@ struct engine {
     void rasterizeTriangles() {
 
 #ifdef MULTITHREADED
-        pool.parallelize_loop(0, triangles.size(), [this](const unsigned int start, const unsigned int end) {
+        pool.parallelize_loop(0, triangles.size(), [&](const unsigned int start, const unsigned int end) {
             for (unsigned int i = start; i < end; i++) {
                 auto &tris = triangles[i];
-                sort3Values<Vertex2>(tris[0], tris[1], tris[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
-                //std::sort(tris.begin(), tris.end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+                sort3Values<Vertex2>(std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+                //std::sort(std::get<0>(tris).begin(), std::get<0>(tris).end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
 
                 vec2_T<int> points[3];
-                points[0] = vec2_T<int>(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y));
-                points[1] = vec2_T<int>(roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y));
-                points[2] = vec2_T<int>(roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y));
+                points[0] = vec2_T<int>(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y));
+                points[1] = vec2_T<int>(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y));
+                points[2] = vec2_T<int>(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y));
 
                 if (points[0].y == points[1].y) // natural flat top
                 {
                     //sorting top vertices by x
                     if (points[1].x > points[0].x) {
-                        std::swap(tris[0], tris[1]);
+                        std::swap(std::get<0>(tris)[0], std::get<0>(tris)[1]);
                         std::swap(points[0], points[1]);
                     }
 
-                    fillTopFlatTriangle(points[0], points[1], points[2], tris[0], tris[1], tris[2]);
-                    return;
+                    fillTopFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
+                    continue;
                 } else if (points[1].y == points[2].y) // natural flat bottom
                 {
                     // sorting bottom vertices by x
                     if (points[2].x < points[1].x) {
-                        std::swap(tris[1], tris[2]);
+                        std::swap(std::get<0>(tris)[1], std::get<0>(tris)[2]);
                         std::swap(points[1], points[2]);
                     }
 
-                    fillBottomFlatTriangle(points[0], points[1], points[2], tris[0], tris[1], tris[2]);
-                    return;
+                    fillBottomFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
+                    continue;
                 } else // general triangle
                 {
                     // find splitting vertex interpolant
                     const float alphaSplit = ((float)points[1].y - points[0].y) / ((float)points[2].y - points[0].y);
 
-                    const auto diff = tris[2] - tris[0];
+                    const auto diff = std::get<0>(tris)[2] - std::get<0>(tris)[0];
                     //checkTexcoords(diff.v.texCoord);
-                    const auto vi = tris[0] + diff * alphaSplit;
+                    const auto vi = std::get<0>(tris)[0] + diff * alphaSplit;
 
                     //checkTexcoords(vi.v.texCoord);
                     auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
@@ -691,12 +796,12 @@ struct engine {
 
                     if (points[1].x < pi.x) // major right
                     {
-                        fillBottomFlatTriangle(points[0], points[1], pi, tris[0], tris[1], vi);
-                        fillTopFlatTriangle(pi, points[1], points[2], vi, tris[1], tris[2]);
+                        fillBottomFlatTriangle(points[0], points[1], pi, std::get<0>(tris)[0], std::get<0>(tris)[1], vi, std::get<1>(tris));
+                        fillTopFlatTriangle(pi, points[1], points[2], vi, std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
                     } else // major left
                     {
-                        fillBottomFlatTriangle(points[0], pi, points[1], tris[0], vi, tris[1]);
-                        fillTopFlatTriangle(points[1], pi, points[2], tris[1], vi, tris[2]);
+                        fillBottomFlatTriangle(points[0], pi, points[1], std::get<0>(tris)[0], vi, std::get<0>(tris)[1], std::get<1>(tris));
+                        fillTopFlatTriangle(points[1], pi, points[2], std::get<0>(tris)[1], vi, std::get<0>(tris)[2], std::get<1>(tris));
                     }
                 }
             }
@@ -705,42 +810,42 @@ struct engine {
 #else
         for (auto &tris : triangles) {
 
-            sort3Values<Vertex2>(tris[0], tris[1], tris[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
-            //std::sort(tris.begin(), tris.end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+            sort3Values<Vertex2>(std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+            //std::sort(std::get<0>(tris).begin(), std::get<0>(tris).end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
 
             vec2_T<int> points[3];
-            points[0] = vec2_T<int>(roundfloat(tris[0].v.position.x), roundfloat(tris[0].v.position.y));
-            points[1] = vec2_T<int>(roundfloat(tris[1].v.position.x), roundfloat(tris[1].v.position.y));
-            points[2] = vec2_T<int>(roundfloat(tris[2].v.position.x), roundfloat(tris[2].v.position.y));
+            points[0] = vec2_T<int>(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y));
+            points[1] = vec2_T<int>(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y));
+            points[2] = vec2_T<int>(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y));
 
             if (points[0].y == points[1].y) // natural flat top
             {
                 //sorting top vertices by x
                 if (points[1].x > points[0].x) {
-                    std::swap(tris[0], tris[1]);
+                    std::swap(std::get<0>(tris)[0], std::get<0>(tris)[1]);
                     std::swap(points[0], points[1]);
                 }
 
-                fillTopFlatTriangle(points[0], points[1], points[2], tris[0], tris[1], tris[2]);
+                fillTopFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
                 continue;
             } else if (points[1].y == points[2].y) // natural flat bottom
             {
                 // sorting bottom vertices by x
                 if (points[2].x < points[1].x) {
-                    std::swap(tris[1], tris[2]);
+                    std::swap(std::get<0>(tris)[1], std::get<0>(tris)[2]);
                     std::swap(points[1], points[2]);
                 }
 
-                fillBottomFlatTriangle(points[0], points[1], points[2], tris[0], tris[1], tris[2]);
+                fillBottomFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
                 continue;
             } else // general triangle
             {
                 // find splitting vertex interpolant
                 const float alphaSplit = ((float)points[1].y - points[0].y) / ((float)points[2].y - points[0].y);
 
-                const auto diff = tris[2] - tris[0];
+                const auto diff = std::get<0>(tris)[2] - std::get<0>(tris)[0];
                 //checkTexcoords(diff.v.texCoord);
-                const auto vi = tris[0] + diff * alphaSplit;
+                const auto vi = std::get<0>(tris)[0] + diff * alphaSplit;
 
                 //checkTexcoords(vi.v.texCoord);
                 auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
@@ -748,12 +853,12 @@ struct engine {
 
                 if (points[1].x < pi.x) // major right
                 {
-                    fillBottomFlatTriangle(points[0], points[1], pi, tris[0], tris[1], vi);
-                    fillTopFlatTriangle(pi, points[1], points[2], vi, tris[1], tris[2]);
+                    fillBottomFlatTriangle(points[0], points[1], pi, std::get<0>(tris)[0], std::get<0>(tris)[1], vi, std::get<1>(tris));
+                    fillTopFlatTriangle(pi, points[1], points[2], vi, std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
                 } else // major left
                 {
-                    fillBottomFlatTriangle(points[0], pi, points[1], tris[0], vi, tris[1]);
-                    fillTopFlatTriangle(points[1], pi, points[2], tris[1], vi, tris[2]);
+                    fillBottomFlatTriangle(points[0], pi, points[1], std::get<0>(tris)[0], vi, std::get<0>(tris)[1], std::get<1>(tris));
+                    fillTopFlatTriangle(points[1], pi, points[2], std::get<0>(tris)[1], vi, std::get<0>(tris)[2], std::get<1>(tris));
                 }
             }
         }
@@ -774,116 +879,12 @@ struct engine {
             if (int_by_at > 0.01) {
                 const float diff = max(vec3::dot(v.normal, lightDir), 0.0);
                 const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
-                const float spec = std::pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMaterial->shininess);
-                vertPos.x += light.get_ambient_color().getcolorVec3() * currentMaterial->AmbientStrength * int_by_at;
-                vertPos.y += light.get_diffuse_color().getcolorVec3() * currentMaterial->DiffuseStrength * diff * int_by_at;
-                vertPos.z += light.get_diffuse_color().getcolorVec3() * currentMaterial->SpecularStrength * spec * int_by_at;
+                const float spec = std::pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMesh->material.shininess);
+                vertPos.x += light.get_ambient_color().getcolorVec3() * currentMesh->material.AmbientStrength * int_by_at;
+                vertPos.y += light.get_diffuse_color().getcolorVec3() * currentMesh->material.DiffuseStrength * diff * int_by_at;
+                vertPos.z += light.get_diffuse_color().getcolorVec3() * currentMesh->material.SpecularStrength * spec * int_by_at;
             }
         }
     }
 #endif
-
-    /**
- * @brief fill triangles array by doing required clipping and culling
- */
-    void makeRequiredTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
-        auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
-        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
-        for (size_t i = 0; i < indices.size(); i += 3) {
-            std::array<bool, 3> clip{false, false, false};
-            Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
-            std::array<Vertex2, 3> t;
-// Vertex temp;
-#ifdef PHONG_SHADING
-            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex{modelmat * points[0].position, modelmat * points[1].position, modelmat * points[2].position};
-#else
-            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex;
-            extraInfoAboutVertex[0].x = modelmat * points[0].position;
-            extraInfoAboutVertex[1].x = modelmat * points[1].position;
-            extraInfoAboutVertex[2].x = modelmat * points[2].position;
-#endif
-            std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position), view * (modelmat * points[1].position), view * (modelmat * points[2].position)};
-
-            if (modelviewTransformed[0].z > -nearPlane) {
-                clip[0] = true;
-            }
-
-            if (modelviewTransformed[1].z > -nearPlane) {
-                clip[1] = true;
-            }
-
-            if (modelviewTransformed[2].z > -nearPlane) {
-                clip[2] = true;
-            }
-
-            points[0].position = modelviewTransformed[0];
-            points[0].normal = modelmat * points[0].normal;
-            points[1].position = modelviewTransformed[1];
-            points[1].normal = modelmat * points[1].normal;
-            points[2].position = modelviewTransformed[2];
-            points[2].normal = modelmat * points[2].normal;
-
-            if (cullBackface && vec3::dot(view * points[0].normal, points[0].position) > 0) {
-                continue;
-            }
-
-#ifndef PHONG_SHADING
-            fillExtraInformationForGoraudShading(points[0], extraInfoAboutVertex[0]);
-            fillExtraInformationForGoraudShading(points[1], extraInfoAboutVertex[1]);
-            fillExtraInformationForGoraudShading(points[2], extraInfoAboutVertex[2]);
-#endif
-
-            if (clip[0] && clip[1] && clip[2]) {
-                continue;
-            } else if (clip[0]) {
-                if (clip[1]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 1, 2, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else if (clip[2]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 2, 1, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else {
-                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, t, triangles);
-                    continue;
-                }
-            } else if (clip[1]) {
-                if (clip[2]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 2, 0, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else if (clip[0]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 0, 2, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else {
-                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, t, triangles);
-                    continue;
-                }
-            } else if (clip[2]) {
-                if (clip[0]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 0, 1, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else if (clip[1]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 1, 0, t);
-                    triangles.emplace_back(std::move(t));
-                    continue;
-                } else {
-                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, t, triangles);
-                    continue;
-                }
-            }
-
-            t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), extraInfoAboutVertex[0]);
-            t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), extraInfoAboutVertex[1]);
-            t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), extraInfoAboutVertex[2]);
-            t[0].extraInfoAboutVertex *= t[0].v.position.z;
-            t[1].extraInfoAboutVertex *= t[1].v.position.z;
-            t[2].extraInfoAboutVertex *= t[2].v.position.z;
-
-            triangles.emplace_back(std::move(t));
-        }
-    }
 };
