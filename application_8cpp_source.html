@@ -353,7 +353,7 @@ $(document).ready(function(){initNavTree('application_8cpp_source.html',''); ini
 <div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="keyword">auto</span> textureBox = <a class="code" href="namespace_model.html#a944ac27ef103ec7eeff0a2c2eed8b1d4">Model::loadModel_obj</a>(path + <span class="stringliteral">&quot;/box.obj&quot;</span>, <span class="stringliteral">&quot;texturebox&quot;</span>);</div>
 <div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="comment">// auto football_real = Model::loadModel_obj(path + &quot;/Football/Football_LowPoly.obj&quot;, &quot;football&quot;);</span></div>
 <div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="comment">// auto stupa = Model::loadModel_obj(path + &quot;/swayambhunath/swayambhunath.obj&quot;, &quot;city&quot;);</span></div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keyword">auto</span> city = <a class="code" href="namespace_model.html#a944ac27ef103ec7eeff0a2c2eed8b1d4">Model::loadModel_obj</a>(path + <span class="stringliteral">&quot;/city/city_debug.obj&quot;</span>, <span class="stringliteral">&quot;city&quot;</span>);</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keyword">auto</span> city = <a class="code" href="namespace_model.html#a944ac27ef103ec7eeff0a2c2eed8b1d4">Model::loadModel_obj</a>(path + <span class="stringliteral">&quot;/city/city_with_lamp_new.obj&quot;</span>, <span class="stringliteral">&quot;city&quot;</span>);</div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="comment">//auto football = Model::loadModel_obj(path + &quot;/texturedSquare.obj&quot;, &quot;city&quot;);</span></div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    rootNode.<a class="code" href="structnode.html#af3c4c502aba3fdf8e3a5b8dafcdfc3af">children</a>[<span class="stringliteral">&quot;city&quot;</span>] = city;</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
@@ -365,7 +365,7 @@ $(document).ready(function(){initNavTree('application_8cpp_source.html',''); ini
 <div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6f9dd3ab9157db6b786d6b9d07a9c238">cullBackface</a> = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a2ad58255f5bdcb443a28e9d68a9d9e84">cam</a> = &amp;<a class="code" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>;</div>
 <div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#ad429a04d52e1fce8312767d252f29568">dirlight</a> = <a class="code" href="structdir_light.html">dirLight</a>(<a class="code" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(-1, -1, -1).normalize(), 2, <a class="code" href="structcolor.html">color</a>(255));</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#aceb5611a19a7d272d13398af5e701d2e">ambientLightIntensity</a> = 0.1;</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#aceb5611a19a7d272d13398af5e701d2e">ambientLightIntensity</a> = 0;</div>
 <div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160; </div>
 <div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
 <div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;        printf(<span class="stringliteral">&quot;meshname %s \n&quot;</span>, mesh-&gt;name.c_str());</div>
@@ -378,99 +378,102 @@ $(document).ready(function(){initNavTree('application_8cpp_source.html',''); ini
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;            <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;vertex : mesh-&gt;m_vertices) {</div>
 <div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;                <span class="keyword">auto</span> debugTranslate = trans::translate(-center);</div>
 <div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;                vertex.position = debugTranslate * <a class="code" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>(vertex.position, 1);</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;                <span class="comment">// vertex.position -= football_center;</span></div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;                <span class="comment">// vertex.position.w = 1;</span></div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;                <span class="comment">// vertex.position += center;</span></div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;                <span class="comment">// vertex.position /= vertex.position.w;</span></div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;                <span class="comment">// vertex.position.w = 1;</span></div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;            }</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#ac83a864aea891c826b982a8685614fb7">pointLights</a>.emplace_back(center, 2, mesh);</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;        }</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    }</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3) ;</span></div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="comment">//auto lightModel = Model::loadModel_obj(path + &quot;/sphere.obj&quot;, &quot;light&quot;)-&gt;meshes;</span></div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="comment">//for (auto &amp;mesh : lightModel) {</span></div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="comment">//    mesh-&gt;doLightCalculations = false;</span></div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="comment">//}</span></div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.back().meshes = lightModel;</span></div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.back().setScale(vec3(0.1));</span></div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160; </div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3);</span></div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160; </div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="comment">//auto spherescale = trans::scaling3d(0.1);</span></div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="comment">//for (auto &amp;mesh : lightmodels) {</span></div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    <span class="comment">//    for (auto &amp;point : mesh-&gt;meshes.back()-&gt;m_vertices) {</span></div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="comment">//        point.position = spherescale * point.position;</span></div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="comment">//    }</span></div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="comment">//}</span></div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="comment">//for (int i = 0; i &lt; graphicsEngine-&gt;pointLights.size(); i++) {</span></div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="comment">//    graphicsEngine-&gt;pointLights[i].setmodel(lightmodels[i]);</span></div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;                <span class="comment">//debugTranslate = trans::scaling3d(50);</span></div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;                <span class="comment">//vertex.position = debugTranslate * vec4(vertex.position, 1);</span></div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;                <span class="comment">// vertex.position -= football_center;</span></div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;                <span class="comment">// vertex.position.w = 1;</span></div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;                <span class="comment">// vertex.position += center;</span></div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;                <span class="comment">// vertex.position /= vertex.position.w;</span></div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;                <span class="comment">// vertex.position.w = 1;</span></div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;            }</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;            <span class="comment">// mesh-&gt;matModel = trans::translate(center);</span></div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#ac83a864aea891c826b982a8685614fb7">pointLights</a>.emplace_back(center, 1, mesh);</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;        }</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    }</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160; </div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3) ;</span></div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="comment">//auto lightModel = Model::loadModel_obj(path + &quot;/sphere.obj&quot;, &quot;light&quot;)-&gt;meshes;</span></div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="comment">//for (auto &amp;mesh : lightModel) {</span></div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="comment">//    mesh-&gt;doLightCalculations = false;</span></div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="comment">//}</span></div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.back().meshes = lightModel;</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.back().setScale(vec3(0.1));</span></div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="comment">//graphicsEngine-&gt;pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3);</span></div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160; </div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="comment">//auto spherescale = trans::scaling3d(0.1);</span></div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="comment">//for (auto &amp;mesh : lightmodels) {</span></div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="comment">//    for (auto &amp;point : mesh-&gt;meshes.back()-&gt;m_vertices) {</span></div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="comment">//        point.position = spherescale * point.position;</span></div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="comment">//    }</span></div>
 <div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="comment">//}</span></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160; </div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keyword">auto</span> lastframe = std::chrono::high_resolution_clock::now();</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    std::string fpsString = <span class="stringliteral">&quot;FPS: &quot;</span>;</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> place = fpsString.find_first_of(<span class="stringliteral">&quot; &quot;</span>) + 1;</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160; </div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <span class="keywordflow">while</span> (!glfwWindowShouldClose(window)) {</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;        <a class="code" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a> = std::chrono::duration_cast&lt;std::chrono::microseconds&gt;(std::chrono::high_resolution_clock::now() - lastframe).count();</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;        lastframe = std::chrono::high_resolution_clock::now();</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        <span class="comment">// graphicsEngine-&gt;pointLights.back().setpos(graphicsEngine-&gt;cam-&gt;eye);</span></div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160; </div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;        glfwPollEvents();</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        <a class="code" href="application_8cpp.html#a9e7d2ab43fd2c72f7ac16ab894e4f3e2">processHoldEvent</a>(window);</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <span class="comment">//for (int i = 0; i &lt; graphicsEngine-&gt;pointLights.size(); i++) {</span></div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="comment">//    graphicsEngine-&gt;pointLights[i].setmodel(lightmodels[i]);</span></div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="comment">//}</span></div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160; </div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="keyword">auto</span> lastframe = std::chrono::high_resolution_clock::now();</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    std::string fpsString = <span class="stringliteral">&quot;FPS: &quot;</span>;</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> place = fpsString.find_first_of(<span class="stringliteral">&quot; &quot;</span>) + 1;</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160; </div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;    <span class="keywordflow">while</span> (!glfwWindowShouldClose(window)) {</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        <a class="code" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a> = std::chrono::duration_cast&lt;std::chrono::microseconds&gt;(std::chrono::high_resolution_clock::now() - lastframe).count();</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        lastframe = std::chrono::high_resolution_clock::now();</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160; </div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        <span class="comment">// graphicsEngine-&gt;pointLights.back().setpos(graphicsEngine-&gt;cam-&gt;eye);</span></div>
 <div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160; </div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;        <a class="code" href="application_8cpp.html#a48dc0386e0afcf9887f873c27449af60">translate3d</a> = trans::translate(<a class="code" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(5, 0, -5));</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;        <a class="code" href="application_8cpp.html#a98a62cdd01e76dd1ee33c687f9f93c8e">scale3d</a> = trans::scaling3d(<a class="code" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(0.5));</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;        glfwPollEvents();</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;        <a class="code" href="application_8cpp.html#a9e7d2ab43fd2c72f7ac16ab894e4f3e2">processHoldEvent</a>(window);</div>
 <div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160; </div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / <a class="code" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a>));</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        glfwSetWindowTitle(window, fpsString.c_str());</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        <a class="code" href="application_8cpp.html#a48dc0386e0afcf9887f873c27449af60">translate3d</a> = trans::translate(<a class="code" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(5, 0, -5));</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        <a class="code" href="application_8cpp.html#a98a62cdd01e76dd1ee33c687f9f93c8e">scale3d</a> = trans::scaling3d(<a class="code" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(0.5));</div>
 <div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160; </div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        <span class="comment">// std::cout &lt;&lt; &quot;camera Eye: &quot; &lt;&lt; cam1.eye &lt;&lt; std::endl;</span></div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;        <span class="comment">// std::cout &lt;&lt; &quot;camera viewdir: &quot; &lt;&lt; cam1.getViewDir() &lt;&lt; std::endl;</span></div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / <a class="code" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a>));</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;        glfwSetWindowTitle(window, fpsString.c_str());</div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; </div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;        <span class="comment">// std::cout &lt;&lt; &quot;camera Eye: &quot; &lt;&lt; cam1.eye &lt;&lt; std::endl;</span></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;        <span class="comment">// std::cout &lt;&lt; &quot;camera viewdir: &quot; &lt;&lt; cam1.getViewDir() &lt;&lt; std::endl;</span></div>
 <div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160; </div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a3e46acad5b405a88de5daaddfd4d2da4">clear</a>();</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160; </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : lightmodel-&gt;meshes) {</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6833999ec9c46969ab6164c4cb048baa">currentMesh</a> = mesh;</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;            <span class="keywordflow">if</span> (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;                <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">makeRequiredTriangles</a>(mesh-&gt;m_vertices, mesh-&gt;m_indices, <a class="code" href="classmat.html">mat4f</a>());</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;            }</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;        }</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160; </div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6833999ec9c46969ab6164c4cb048baa">currentMesh</a> = mesh;</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;            <span class="keywordflow">if</span> (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;                <span class="comment">// if (mesh-&gt;name.find(&quot;lamppost_Cylinder.002&quot;) != std::string::npos)</span></div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;                <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">makeRequiredTriangles</a>(mesh-&gt;m_vertices, mesh-&gt;m_indices, <a class="code" href="application_8cpp.html#a98a62cdd01e76dd1ee33c687f9f93c8e">scale3d</a>);</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;            }</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        }</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160; </div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;        <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6833999ec9c46969ab6164c4cb048baa">currentMesh</a> = textureBox-&gt;meshes[0];</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        <span class="keywordflow">if</span> (textureBox-&gt;meshes[0]-&gt;doLightCalculations &amp;&amp; textureBox-&gt;meshes[0]-&gt;draw) {</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">makeRequiredTriangles</a>(textureBox-&gt;meshes[0]-&gt;m_vertices, textureBox-&gt;meshes[0]-&gt;m_indices, <a class="code" href="classmat.html">mat4f</a>());</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;        }</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160; </div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;light : <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#ac83a864aea891c826b982a8685614fb7">pointLights</a>) {</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;            <span class="comment">// graphicsEngine-&gt;makeRequiredTriangles(textureBox-&gt;meshes[0]-&gt;m_vertices, textureBox-&gt;meshes[0]-&gt;m_indices, mat4f());</span></div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;            light.draw(*<a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>);</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;        }</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160; </div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;        <span class="comment">//rootNode.draw(*graphicsEngine);</span></div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;        <span class="comment">//graphicsEngine-&gt;currentMaterial = &amp;m;</span></div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;        <span class="comment">//graphicsEngine-&gt;drawTrianglesRasterized(square, square_indices, translate3d);</span></div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;        <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a7f3244be45685880daaa54fb60b65e2a">draw</a>();</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;        glfwSwapBuffers(window);</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    }</div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    <span class="keyword">delete</span> <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>;</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;    glfwDestroyWindow(window);</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    glfwTerminate();</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;}</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160; </div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;        <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a3e46acad5b405a88de5daaddfd4d2da4">clear</a>();</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160; </div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : lightmodel-&gt;meshes) {</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6833999ec9c46969ab6164c4cb048baa">currentMesh</a> = mesh;</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;            <span class="keywordflow">if</span> (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;                <span class="comment">// graphicsEngine-&gt;makeRequiredTriangles(mesh-&gt;m_vertices, mesh-&gt;m_indices, mat4f());</span></div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;            }</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;        }</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160; </div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;            <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6833999ec9c46969ab6164c4cb048baa">currentMesh</a> = mesh;</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;            <span class="keywordflow">if</span> (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;                <span class="comment">// if (mesh-&gt;name.find(&quot;lightCube&quot;) != std::string::npos)</span></div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;                <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">makeRequiredTriangles</a>(mesh-&gt;m_vertices, mesh-&gt;m_indices, mesh-&gt;matModel);</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;            }</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        }</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160; </div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;        <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a6833999ec9c46969ab6164c4cb048baa">currentMesh</a> = textureBox-&gt;meshes[0];</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;        <span class="keywordflow">if</span> (textureBox-&gt;meshes[0]-&gt;doLightCalculations &amp;&amp; textureBox-&gt;meshes[0]-&gt;draw) {</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;            <span class="comment">// graphicsEngine-&gt;makeRequiredTriangles(textureBox-&gt;meshes[0]-&gt;m_vertices, textureBox-&gt;meshes[0]-&gt;m_indices, mat4f());</span></div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;        }</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160; </div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;light : <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#ac83a864aea891c826b982a8685614fb7">pointLights</a>) {</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;            <span class="comment">// graphicsEngine-&gt;makeRequiredTriangles(textureBox-&gt;meshes[0]-&gt;m_vertices, textureBox-&gt;meshes[0]-&gt;m_indices, mat4f());</span></div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;            light.<a class="code" href="structdrawable.html#aa630d5857ad25d32c5bd50864b9546c3">draw</a>(*<a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>);</div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;        }</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160; </div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;        <span class="comment">//rootNode.draw(*graphicsEngine);</span></div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;        <span class="comment">//graphicsEngine-&gt;currentMaterial = &amp;m;</span></div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;        <span class="comment">//graphicsEngine-&gt;drawTrianglesRasterized(square, square_indices, translate3d);</span></div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;        <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code" href="structengine.html#a7f3244be45685880daaa54fb60b65e2a">draw</a>();</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        glfwSwapBuffers(window);</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    }</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    <span class="keyword">delete</span> <a class="code" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>;</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;    glfwDestroyWindow(window);</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;    glfwTerminate();</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;}</div>
 <div class="ttc" id="aapplication_8cpp_html_a0e2e740afd510cfe652a1836ffbad209"><div class="ttname"><a href="application_8cpp.html#a0e2e740afd510cfe652a1836ffbad209">window_width</a></div><div class="ttdeci">int window_width</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00170">application.cpp:170</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a0e5acbac3aa178a043875f440484e779"><div class="ttname"><a href="application_8cpp.html#a0e5acbac3aa178a043875f440484e779">axes_endpoints</a></div><div class="ttdeci">const std::vector&lt; vec4 &gt; axes_endpoints</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00024">application.cpp:24</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a286930f4e8ede059b83ff6eafa2ff718"><div class="ttname"><a href="application_8cpp.html#a286930f4e8ede059b83ff6eafa2ff718">key_callback</a></div><div class="ttdeci">void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00042">application.cpp:42</a></div></div>
@@ -515,6 +518,7 @@ $(document).ready(function(){initNavTree('application_8cpp_source.html',''); ini
 <div class="ttc" id="astruct_vertex_html_ae65376c47d0b21d703766f332f7bd49f"><div class="ttname"><a href="struct_vertex.html#ae65376c47d0b21d703766f332f7bd49f">Vertex::position</a></div><div class="ttdeci">vec4 position</div><div class="ttdef"><b>Definition:</b> <a href="core_8h_source.html#l00107">core.h:107</a></div></div>
 <div class="ttc" id="astructcolor_html"><div class="ttname"><a href="structcolor.html">color</a></div><div class="ttdoc">class that holds color with 8 bits per channel with 4 channels rgba.</div><div class="ttdef"><b>Definition:</b> <a href="core_8h_source.html#l00151">core.h:151</a></div></div>
 <div class="ttc" id="astructdir_light_html"><div class="ttname"><a href="structdir_light.html">dirLight</a></div><div class="ttdef"><b>Definition:</b> <a href="core_8h_source.html#l00327">core.h:327</a></div></div>
+<div class="ttc" id="astructdrawable_html_aa630d5857ad25d32c5bd50864b9546c3"><div class="ttname"><a href="structdrawable.html#aa630d5857ad25d32c5bd50864b9546c3">drawable::draw</a></div><div class="ttdeci">bool draw</div><div class="ttdef"><b>Definition:</b> <a href="drawable_8h_source.html#l00019">drawable.h:19</a></div></div>
 <div class="ttc" id="astructengine_html"><div class="ttname"><a href="structengine.html">engine</a></div><div class="ttdoc">backend for all rendering purposes</div><div class="ttdef"><b>Definition:</b> <a href="engine_8h_source.html#l00096">engine.h:96</a></div></div>
 <div class="ttc" id="astructengine_html_a167673374ef52813c65b9c2ee37f01d3"><div class="ttname"><a href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">engine::makeRequiredTriangles</a></div><div class="ttdeci">void makeRequiredTriangles(const std::vector&lt; Vertex &gt; &amp;vertices, const std::vector&lt; uint32_t &gt; &amp;indices, const mat4f &amp;modelmat)</div><div class="ttdoc">draw triangle only using lines (dont fill the triangle)</div><div class="ttdef"><b>Definition:</b> <a href="engine_8h_source.html#l00381">engine.h:381</a></div></div>
 <div class="ttc" id="astructengine_html_a2ad58255f5bdcb443a28e9d68a9d9e84"><div class="ttname"><a href="structengine.html#a2ad58255f5bdcb443a28e9d68a9d9e84">engine::cam</a></div><div class="ttdeci">camera * cam</div><div class="ttdoc">camera</div><div class="ttdef"><b>Definition:</b> <a href="engine_8h_source.html#l00318">engine.h:318</a></div></div>
