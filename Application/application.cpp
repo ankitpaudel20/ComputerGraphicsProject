@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
     auto textureBox = Model::loadModel_obj(path + "/box.obj", "texturebox");
     // auto football_real = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
     // auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
-    auto city = Model::loadModel_obj(path + "/city/city_debug.obj", "city");
+    auto city = Model::loadModel_obj(path + "/city/city_with_lamp_new.obj", "city");
     //auto football = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
     rootNode.children["city"] = city;
 
@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
     graphicsEngine->cullBackface = false;
     graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
-    graphicsEngine->ambientLightIntensity = 0.1;
+    graphicsEngine->ambientLightIntensity = 0;
 
     for (auto &mesh : city->meshes) {
         printf("meshname %s \n", mesh->name.c_str());
@@ -279,13 +279,16 @@ int main(int argc, char **argv) {
             for (auto &vertex : mesh->m_vertices) {
                 auto debugTranslate = trans::translate(-center);
                 vertex.position = debugTranslate * vec4(vertex.position, 1);
+                //debugTranslate = trans::scaling3d(50);
+                //vertex.position = debugTranslate * vec4(vertex.position, 1);
                 // vertex.position -= football_center;
                 // vertex.position.w = 1;
                 // vertex.position += center;
                 // vertex.position /= vertex.position.w;
                 // vertex.position.w = 1;
             }
-            graphicsEngine->pointLights.emplace_back(center, 2, mesh);
+            // mesh->matModel = trans::translate(center);
+            graphicsEngine->pointLights.emplace_back(center, 1, mesh);
         }
     }
 
@@ -339,21 +342,21 @@ int main(int argc, char **argv) {
         for (auto &mesh : lightmodel->meshes) {
             graphicsEngine->currentMesh = mesh;
             if (mesh->doLightCalculations && mesh->draw) {
-                graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
+                // graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
             }
         }
 
         for (auto &mesh : city->meshes) {
             graphicsEngine->currentMesh = mesh;
             if (mesh->doLightCalculations && mesh->draw) {
-                // if (mesh->name.find("lamppost_Cylinder.002") != std::string::npos)
-                graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, scale3d);
+                // if (mesh->name.find("lightCube") != std::string::npos)
+                graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, mesh->matModel);
             }
         }
 
         graphicsEngine->currentMesh = textureBox->meshes[0];
         if (textureBox->meshes[0]->doLightCalculations && textureBox->meshes[0]->draw) {
-            graphicsEngine->makeRequiredTriangles(textureBox->meshes[0]->m_vertices, textureBox->meshes[0]->m_indices, mat4f());
+            // graphicsEngine->makeRequiredTriangles(textureBox->meshes[0]->m_vertices, textureBox->meshes[0]->m_indices, mat4f());
         }
 
         for (auto &light : graphicsEngine->pointLights) {
