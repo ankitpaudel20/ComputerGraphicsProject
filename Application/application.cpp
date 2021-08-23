@@ -251,15 +251,15 @@ int main(int argc, char **argv) {
     auto lightmodelCenter = getCenterOfMass(lightmodel->meshes.back()->m_vertices.data(), lightmodel->meshes.back()->m_vertices.size());
 
     // auto colorCube = Model::loadModel_obj(path + "/color/testColored.obj", "color");
-    auto textureBox = Model::loadModel_obj(path + "/box.obj", "texturebox");
+    auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football_real = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
     // auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
     auto city = Model::loadModel_obj(path + "/city/city_with_lamp_new.obj", "city");
-    //auto football = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
-    rootNode.children["city"] = city;
+    // auto texturedSquare = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
+    // rootNode.children["city"] = city;
 
-    cam1.eye = vec3(-4.96364, 1.13003, -1.6216);
-    cam1.changeDir(vec3(-0.155934, -0.0765895, 0.984794));
+    cam1.eye = vec3(3.40189, 2.46183, -4.55371);
+    cam1.changeDir(vec3(-0.438673, -0.210734, 0.873589));
     graphicsEngine->nearPlane = 1;
     Material m;
     m.diffuseColor = color(255, 0, 0);
@@ -279,21 +279,13 @@ int main(int argc, char **argv) {
             for (auto &vertex : mesh->m_vertices) {
                 auto debugTranslate = trans::translate(-center);
                 vertex.position = debugTranslate * vec4(vertex.position, 1);
-                //debugTranslate = trans::scaling3d(50);
-                //vertex.position = debugTranslate * vec4(vertex.position, 1);
-                // vertex.position -= football_center;
-                // vertex.position.w = 1;
-                // vertex.position += center;
-                // vertex.position /= vertex.position.w;
-                // vertex.position.w = 1;
             }
             // mesh->matModel = trans::translate(center);
             graphicsEngine->pointLights.emplace_back(center, 1, mesh);
         }
     }
 
-    //graphicsEngine->pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3) ;
-    //auto lightModel = Model::loadModel_obj(path + "/sphere.obj", "light")->meshes;
+    // graphicsEngine->pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3, lightmodel->meshes.back());
     //for (auto &mesh : lightModel) {
     //    mesh->doLightCalculations = false;
     //}
@@ -331,20 +323,20 @@ int main(int argc, char **argv) {
         fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / deltatime));
         glfwSetWindowTitle(window, fpsString.c_str());
 
-        // std::cout << "camera Eye: " << cam1.eye << std::endl;
-        // std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        std::cout << "camera Eye: " << cam1.eye << std::endl;
+        std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
 
-        // printf("\033[F");
-        // printf("\033[F");
+        printf("\033[F");
+        printf("\033[F");
 
         graphicsEngine->clear();
 
-        for (auto &mesh : lightmodel->meshes) {
-            graphicsEngine->currentMesh = mesh;
-            if (mesh->doLightCalculations && mesh->draw) {
-                // graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
-            }
-        }
+        //for (auto &mesh : lightmodel->meshes) {
+        //    graphicsEngine->currentMesh = mesh;
+        //    if (mesh->doLightCalculations && mesh->draw) {
+        //        // graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, mat4f());
+        //    }
+        //}
 
         for (auto &mesh : city->meshes) {
             graphicsEngine->currentMesh = mesh;
@@ -354,10 +346,10 @@ int main(int argc, char **argv) {
             }
         }
 
-        graphicsEngine->currentMesh = textureBox->meshes[0];
-        if (textureBox->meshes[0]->doLightCalculations && textureBox->meshes[0]->draw) {
-            // graphicsEngine->makeRequiredTriangles(textureBox->meshes[0]->m_vertices, textureBox->meshes[0]->m_indices, mat4f());
-        }
+        //graphicsEngine->currentMesh = textureBox->meshes[0];
+        //if (textureBox->meshes[0]->doLightCalculations && textureBox->meshes[0]->draw) {
+        //    graphicsEngine->makeRequiredTriangles(textureBox->meshes[0]->m_vertices, textureBox->meshes[0]->m_indices, mat4f());
+        //}
 
         for (auto &light : graphicsEngine->pointLights) {
             // graphicsEngine->makeRequiredTriangles(textureBox->meshes[0]->m_vertices, textureBox->meshes[0]->m_indices, mat4f());

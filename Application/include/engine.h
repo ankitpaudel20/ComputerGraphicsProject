@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <limits>
 #include <functional>
+
 #include "material.h"
 #include "pointLight.h"
 #include "camera.h"
@@ -17,28 +18,27 @@ inline static int rounddouble(const double &in) {
     return in < 0 ? in - 0.5f : in + 0.5f;
 }
 
+class Vertex2;
 /**
  * @brief Framebuffer implementation for cpu
  */
 struct framebuffer {
-    bool *grid;
+    std::vector<std::tuple<Vertex2 *, Mesh *>> fragments;
     float *z;
     color *colorlayer;
-    bool *clearedgrid;
+
     float *clearedz;
     color *clearedcolorlayer;
     size_t x_size, y_size;
     int xmax, xmin, ymax, ymin;
     framebuffer(const size_t &x, const size_t &y) : x_size(x), y_size(y) {
-        grid = new bool[x_size * y_size];
+        fragments.reserve(x_size * y_size);
         colorlayer = new color[x_size * y_size];
         z = new float[x_size * y_size];
 
-        clearedgrid = new bool[x_size * y_size];
         clearedcolorlayer = new color[x_size * y_size];
         clearedz = new float[x_size * y_size];
         for (uint32_t x = 0; x < x_size * y_size; ++x) {
-            clearedgrid[x] = false;
             clearedcolorlayer[x] = color(0, 0, 0, 255);
             clearedz[x] = -std::numeric_limits<float>::max();
         }
@@ -52,13 +52,11 @@ struct framebuffer {
     }
 
     ~framebuffer() {
-        delete[] grid;
         delete[] colorlayer;
         delete[] z;
     }
 
     void clear() {
-        memcpy(grid, clearedgrid, x_size * y_size * sizeof(bool));
         memcpy(colorlayer, clearedcolorlayer, x_size * y_size * sizeof(color));
         memcpy(z, clearedz, x_size * y_size * sizeof(float));
     }
@@ -524,11 +522,8 @@ struct engine {
     void putpixel_adjusted(int x, int y, float z, const color &col = color(255)) {
         assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
         const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
-#ifdef MULTITHREADED
-        const std::lock_guard<std::mutex> lock(fboCPUMutex);
-#endif
+
         fboCPU->colorlayer[indx] = col;
-        fboCPU->grid[indx] = true;
         fboCPU->z[indx] = z;
     }
 
@@ -625,122 +620,117 @@ struct engine {
     }
 
     /**
- * @brief rasterize BottomFlatTriangle: p0/first_argument is the top unique point
+ * @brief rasterize BottomFlatTriangle: v2 is top unique and v1.x > v0.x
  */
-    void fillBottomFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
-        double invslope1 = ((double)p0.x - p1.x) / ((double)p0.y - p1.y);
-        double invslope2 = ((double)p0.x - p2.x) / ((double)p0.y - p2.y);
+    void fillBottomFlatTriangle(const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
+        assert(fabs(v1.v.position.y - v0.v.position.y) < 0.01);
+        assert(v1.v.position.x >= v0.v.position.x);
+        // calulcate slopes in screen space
+        float m0 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
+        float m1 = (v2.v.position.x - v1.v.position.x) / (v2.v.position.y - v1.v.position.y);
 
-        double currentx1 = p1.x - invslope1, currentx2 = p2.x - invslope2;
-        Vertex2 vx1 = v1, vx2 = v2, vx3 = v0;
+        // calculate start and end scanlines
+        const int yStart = (int)ceil(v0.v.position.y - 0.5f);
+        const int yEnd = (int)ceil(v2.v.position.y - 0.5f); // the scanline AFTER the last line drawn
 
-        Vertex2 diff1 = v0 - v1, diff2 = v0 - v2, diff3;
-        double unit1 = 1 / ((double)p0.y - p1.y), unit2 = 1 / (double)((double)p0.y - p2.y), unit3 = 0;
-        double u1 = -unit1, u2 = -unit2, u3 = 0;
+        const float unit0 = 1.f / (v2.v.position.y - v0.v.position.y), unit1 = 1.f / (v2.v.position.y - v1.v.position.y);
+        float u0 = 0, u1 = 0;
 
-        for (int scanlineY = p1.y; scanlineY <= p0.y && scanlineY < fboCPU->ymax; ++scanlineY) {
-            currentx1 += invslope1;
-            u1 += unit1;
-            vx1 = v1 + diff1 * u1;
+        Vertex2 diff0 = v2 - v0, diff1 = v2 - v1, diff2;
+        Vertex2 vx0, vx1, vx2;
 
-            currentx2 += invslope2;
-            u2 += unit2;
-            vx2 = v2 + diff2 * u2;
-
-            if (scanlineY <= fboCPU->ymin) {
+        for (int y = yStart; y < yEnd && y < fboCPU->ymax; ++y, u0 += unit0, u1 += unit1) {
+            if (y <= fboCPU->ymin) {
                 continue;
             }
+            // assert(u0 <= 1 && u1 <= 1);
+            // caluclate start and end points (x-coords)
+            // add 0.5 to y value because we're calculating based on pixel CENTERS
+            const float px0 = m0 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+            const float px1 = m1 * (float(y) + 0.5f - v1.v.position.y) + v1.v.position.x;
 
-            unit3 = (currentx2 - currentx1) < epsilon ? 0 : 1 / (currentx2 - currentx1);
-            u3 = 0;
-            diff3 = vx2 - vx1;
+            vx0 = v0 + diff0 * u0;
+            vx1 = v1 + diff1 * u1;
 
-            for (int i = currentx1; i <= rounddouble(currentx2) && i < fboCPU->xmax; ++i, u3 += unit3) {
-                if (i <= fboCPU->xmin) {
+            // calculate start and end pixels
+            const int xStart = (int)ceil(px0 - 0.5f);
+            const int xEnd = (int)ceil(px1 - 0.5f); // the pixel AFTER the last pixel drawn
+
+            const float unit2 = 1.f / (xEnd - xStart);
+            float u2 = 0;
+            diff2 = vx1 - vx0;
+
+            for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
+                if (x <= fboCPU->xmin) {
                     continue;
                 }
-
-                float z = 1 / (vx1.v.position.z + (diff3.v.position.z) * u3);
-                auto gotz = getpixelZ_adjusted(i, scanlineY);
+                float z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
+#ifdef MULTITHREADED
+                const std::lock_guard<std::mutex> lock(fboCPUMutex);
+#endif
+                auto gotz = getpixelZ_adjusted(x, y);
                 if (gotz < z) {
-                    vx3 = vx1 + diff3 * u3;
-
-                    if (mesh) {
-                        putpixel_adjusted(i, scanlineY, z, getcolor(vx3, mesh));
-                    } else {
-                        putpixel_adjusted(i, scanlineY, z, color(255, 0, 0));
-                    }
+                    vx2 = vx0 + diff2 * u2;
+                    putpixel_adjusted(x, y, z, getcolor(vx2, mesh));
                 }
             }
         }
     }
 
     /**
- * @brief rasterize TopFlatTriangle: p2/last_point is the bottom unique point
+ * @brief rasterize TopFlatTriangle: v0 is bottom unique and v2.x > v1.x
  */
-    void fillTopFlatTriangle(const vec2_T<int> &p0, const vec2_T<int> &p1, const vec2_T<int> &p2, const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
-        const double invslope1 = ((double)p2.x - p1.x) / ((double)p2.y - p1.y);
-        const double invslope2 = ((double)p2.x - p0.x) / ((double)p2.y - p0.y);
+    void fillTopFlatTriangle(const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
+        assert(fabs(v2.v.position.y - v1.v.position.y) < 0.01);
+        assert(v2.v.position.x >= v1.v.position.x);
+        // calulcate slopes in screen space
+        float m0 = (v1.v.position.x - v0.v.position.x) / (v1.v.position.y - v0.v.position.y);
+        float m1 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
 
-        double currentx1 = p1.x + invslope1, currentx2 = p0.x + invslope2;
-        Vertex2 vx1 = v1, vx2 = v0, vx3 = v2;
+        // calculate start and end scanlines
+        const int yStart = (int)ceil(v0.v.position.y - 0.5f);
+        const int yEnd = (int)ceil(v2.v.position.y - 0.5f); // the scanline AFTER the last line drawn
 
-        double unit1 = 1 / ((double)p1.y - p2.y), unit2 = 1 / ((double)p0.y - p2.y), unit3 = 0;
-        double u1 = -unit1, u2 = -unit2, u3 = 0;
-        Vertex2 diff1 = v2 - v1, diff2 = v2 - v0, diff3;
+        const float unit0 = 1.f / (v1.v.position.y - v0.v.position.y), unit1 = 1.f / (v2.v.position.y - v0.v.position.y);
+        float u0 = 0, u1 = 0;
 
-        for (int scanlineY = p0.y; scanlineY >= p2.y && scanlineY > fboCPU->ymin; --scanlineY) {
-            currentx1 = currentx1 - invslope1;
-            u1 += unit1;
-            vx1 = v1 + diff1 * u1;
+        Vertex2 diff0 = v1 - v0, diff1 = v2 - v0, diff2;
+        Vertex2 vx0, vx1, vx2;
 
-            currentx2 = currentx2 - invslope2;
-            u2 += unit2;
-            vx2 = v0 + diff2 * u2;
-
-            if (scanlineY >= fboCPU->ymax) {
+        for (int y = yStart; y < yEnd && y < fboCPU->ymax; y++, u0 += unit0, u1 += unit1) {
+            if (y <= fboCPU->ymin) {
                 continue;
             }
+            // caluclate start and end points
+            // add 0.5 to y value because we're calculating based on pixel CENTERS
+            const float px0 = m0 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+            const float px1 = m1 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
 
-            u3 = 0;
+            vx0 = v0 + diff0 * u0;
+            vx1 = v0 + diff1 * u1;
 
-            unit3 = (currentx2 - currentx1) < epsilon ? 0 : 1 / (currentx2 - currentx1);
-            diff3 = vx2 - vx1;
+            // calculate start and end pixels
+            const int xStart = (int)ceil(px0 - 0.5f);
+            const int xEnd = (int)ceil(px1 - 0.5f); // the pixel AFTER the last pixel drawn
 
-            for (int i = currentx1; i <= round(currentx2); ++i, u3 += unit3) {
-                if (i <= fboCPU->xmin) {
+            const float unit2 = 1.f / (xEnd - xStart);
+            float u2 = 0;
+            diff2 = vx1 - vx0;
+
+            for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
+                if (x <= fboCPU->xmin) {
                     continue;
-                } else if (scanlineY >= fboCPU->xmax) {
-                    break;
                 }
-                const float z = 1 / (vx1.v.position.z + (diff3.v.position.z) * u3);
-                const auto gotz = getpixelZ_adjusted(i, scanlineY);
+                float z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
+#ifdef MULTITHREADED
+                const std::lock_guard<std::mutex> lock(fboCPUMutex);
+#endif
+                const auto gotz = getpixelZ_adjusted(x, y);
                 if (gotz < z) {
-                    vx3 = vx1 + diff3 * u3;
-                    if (mesh) {
-                        putpixel_adjusted(i, scanlineY, z, getcolor(vx3, mesh));
-                    } else {
-                        putpixel_adjusted(i, scanlineY, z, color(255, 255, 255));
-                    }
+                    vx2 = vx0 + diff2 * u2;
+                    putpixel_adjusted(x, y, z, getcolor(vx2, mesh));
                 }
             }
-        }
-    }
-
-    /**
- * @brief helper function to sort 3 items
- */
-    template <class T>
-    void sort3Values(T &item0, T &item1, T &item2, std::function<bool(const T &, const T &)> function) {
-        // Insert item1
-        if (function(item1, item0))
-            std::swap(item0, item1);
-
-        // Insert item2
-        if (function(item2, item1)) {
-            std::swap(item1, item2);
-            if (function(item1, item0))
-                std::swap(item1, item0);
         }
     }
 
@@ -753,55 +743,51 @@ struct engine {
         pool.parallelize_loop(0, triangles.size(), [&](const unsigned int start, const unsigned int end) {
             for (unsigned int i = start; i < end; i++) {
                 auto &tris = triangles[i];
-                sort3Values<Vertex2>(std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
-                //std::sort(std::get<0>(tris).begin(), std::get<0>(tris).end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+                auto &v0 = std::get<0>(tris)[0];
+                auto &v1 = std::get<0>(tris)[1];
+                auto &v2 = std::get<0>(tris)[2];
+                const auto &mesh = std::get<1>(tris);
 
-                vec2_T<int> points[3];
-                points[0] = vec2_T<int>(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y));
-                points[1] = vec2_T<int>(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y));
-                points[2] = vec2_T<int>(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y));
+                //sorting vertices by y
+                if (v1.v.position.y < v0.v.position.y) {
+                    std::swap(v0, v1);
+                }
+                if (v2.v.position.y < v1.v.position.y) {
+                    std::swap(v1, v2);
+                }
+                if (v1.v.position.y < v0.v.position.y) {
+                    std::swap(v0, v1);
+                }
 
-                if (points[0].y == points[1].y) // natural flat top
-                {
-                    //sorting top vertices by x
-                    if (points[1].x > points[0].x) {
-                        std::swap(std::get<0>(tris)[0], std::get<0>(tris)[1]);
-                        std::swap(points[0], points[1]);
-                    }
-
-                    fillTopFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
-                    continue;
-                } else if (points[1].y == points[2].y) // natural flat bottom
+                if (v0.v.position.y == v1.v.position.y) // natural flat bottom
                 {
                     // sorting bottom vertices by x
-                    if (points[2].x < points[1].x) {
-                        std::swap(std::get<0>(tris)[1], std::get<0>(tris)[2]);
-                        std::swap(points[1], points[2]);
+                    if (v1.v.position.x < v0.v.position.x) {
+                        std::swap(v0, v1);
                     }
-
-                    fillBottomFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
-                    continue;
+                    fillBottomFlatTriangle(v0, v1, v2, mesh);
+                } else if (v1.v.position.y == v2.v.position.y) // natural flat top
+                {
+                    // sorting top vertices by x
+                    if (v2.v.position.x < v1.v.position.x) {
+                        std::swap(v1, v2);
+                    }
+                    fillTopFlatTriangle(v0, v1, v2, mesh);
                 } else // general triangle
                 {
-                    // find splitting vertex interpolant
-                    const float alphaSplit = ((float)points[1].y - points[0].y) / ((float)points[2].y - points[0].y);
+                    assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
+                    // find splitting vertex
+                    const float alphaSplit = (v1.v.position.y - v0.v.position.y) / (v2.v.position.y - v0.v.position.y);
+                    const auto vi = v0 + (v2 - v0) * alphaSplit;
 
-                    const auto diff = std::get<0>(tris)[2] - std::get<0>(tris)[0];
-                    //checkTexcoords(diff.v.texCoord);
-                    const auto vi = std::get<0>(tris)[0] + diff * alphaSplit;
-
-                    //checkTexcoords(vi.v.texCoord);
-                    auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
-                    pi.y = points[1].y;
-
-                    if (points[1].x < pi.x) // major right
+                    if (v1.v.position.x < vi.v.position.x) // major left
                     {
-                        fillBottomFlatTriangle(points[0], points[1], pi, std::get<0>(tris)[0], std::get<0>(tris)[1], vi, std::get<1>(tris));
-                        fillTopFlatTriangle(pi, points[1], points[2], vi, std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
-                    } else // major left
+                        fillTopFlatTriangle(v0, v1, vi, mesh);
+                        fillBottomFlatTriangle(v1, vi, v2, mesh);
+                    } else // major right
                     {
-                        fillBottomFlatTriangle(points[0], pi, points[1], std::get<0>(tris)[0], vi, std::get<0>(tris)[1], std::get<1>(tris));
-                        fillTopFlatTriangle(points[1], pi, points[2], std::get<0>(tris)[1], vi, std::get<0>(tris)[2], std::get<1>(tris));
+                        fillTopFlatTriangle(v0, vi, v1, mesh);
+                        fillBottomFlatTriangle(vi, v1, v2, mesh);
                     }
                 }
             }
@@ -809,56 +795,51 @@ struct engine {
 
 #else
         for (auto &tris : triangles) {
+            auto &v0 = std::get<0>(tris)[0];
+            auto &v1 = std::get<0>(tris)[1];
+            auto &v2 = std::get<0>(tris)[2];
+            const auto &mesh = std::get<1>(tris);
 
-            sort3Values<Vertex2>(std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
-            //std::sort(std::get<0>(tris).begin(), std::get<0>(tris).end(), [](const Vertex2 &v1, const Vertex2 &v2) { return v1.v.position.y > v2.v.position.y; });
+            //sorting vertices by y
+            if (v1.v.position.y < v0.v.position.y) {
+                std::swap(v0, v1);
+            }
+            if (v2.v.position.y < v1.v.position.y) {
+                std::swap(v1, v2);
+            }
+            if (v1.v.position.y < v0.v.position.y) {
+                std::swap(v0, v1);
+            }
 
-            vec2_T<int> points[3];
-            points[0] = vec2_T<int>(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y));
-            points[1] = vec2_T<int>(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y));
-            points[2] = vec2_T<int>(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y));
-
-            if (points[0].y == points[1].y) // natural flat top
-            {
-                //sorting top vertices by x
-                if (points[1].x > points[0].x) {
-                    std::swap(std::get<0>(tris)[0], std::get<0>(tris)[1]);
-                    std::swap(points[0], points[1]);
-                }
-
-                fillTopFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
-                continue;
-            } else if (points[1].y == points[2].y) // natural flat bottom
+            if (v0.v.position.y == v1.v.position.y) // natural flat bottom
             {
                 // sorting bottom vertices by x
-                if (points[2].x < points[1].x) {
-                    std::swap(std::get<0>(tris)[1], std::get<0>(tris)[2]);
-                    std::swap(points[1], points[2]);
+                if (v1.v.position.x < v0.v.position.x) {
+                    std::swap(v0, v1);
                 }
-
-                fillBottomFlatTriangle(points[0], points[1], points[2], std::get<0>(tris)[0], std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
-                continue;
+                fillBottomFlatTriangle(v0, v1, v2, mesh);
+            } else if (v1.v.position.y == v2.v.position.y) // natural flat top
+            {
+                // sorting top vertices by x
+                if (v2.v.position.x < v1.v.position.x) {
+                    std::swap(v1, v2);
+                }
+                fillTopFlatTriangle(v0, v1, v2, mesh);
             } else // general triangle
             {
-                // find splitting vertex interpolant
-                const float alphaSplit = ((float)points[1].y - points[0].y) / ((float)points[2].y - points[0].y);
+                assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
+                // find splitting vertex
+                const float alphaSplit = (v1.v.position.y - v0.v.position.y) / (v2.v.position.y - v0.v.position.y);
+                const auto vi = v0 + (v2 - v0) * alphaSplit;
 
-                const auto diff = std::get<0>(tris)[2] - std::get<0>(tris)[0];
-                //checkTexcoords(diff.v.texCoord);
-                const auto vi = std::get<0>(tris)[0] + diff * alphaSplit;
-
-                //checkTexcoords(vi.v.texCoord);
-                auto pi = points[0] + (points[2] - points[0]) * alphaSplit;
-                pi.y = points[1].y;
-
-                if (points[1].x < pi.x) // major right
+                if (v1.v.position.x < vi.v.position.x) // major left
                 {
-                    fillBottomFlatTriangle(points[0], points[1], pi, std::get<0>(tris)[0], std::get<0>(tris)[1], vi, std::get<1>(tris));
-                    fillTopFlatTriangle(pi, points[1], points[2], vi, std::get<0>(tris)[1], std::get<0>(tris)[2], std::get<1>(tris));
-                } else // major left
+                    fillTopFlatTriangle(v0, v1, vi, mesh);
+                    fillBottomFlatTriangle(v1, vi, v2, mesh);
+                } else // major right
                 {
-                    fillBottomFlatTriangle(points[0], pi, points[1], std::get<0>(tris)[0], vi, std::get<0>(tris)[1], std::get<1>(tris));
-                    fillTopFlatTriangle(points[1], pi, points[2], std::get<0>(tris)[1], vi, std::get<0>(tris)[2], std::get<1>(tris));
+                    fillTopFlatTriangle(v0, vi, v1, mesh);
+                    fillBottomFlatTriangle(vi, v1, v2, mesh);
                 }
             }
         }
