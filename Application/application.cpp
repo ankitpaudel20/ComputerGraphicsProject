@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <vector>
 #include <chrono>
@@ -197,6 +198,13 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
         printf("clicked color: (%d,%d,%d)\n", col.r(), col.g(), col.b());
     }
 }
+float gameTime = 12.f;
+
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+    auto eng = (engine *)glfwGetWindowUserPointer(window);
+    gameTime += yoffset;
+    // eng->setTime(gameTime >= 24 ? 0 : gameTime);
+}
 
 vec3 getCenterOfMass(const Vertex *vertices, const unsigned int size) {
     vec3 center(0);
@@ -204,6 +212,11 @@ vec3 getCenterOfMass(const Vertex *vertices, const unsigned int size) {
         center += vertices[i].position;
     }
     return center / size;
+}
+
+float getAmbientIntensity(float time) {
+    assert(time >= 0.f && time < 24.f);
+    return (1 - sinf(M_PI / 12 * (time + 6.f))) / 2.f;
 }
 
 int main(int argc, char **argv) {
@@ -265,22 +278,17 @@ int main(int argc, char **argv) {
     m.diffuseColor = color(255, 0, 0);
     graphicsEngine->cullBackface = false;
     graphicsEngine->cam = &cam1;
-    graphicsEngine->dirlight = dirLight(vec3(-1, -1, -1).normalize(), 2, color(255));
+    graphicsEngine->dirlight = dirLight(-vec3(std::sin(60), std::cos(60), 0).normalize(), 1, color(255));
     graphicsEngine->ambientLightIntensity = 0;
 
     for (auto &mesh : city->meshes) {
         printf("meshname %s \n", mesh->name.c_str());
         if (mesh->name.find("lightCube") != std::string::npos) {
-            // mesh->draw = false;
             const vec3 center = getCenterOfMass(mesh->m_vertices.data(), mesh->m_vertices.size());
-            // const vec3 football_center = getCenterOfMass(textureBox->meshes[0]->m_vertices.data(), textureBox->meshes[0]->m_vertices.size());
-            // printf("debug Translate matrix: \n");
-            // debugTranslate.print();
             for (auto &vertex : mesh->m_vertices) {
                 auto debugTranslate = trans::translate(-center);
                 vertex.position = debugTranslate * vec4(vertex.position, 1);
             }
-            // mesh->matModel = trans::translate(center);
             graphicsEngine->pointLights.emplace_back(center, 1, mesh);
         }
     }

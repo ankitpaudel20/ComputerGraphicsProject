@@ -307,6 +307,7 @@ struct engine {
  * @brief lights.
  */
     float ambientLightIntensity = 0.1f;
+    color ambientLightColor = color(255);
     dirLight dirlight;
     std::vector<pointLight> pointLights;
 
@@ -346,13 +347,13 @@ struct engine {
                 result += CalcPointLight(light, v.v.normal / v.v.position.z, fragpos, viewDir, col, int_by_at, &mesh->material);
             }
         }
-//        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col, &mesh->material);
+        result += CalcDirLight(v.v.normal / v.v.position.z, viewDir, col, &mesh->material);
 #else
         result += col * (v.extraInfoAboutVertex.x / v.v.position.z);
         result += col * (v.extraInfoAboutVertex.y / v.v.position.z);
         result += color(v.extraInfoAboutVertex.z / v.v.position.z);
 #endif
-        result += col * ambientLightIntensity;
+        result += col * (ambientLightColor * ambientLightIntensity);
 
         return result;
     }
@@ -489,7 +490,7 @@ struct engine {
     /**
  * @brief function to calculate effect of directional light in a fragment with color col
  */
-    inline color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col, const Material *material) const {
+    color CalcDirLight(const vec3 &normal, const vec3 &viewdir, const color &col, const Material *material) const {
         auto diff = max(vec3::dot(normal, -dirlight.direction), 0.0f);
         auto spec = pow(max(vec3::dot(viewdir, reflect(dirlight.direction, normal)), 0.0), material->shininess);
         color diffuse = col * dirlight.col * dirlight.intensity * material->DiffuseStrength * diff;
@@ -643,9 +644,6 @@ struct engine {
             if (y <= fboCPU->ymin) {
                 continue;
             }
-            // assert(u0 <= 1 && u1 <= 1);
-            // caluclate start and end points (x-coords)
-            // add 0.5 to y value because we're calculating based on pixel CENTERS
             const float px0 = m0 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
             const float px1 = m1 * (float(y) + 0.5f - v1.v.position.y) + v1.v.position.x;
 
@@ -701,8 +699,6 @@ struct engine {
             if (y <= fboCPU->ymin) {
                 continue;
             }
-            // caluclate start and end points
-            // add 0.5 to y value because we're calculating based on pixel CENTERS
             const float px0 = m0 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
             const float px1 = m1 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
 
