@@ -26,7 +26,7 @@ struct vec2_T {
     T x, y;
 
     vec2_T() { x = y = 0; }
-    vec2_T(T a) : x(a), y(a) {}
+    explicit vec2_T(T a) : x(a), y(a) {}
     vec2_T(T a, T b) : x(a), y(b) {}
     vec2_T(const glm::vec2 &in) : x(in.x), y(in.y) {}
     vec2_T(glm::vec2 &in) : x(in.x), y(in.y) {}
@@ -95,16 +95,26 @@ struct vec2_T {
         return *this;
     }
 
-    vec2_T<T> operator*=(const vec2_T<T> &in) {
-        x *= in.x;
-        y *= in.y;
-        return *this;
+    // void operator*=(const vec2_T<T> &in) {
+    //     x *= in.x;
+    //     y *= in.y;
+    // }
+
+    template <class U>
+    void operator*=(const U &in) {
+        x *= in;
+        y *= in;
     }
 
-    vec2_T<T> operator/=(const vec2_T<T> &in) {
-        x /= in.x;
-        y /= in.y;
-        return *this;
+    // void operator/=(const vec2_T<T> &in) {
+    //     x /= in.x;
+    //     y /= in.y;
+    // }
+
+    template <class U>
+    void operator/=(const U &in) {
+        x /= in;
+        y /= in;
     }
 
     inline bool operator==(const vec2_T<T> &in) const {
@@ -151,7 +161,7 @@ struct vec3_T {
     T x, y, z;
 
     vec3_T() { x = y = z = 0; }
-    vec3_T(T a) : x(a), y(a), z(a) {}
+    explicit vec3_T(T a) : x(a), y(a), z(a) {}
     vec3_T(T a, T b, T c) : x(a), y(b), z(c) {}
     vec3_T(const glm::vec3 &in) : x(in.x), y(in.y), z(in.z) {}
     vec3_T(const vec2_T<T> &in) : x(in.x), y(in.y), z(1) {}
@@ -224,12 +234,12 @@ struct vec3_T {
         return *this;
     }
 
-    vec3_T<T> operator*=(const vec3_T<T> &in) {
-        x *= in.x;
-        y *= in.y;
-        z *= in.z;
-        return *this;
-    }
+    // vec3_T<T> operator*=(const vec3_T<T> &in) {
+    //     x *= in.x;
+    //     y *= in.y;
+    //     z *= in.z;
+    //     return *this;
+    // }
 
     template <class U>
     void operator*=(const U &a) {
@@ -238,11 +248,17 @@ struct vec3_T {
         z *= a;
     }
 
-    vec3_T<T> operator/=(const vec3_T<T> &in) {
-        x /= in.x;
-        y /= in.y;
-        z /= in.z;
-        return *this;
+    // void operator/=(const vec3_T<T> &in) {
+    //     x /= in.x;
+    //     y /= in.y;
+    //     z /= in.z;
+    // }
+
+    template <class U>
+    void operator/=(const U &in) {
+        x /= in;
+        y /= in;
+        z /= in;
     }
 
     inline bool operator==(const vec3_T<T> &in) const {
@@ -297,7 +313,7 @@ struct vec4_T {
     T x, y, z, w;
 
     vec4_T() { x = y = z = w = 0; }
-    vec4_T(T a) : x(a), y(a), z(a), w(a) {}
+    explicit vec4_T(T a) : x(a), y(a), z(a), w(a) {}
     vec4_T(T a, T b, T c, T d) : x(a), y(b), z(c), w(d) {}
     vec4_T(const glm::vec4 &in) : x(in.x), y(in.y), z(in.z), w(in.w) {}
     vec4_T(glm::vec4 &in) : x(in.x), y(in.y), z(in.z), w(in.w) {}
@@ -343,37 +359,49 @@ struct vec4_T {
         return vec4_T<T>(-x, -y, -z, -w);
     }
 
-    vec4_T<T> operator+=(const vec4_T<T> &in) {
+    void operator+=(const vec4_T<T> &in) {
         x += in.x;
         y += in.y;
         z += in.z;
         w += in.w;
-        return *this;
     }
 
-    vec4_T<T> operator-=(const vec4_T<T> &in) {
+    void operator-=(const vec4_T<T> &in) {
         x -= in.x;
         y -= in.y;
         z -= in.z;
         w -= in.w;
-        return *this;
     }
 
-    vec4_T<T> operator*=(const vec4_T<T> &in) {
-        x *= in.x;
-        y *= in.y;
-        z *= in.z;
-        w *= in.w;
-        return *this;
+    // void operator*=(const vec4_T<T> &in) {
+    //     x *= in.x;
+    //     y *= in.y;
+    //     z *= in.z;
+    //     w *= in.w;
+    // }
+
+    template <class U>
+    void operator*=(const U &in) {
+        x *= in;
+        y *= in;
+        z *= in;
+        w *= in;
     }
 
-    vec4_T<T> operator/=(const vec4_T<T> &in) {
-        x /= in.x;
-        y /= in.y;
-        z /= in.z;
-        w /= in.w;
-        return *this;
+    template <class U>
+    void operator/=(const U &in) {
+        x /= in;
+        y /= in;
+        z /= in;
+        w /= in;
     }
+
+    // void operator/=(const vec4_T<T> &in) {
+    //     x /= in.x;
+    //     y /= in.y;
+    //     z /= in.z;
+    //     w /= in.w;
+    // }
 
     inline bool operator==(const vec4_T<T> &in) const {
         return x == in.x && y == in.y && z == in.z && w == in.w;
@@ -726,3 +754,14 @@ typedef mat<int, 4, 4> mat4i;
 typedef mat<int, 3, 3> mat3i;
 typedef mat<unsigned int, 4, 4> mat4u;
 typedef mat<unsigned int, 3, 3> mat3u;
+
+static void printVec(const vec4 &in) {
+    printf("(%f, %f, %f, %f)\n", in.x, in.y, in.z, in.w);
+}
+static void printVec(const vec3 &in) {
+    printf("(%f, %f, %f)\n", in.x, in.y, in.z);
+}
+
+static void printVec(const vec2 &in) {
+    printf("(%f, %f)\n", in.x, in.y);
+}
