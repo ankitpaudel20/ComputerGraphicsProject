@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['assert_563',['ASSERT',['../core_8h.html#aca68c0d4ac8df0838e209fb5300f7be3',1,'core.h']]]
+  ['_5fuse_5fmath_5fdefines_0',['_USE_MATH_DEFINES',['../application_8cpp.html#a525335710b53cb064ca56b936120431e',1,'application.cpp']]]
 ];

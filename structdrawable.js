@@ -4,7 +4,7 @@ var structdrawable =
     [ "drawable", "structdrawable.html#afb64e541ec53ff2264b0ddcc2b0a1644", null ],
     [ "delpos", "structdrawable.html#a512492c36684f17b9178c74529fdb967", null ],
     [ "getTranslation", "structdrawable.html#a50f3d7de135c24330ee2992f8989c92f", null ],
-    [ "refreshModel", "structdrawable.html#a49247624a69a4be225d7ae8d914ccd0e", null ],
+    [ "refreshModel", "structdrawable.html#a936c4c0f09a0dc49766bf3e91285cf22", null ],
     [ "setpos", "structdrawable.html#ad1c2cbc167d32b799881b153b06fd33c", null ],
     [ "setRotation", "structdrawable.html#ad909cb2d5d1cee60eab5b797ce4981f5", null ],
     [ "setScale", "structdrawable.html#a008cb69617b807261acfdf613f914de0", null ],

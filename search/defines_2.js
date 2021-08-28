@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['extra_5fvertex_5finfo_565',['EXTRA_VERTEX_INFO',['../engine_8h.html#a556c604d47dbd45fbef21a6438a1a646',1,'engine.h']]]
+  ['debug_5fbreak_0',['DEBUG_BREAK',['../core_8h.html#a3d93354890ac62b45842cac3737212c4',1,'core.h']]]
 ];

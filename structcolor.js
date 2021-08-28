@@ -4,11 +4,11 @@ var structcolor =
     [ "color", "structcolor.html#a36c95139656d741aec1aae81adf75494", null ],
     [ "color", "structcolor.html#aa766bc5d8db76a919471cf3605464a22", null ],
     [ "color", "structcolor.html#af65c179585192c3215e750580c4fe41f", null ],
-    [ "a", "structcolor.html#a72476d5e735f9025c5c034e6a51f91c1", null ],
+    [ "a", "structcolor.html#a3ec22ce173aab1e69061ed1eb132f0ec", null ],
     [ "a", "structcolor.html#a2eb6fc2d04e314f23449f42b56c46d5d", null ],
-    [ "b", "structcolor.html#aa0191ba01e7a471a4ce5f8d467beae70", null ],
+    [ "b", "structcolor.html#a43650c90f5b8c709de3f2090b9825a8b", null ],
     [ "b", "structcolor.html#a0864f3c3d8ee50a5cc9267cfa36555cf", null ],
-    [ "g", "structcolor.html#afc7cb9b9134448b6cda233d2af08f090", null ],
+    [ "g", "structcolor.html#a1586dd7132312ba9bd1d1c5b7fb0cae4", null ],
     [ "g", "structcolor.html#a8b2f55cc644814f951f7bd5f3916a208", null ],
     [ "getcolor", "structcolor.html#ae31acfcb7b7e4269c76c8a2bf87c77f8", null ],
     [ "getcolorVec3", "structcolor.html#a98077e33ea569a670ec8fd3221efaef0", null ],
@@ -21,7 +21,7 @@ var structcolor =
     [ "operator+", "structcolor.html#aa94a5cacef06c0d8b11e4615e2d7c3ec", null ],
     [ "operator+=", "structcolor.html#a6ac1d612228f95f91191e5091c27a228", null ],
     [ "operator==", "structcolor.html#a2d2ca90f235b28bf885cc8d72ecc51cd", null ],
-    [ "r", "structcolor.html#a9114f814d5933c30313e4c1c388c7a47", null ],
+    [ "r", "structcolor.html#a4b27d488eacc433b371a30e51fd4c690", null ],
     [ "r", "structcolor.html#a70a35e9facf3932cd5930e0a10685d08", null ],
     [ "col", "structcolor.html#acda5fd88ec6ea2f9c74889c7150de895", null ]
 ];
