@@ -73,7 +73,7 @@ static mat4f rotation(float angle, const vec3 &v) {
     return Rotate;
 }
 
-static mat3f rotation(const float &angle, const vec2 &about = 0) {
+static mat3f rotation(const float &angle, const vec2 &about = vec2(0)) {
     mat3f rot_matrix;
     rot_matrix(0, 0) = std::cos(angle);
     rot_matrix(0, 1) = -std::sin(angle);
@@ -84,7 +84,7 @@ static mat3f rotation(const float &angle, const vec2 &about = 0) {
     return translate(about) * rot_matrix * translate(-about);
 }
 
-static mat3f scaling(const vec2 &value, const vec2 &about = 0, const float &angle_offset = 0) {
+static mat3f scaling(const vec2 &value, const vec2 &about = vec2(0), const float &angle_offset = 0) {
     mat3f scale;
     scale(0, 0) = value.x;
     scale(1, 1) = value.y;
@@ -106,7 +106,7 @@ static mat4f scaling3d(const vec3 &value) {
     return scale;
 }
 
-static mat3f shearing(const vec2 &values, const vec2 &ref = 0) {
+static mat3f shearing(const vec2 &values, const vec2 &ref = vec2(0)) {
     mat3f shear;
     shear(0, 1) = values.x;
     shear(1, 0) = values.y;
@@ -153,16 +153,14 @@ static mat4f persp(const float &w, const float &h, const float &fovx, float fovy
                   0, 0, 1, 0});
 }
 
-static mat4f my_PerspectiveFOV(float fov, float aspect, float n, float f) {
-    float D2R = 3.14159265 / 180.0;
-    float yScale = 1.0 / tan(D2R * fov / 2);
-    float xScale = yScale / aspect;
-    auto nmf = n - f;
-    float a = 0;
-    mat4f ret({xScale, 0, 0, 0,
-               0, yScale, 0, 0,
-               0, 0, (f + n) / nmf, -1,
-               0, 0, 2 * f * n / nmf, 0});
+static mat4f perspFOV(float fov, float aspect, float n, float f) {
+    const float D2R = 3.14159265 / 180.0;
+    const auto tan_fov_by2_inv = 1 / tanf(fov * D2R / 2);
+    const auto fmn = f - n;
+    mat4f ret({tan_fov_by2_inv / aspect, 0, 0, 0,
+               0, tan_fov_by2_inv, 0, 0,
+               0, 0, -f / fmn, f * n / fmn,
+               0, 0, -1, 0});
     return ret;
 }
 

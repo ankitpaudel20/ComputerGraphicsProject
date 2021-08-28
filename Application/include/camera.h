@@ -10,7 +10,7 @@ class camera {
     float pitchAngle;
 
     vec3 eye;
-    float nearPoint{0.01}, farPoint{1000.0};
+    float nearPoint{-1}, farPoint{-10};
     float FOV{90};
     float sensitivity = 0.000005;
     float speed = 0.00001;

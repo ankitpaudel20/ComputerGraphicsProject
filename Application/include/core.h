@@ -49,7 +49,7 @@ const std::string pathDelemeter("/");
 #endif
 
 #define PHONG_SHADING
-// #define MULTITHREADED
+#define MULTITHREADED
 
 #define vec3 vec3
 
@@ -143,6 +143,18 @@ struct Vertex {
     inline static Vertex perspectiveMul(Vertex in, const mat4f &per) {
         return in.perspectiveMul(per);
     }
+
+    void operator*=(const float &f) {
+        position *= f;
+        normal *= f;
+        texCoord *= f;
+    }
+
+    void operator/=(const float &f) {
+        position /= f;
+        normal /= f;
+        texCoord /= f;
+    }
 };
 
 /**
@@ -153,7 +165,7 @@ struct color {
     color() : color(0) {}
     explicit color(uint8_t r) : color(r, r, r) {}
     color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : col((a << 24u) | (b << 16u) | (g << 8u) | r) {}
-    explicit color(const vec3 &in) : color(in.x * 255, in.y * 255, in.z * 255) {}
+    explicit color(const vec3 &in) : color(fabs(in.x) * 255, fabs(in.y) * 255, fabs(in.z) * 255) {}
 
     vec4 getcolor() const {
         auto temp = (uint8_t *)&col;
