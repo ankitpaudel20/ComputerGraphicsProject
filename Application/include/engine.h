@@ -249,38 +249,26 @@ struct engine {
  * @brief send framebuffer from cpu to gpu as texture to be able to render using opengl
  */
     void draw() {
-        rasterizeTriangles();
+        if (wireframe) {
+            for (auto &tris : triangles) {
+                draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y), roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y), color(255));
+                draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y), roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y), color(255));
+                draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y), roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y), color(255));
+            }
+        } else {
+            rasterizeTriangles();
+            // for (auto &tris : triangles) {
+            //     draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y), roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y), color(255));
+            //     draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y), roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y), color(255));
+            //     draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y), roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y), color(255));
+            // }
+        }
         uint8_t *imageData = (uint8_t *)&fboCPU->colorlayer[0].col;
         glUseProgram(shader);
         GLcall(glBindTexture(GL_TEXTURE_2D, tex));
         GLcall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fboCPU->x_size, fboCPU->y_size, GL_RGBA, GL_UNSIGNED_BYTE, imageData));
         glBindVertexArray(vao);
         GLcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-    }
-
-    /**
- * @brief drawlines using given vertices and indices
- */
-    void drawLines(const std::vector<vec2_T<int>> &points, const color &col = color(255), const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-        if (indices.empty()) {
-            for (size_t i = 0; i < points.size(); i += 2) {
-                draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, col);
-            }
-            return;
-        }
-
-        for (size_t i = 0; i < indices.size(); i += 2) {
-            draw_bresenham_adjusted(points[indices[i]].x, points[indices[i]].y, points[indices[i + 1]].x, points[indices[i + 1]].y, col);
-        }
-    }
-
-    /**
- * @brief draw linestrip fron given set of vertices, indices and color
- */
-    void drawLinestrip(const std::vector<vec2_T<int>> &points, const color &col = color(255), const std::vector<uint32_t> &indices = std::vector<uint32_t>()) {
-        for (size_t i = 0; i < points.size(); i++) {
-            draw_bresenham_adjusted(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, col);
-        }
     }
 
     /**
@@ -318,6 +306,8 @@ struct engine {
 
     bool wireframe = false;
 
+    float lightRenderDistance = 0.05;
+
     /**
  * @brief essentially a fragment shader : inputs fragment position and information and outputs color value for the fragment
  */
@@ -335,11 +325,16 @@ struct engine {
         if (!mesh->doLightCalculations) {
             return col;
         }
-
+        // col = color(vec3(v.v.texCoord.x, v.v.texCoord.y, 1));
+        return col;
         color result;
 #ifdef PHONG_SHADING
         const auto viewDir = (cam->eye - v.extraInfoAboutVertex).normalize();
         for (auto &light : pointLights) {
+            const float test = vec3::dist(cam->eye, light.getpos());
+            if (test > lightRenderDistance) {
+                continue;
+            }
             float dist = vec3::dist(v.extraInfoAboutVertex, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
             if (int_by_at > 0.01) {
@@ -357,123 +352,29 @@ struct engine {
         return result;
     }
 
-    /**
- * @brief draw triangle only using lines (dont fill the triangle)
- */
-    //void drawTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
-    //    triangles.clear();
-    //    makeRequiredTriangles(vertices, indices, modelmat);
-    //    for (auto &tris : triangles) {
-    //        draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[0].v.position.x), roundfloat(std::get<0>(tris)[0].v.position.y), roundfloat(std::get<0>(tris)[1].v.//position.x), roundfloat(std::get<0>(tris)[1].v.position.y), color(0, 255, 0));
-    //        draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[1].v.position.x), roundfloat(std::get<0>(tris)[1].v.position.y), roundfloat(std::get<0>(tris)[2].v.//position.x), roundfloat(std::get<0>(tris)[2].v.position.y), color(0, 255, 0));
-    //        draw_bresenham_adjusted(roundfloat(std::get<0>(tris)[2].v.position.x), roundfloat(std::get<0>(tris)[2].v.position.y), roundfloat(std::get<0>(tris)[0].v.//position.x), roundfloat(std::get<0>(tris)[0].v.position.y), color(0, 255, 0));
-    //    }
-    //}
-
     bool printed = false;
-
     /**
  * @brief fill triangles array by doing required clipping and culling
  */
     void makeRequiredTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
         auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
         auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
-        for (size_t i = 0; i < indices.size(); i += 3) {
-            std::array<bool, 3> clip{false, false, false};
-            Vertex points[3] = {vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]};
-            std::array<Vertex2, 3> t;
-// Vertex temp;
-#ifdef PHONG_SHADING
-            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex{modelmat * points[0].position, modelmat * points[1].position, modelmat * points[2].position};
+#ifdef MULTITHREADED
+        pool.parallelize_loop(0, indices.size() / 3, [&](const unsigned int start, const unsigned int end) {
+            for (unsigned int i = start; i < end; i++) {
+                Vertex points[3] = {vertices[indices[i * 3]], vertices[indices[i * 3 + 1]], vertices[indices[i * 3 + 2]]};
+                makeRequiredTrianglesHelper(points, modelmat, view, per);
+            }
+        });
 #else
-            std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex;
-            extraInfoAboutVertex[0].x = modelmat * points[0].position;
-            extraInfoAboutVertex[1].x = modelmat * points[1].position;
-            extraInfoAboutVertex[2].x = modelmat * points[2].position;
-#endif
-            std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position), view * (modelmat * points[1].position), view * (modelmat * points[2].position)};
-
-            if (modelviewTransformed[0].z > -nearPlane) {
-                clip[0] = true;
-            }
-
-            if (modelviewTransformed[1].z > -nearPlane) {
-                clip[1] = true;
-            }
-
-            if (modelviewTransformed[2].z > -nearPlane) {
-                clip[2] = true;
-            }
-
-            points[0].position = modelviewTransformed[0];
-            points[0].normal = modelmat * points[0].normal;
-            points[1].position = modelviewTransformed[1];
-            points[1].normal = modelmat * points[1].normal;
-            points[2].position = modelviewTransformed[2];
-            points[2].normal = modelmat * points[2].normal;
-
-            if (cullBackface && vec3::dot(view * points[0].normal, points[0].position) > 0) {
-                continue;
-            }
-
-#ifndef PHONG_SHADING
-            fillExtraInformationForGoraudShading(points[0], extraInfoAboutVertex[0]);
-            fillExtraInformationForGoraudShading(points[1], extraInfoAboutVertex[1]);
-            fillExtraInformationForGoraudShading(points[2], extraInfoAboutVertex[2]);
-#endif
-
-            if ((clip[0] && clip[1] && clip[2])) {
-                continue;
-            } else if (clip[0]) {
-                if (clip[1]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 1, 2, t);
-                    triangles.emplace_back(std::make_tuple(t, currentMesh));
-                    continue;
-                } else if (clip[2]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, 2, 1, t);
-                    triangles.emplace_back(std::make_tuple(t, currentMesh));
-                    continue;
-                } else {
-                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 0, t, triangles);
-                    continue;
-                }
-            } else if (clip[1]) {
-                if (clip[2]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 2, 0, t);
-                    triangles.emplace_back(std::make_tuple(t, currentMesh));
-                    continue;
-                } else if (clip[0]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, 0, 2, t);
-                    triangles.emplace_back(std::make_tuple(t, currentMesh));
-                    continue;
-                } else {
-                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 1, t, triangles);
-                    continue;
-                }
-            } else if (clip[2]) {
-                if (clip[0]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 0, 1, t);
-                    triangles.emplace_back(std::make_tuple(t, currentMesh));
-                    continue;
-                } else if (clip[1]) {
-                    clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, 1, 0, t);
-                    triangles.emplace_back(std::make_tuple(t, currentMesh));
-                    continue;
-                } else {
-                    clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points, 2, t, triangles);
-                    continue;
-                }
-            }
-
-            t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), extraInfoAboutVertex[0]);
-            t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), extraInfoAboutVertex[1]);
-            t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), extraInfoAboutVertex[2]);
-            t[0].extraInfoAboutVertex *= t[0].v.position.z;
-            t[1].extraInfoAboutVertex *= t[1].v.position.z;
-            t[2].extraInfoAboutVertex *= t[2].v.position.z;
-
-            triangles.emplace_back(std::make_tuple(t, currentMesh));
+        for (size_t i = 0; i < indices.size() / 3; i++) {
+            std::array<Vertex, 3> points = {vertices[indices[i * 3]], vertices[indices[i * 3 + 1]], vertices[indices[i * 3 + 2]]};
+            makeRequiredTrianglesHelper(points, modelmat, view, per);
         }
+#endif
+
+        // printf("triangle_count: %d\n", triangles.size());
+        // printf("\033[F");
     }
 
   private:
@@ -515,10 +416,112 @@ struct engine {
 
     std::mutex fboCPUMutex;
 
+    void makeRequiredTrianglesHelper(std::array<Vertex, 3> &points, const mat4f &modelmat, const mat4f &view, const mat4f &per) {
+        std::array<bool, 3> clip{false, false, false};
+        std::array<Vertex2, 3> t;
+// Vertex temp;
+#ifdef PHONG_SHADING
+        std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex{modelmat * points[0].position, modelmat * points[1].position, modelmat * points[2].position};
+#else
+        std::array<EXTRA_VERTEX_INFO, 3> extraInfoAboutVertex;
+        extraInfoAboutVertex[0].x = modelmat * points[0].position;
+        extraInfoAboutVertex[1].x = modelmat * points[1].position;
+        extraInfoAboutVertex[2].x = modelmat * points[2].position;
+#endif
+        std::array<vec4, 3> modelviewTransformed{view * (modelmat * points[0].position), view * (modelmat * points[1].position), view * (modelmat * points[2].position)};
+
+        if (modelviewTransformed[0].z > -nearPlane) {
+            clip[0] = true;
+        }
+
+        if (modelviewTransformed[1].z > -nearPlane) {
+            clip[1] = true;
+        }
+
+        if (modelviewTransformed[2].z > -nearPlane) {
+            clip[2] = true;
+        }
+
+        points[0].position = modelviewTransformed[0];
+        points[0].normal = modelmat * points[0].normal;
+        points[1].position = modelviewTransformed[1];
+        points[1].normal = modelmat * points[1].normal;
+        points[2].position = modelviewTransformed[2];
+        points[2].normal = modelmat * points[2].normal;
+
+        if (cullBackface && vec3::dot(view * points[0].normal, points[0].position) > 0) {
+            return;
+        }
+
+#ifndef PHONG_SHADING
+        fillExtraInformationForGoraudShading(points[0], extraInfoAboutVertex[0]);
+        fillExtraInformationForGoraudShading(points[1], extraInfoAboutVertex[1]);
+        fillExtraInformationForGoraudShading(points[2], extraInfoAboutVertex[2]);
+#endif
+
+        if ((clip[0] && clip[1] && clip[2])) {
+            return;
+        } else if (clip[0]) {
+            if (clip[1]) {
+                clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 0, 1, 2, t);
+                triangles.emplace_back(std::make_tuple(t, currentMesh));
+                return;
+            } else if (clip[2]) {
+                clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 0, 2, 1, t);
+                triangles.emplace_back(std::make_tuple(t, currentMesh));
+                return;
+            } else {
+                clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 0, t, triangles);
+                return;
+            }
+        } else if (clip[1]) {
+            if (clip[2]) {
+                clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 1, 2, 0, t);
+                triangles.emplace_back(std::make_tuple(t, currentMesh));
+                return;
+            } else if (clip[0]) {
+                clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 1, 0, 2, t);
+                triangles.emplace_back(std::make_tuple(t, currentMesh));
+                return;
+            } else {
+                clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 1, t, triangles);
+                return;
+            }
+        } else if (clip[2]) {
+            if (clip[0]) {
+                clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 2, 0, 1, t);
+                triangles.emplace_back(std::make_tuple(t, currentMesh));
+                return;
+            } else if (clip[1]) {
+                clip2helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 2, 1, 0, t);
+                triangles.emplace_back(std::make_tuple(t, currentMesh));
+                return;
+            } else {
+                clip1helper(per, extraInfoAboutVertex, modelviewTransformed, points.data(), 2, t, triangles);
+                return;
+            }
+        }
+
+        t[0] = Vertex2(Vertex::perspectiveMul(points[0], per), extraInfoAboutVertex[0]);
+        t[1] = Vertex2(Vertex::perspectiveMul(points[1], per), extraInfoAboutVertex[1]);
+        t[2] = Vertex2(Vertex::perspectiveMul(points[2], per), extraInfoAboutVertex[2]);
+        t[0].extraInfoAboutVertex *= t[0].v.position.z;
+        t[1].extraInfoAboutVertex *= t[1].v.position.z;
+        t[2].extraInfoAboutVertex *= t[2].v.position.z;
+
+        if ((t[0].v.position.x > fboCPU->xmax || t[0].v.position.x < fboCPU->xmin) && (t[0].v.position.y > fboCPU->ymax || t[0].v.position.y < fboCPU->ymin) &&
+            (t[1].v.position.x > fboCPU->xmax || t[1].v.position.x < fboCPU->xmin) && (t[1].v.position.y > fboCPU->ymax || t[1].v.position.y < fboCPU->ymin) &&
+            (t[2].v.position.x > fboCPU->xmax || t[2].v.position.x < fboCPU->xmin) && (t[2].v.position.y > fboCPU->ymax || t[2].v.position.y < fboCPU->ymin))
+            return;
+
+        triangles.emplace_back(std::make_tuple(t, currentMesh));
+    }
+
     /**
  * @brief putpixel assuming middle of screen to be the origin
  */
-    void putpixel_adjusted(int x, int y, float z, const color &col = color(255)) {
+    void
+    putpixel_adjusted(int x, int y, float z, const color &col = color(255)) {
         assert(x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin);
         const size_t indx = ((size_t)x + fboCPU->xmax) + ((size_t)y + fboCPU->ymax) * fboCPU->x_size;
 
@@ -555,10 +558,14 @@ struct engine {
         }
         int p = 2 * dy - dx;
         for (int k = 0; k <= dx; k++) {
-            if (!changed)
-                putpixel_adjusted(x, y, 1, col);
-            else
-                putpixel_adjusted(y, x, 1, col);
+
+            if (!changed) {
+                if (x < fboCPU->xmax && x > fboCPU->xmin && y < fboCPU->ymax && y > fboCPU->ymin)
+                    putpixel_adjusted(x, y, 1, col);
+            } else {
+                if (y < fboCPU->xmax && y > fboCPU->xmin && x < fboCPU->ymax && x > fboCPU->ymin)
+                    putpixel_adjusted(y, x, 1, col);
+            }
 
             if (p < 0) {
                 x += lx;
@@ -611,6 +618,7 @@ struct engine {
         t[idx1].extraInfoAboutVertex *= t[idx1].v.position.z;
         t[idx2].extraInfoAboutVertex *= t[idx2].v.position.z;
         t[idx3].extraInfoAboutVertex *= t[idx3].v.position.z;
+        const std::lock_guard<std::mutex> lock(fboCPUMutex);
         triangles.emplace_back(std::make_tuple(t, currentMesh));
         t[idx2] = t[idx3];
         t[idx3] = Vertex2(Vertex::perspectiveMul(points[idx1] + (points[idx3] - points[idx1]) * u2, per), extraInfoAboutVertex[idx1] + (extraInfoAboutVertex[idx3] - extraInfoAboutVertex[idx1]) * u2);
@@ -625,15 +633,15 @@ struct engine {
         assert(fabs(v1.v.position.y - v0.v.position.y) < 0.01);
         assert(v1.v.position.x >= v0.v.position.x);
         // calulcate slopes in screen space
-        float m0 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
-        float m1 = (v2.v.position.x - v1.v.position.x) / (v2.v.position.y - v1.v.position.y);
+        const double m0 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
+        const double m1 = (v2.v.position.x - v1.v.position.x) / (v2.v.position.y - v1.v.position.y);
 
         // calculate start and end scanlines
         const int yStart = (int)ceil(v0.v.position.y - 0.5f);
         const int yEnd = (int)ceil(v2.v.position.y - 0.5f); // the scanline AFTER the last line drawn
 
-        const float unit0 = 1.f / (v2.v.position.y - v0.v.position.y), unit1 = 1.f / (v2.v.position.y - v1.v.position.y);
-        float u0 = 0, u1 = 0;
+        const double unit0 = 1.f / (v2.v.position.y - v0.v.position.y), unit1 = 1.f / (v2.v.position.y - v1.v.position.y);
+        double u0 = 0, u1 = 0;
 
         Vertex2 diff0 = v2 - v0, diff1 = v2 - v1, diff2;
         Vertex2 vx0, vx1, vx2;
@@ -642,8 +650,8 @@ struct engine {
             if (y <= fboCPU->ymin) {
                 continue;
             }
-            const float px0 = m0 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
-            const float px1 = m1 * (float(y) + 0.5f - v1.v.position.y) + v1.v.position.x;
+            const double px0 = m0 * (double(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+            const double px1 = m1 * (double(y) + 0.5f - v1.v.position.y) + v1.v.position.x;
 
             vx0 = v0 + diff0 * u0;
             vx1 = v1 + diff1 * u1;
@@ -652,15 +660,15 @@ struct engine {
             const int xStart = (int)ceil(px0 - 0.5f);
             const int xEnd = (int)ceil(px1 - 0.5f); // the pixel AFTER the last pixel drawn
 
-            const float unit2 = 1.f / (xEnd - xStart);
-            float u2 = 0;
+            const double unit2 = 1.f / (xEnd - xStart);
+            double u2 = 0;
             diff2 = vx1 - vx0;
 
             for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
                 if (x <= fboCPU->xmin) {
                     continue;
                 }
-                float z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
+                const double z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
 #ifdef MULTITHREADED
                 const std::lock_guard<std::mutex> lock(fboCPUMutex);
 #endif
@@ -683,15 +691,15 @@ struct engine {
         assert(fabs(v2.v.position.y - v1.v.position.y) < 0.01);
         assert(v2.v.position.x >= v1.v.position.x);
         // calulcate slopes in screen space
-        float m0 = (v1.v.position.x - v0.v.position.x) / (v1.v.position.y - v0.v.position.y);
-        float m1 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
+        const double m0 = (v1.v.position.x - v0.v.position.x) / (v1.v.position.y - v0.v.position.y);
+        const double m1 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
 
         // calculate start and end scanlines
-        const int yStart = (int)ceil(v0.v.position.y - 0.5f);
-        const int yEnd = (int)ceil(v2.v.position.y - 0.5f); // the scanline AFTER the last line drawn
+        const int yStart = (int)ceil(v0.v.position.y - 0.5);
+        const int yEnd = (int)ceil(v2.v.position.y - 0.5); // the scanline AFTER the last line drawn
 
-        const float unit0 = 1.f / (v1.v.position.y - v0.v.position.y), unit1 = 1.f / (v2.v.position.y - v0.v.position.y);
-        float u0 = 0, u1 = 0;
+        const double unit0 = 1.0 / (v1.v.position.y - v0.v.position.y), unit1 = 1.0 / (v2.v.position.y - v0.v.position.y);
+        double u0 = 0, u1 = 0;
 
         Vertex2 diff0 = v1 - v0, diff1 = v2 - v0, diff2;
         Vertex2 vx0, vx1, vx2;
@@ -700,8 +708,8 @@ struct engine {
             if (y <= fboCPU->ymin) {
                 continue;
             }
-            const float px0 = m0 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
-            const float px1 = m1 * (float(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+            const double px0 = m0 * (double(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+            const double px1 = m1 * (double(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
 
             vx0 = v0 + diff0 * u0;
             vx1 = v0 + diff1 * u1;
@@ -710,15 +718,15 @@ struct engine {
             const int xStart = (int)ceil(px0 - 0.5f);
             const int xEnd = (int)ceil(px1 - 0.5f); // the pixel AFTER the last pixel drawn
 
-            const float unit2 = 1.f / (xEnd - xStart);
-            float u2 = 0;
+            const double unit2 = 1.0 / (xEnd - xStart);
+            double u2 = 0;
             diff2 = vx1 - vx0;
 
             for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
                 if (x <= fboCPU->xmin) {
                     continue;
                 }
-                float z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
+                double z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
 #ifdef MULTITHREADED
                 const std::lock_guard<std::mutex> lock(fboCPUMutex);
 #endif
@@ -734,116 +742,220 @@ struct engine {
         }
     }
 
+    void calculateBarycentricCoordinates(const vec2 &p, const vec4 &v1, const vec4 &v2, const vec4 &v3, std::array<float, 3> &values) {
+        const float area = (v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y);
+        values[0] = fabs(((v2.y - v3.y) * (p.x - v3.x) + (v3.x - v2.x) * (p.y - v3.y)) / area);
+        values[1] = fabs(((v3.y - v1.y) * (p.x - v3.x) + (v1.x - v3.x) * (p.y - v3.y)) / area);
+        values[2] = 1.f - values[0] - values[1];
+
+        // if (fabs(values[0]) > 1 && fabs(values[1]) > 1 && fabs(values[2]) > 1) {
+        //     printVec(vec2(v1));
+        //     printVec(vec2(v2));
+        //     printVec(vec2(v3));
+        //     printVec(p);
+        //     assert(false);
+        // }
+
+        // float dist[] = {vec2::dist(p, vec2(v1)), vec2::dist(p, vec2(v2)), vec2::dist(p, vec2(v3))};
+        // if (dist[0] > dist[1] && dist[0] > dist[2]) {
+        //     if (fabs(values[0]) > fabs(values[1]) && fabs(values[0]) > fabs(values[2])) {
+        //         printVec(vec2(v1));
+        //         printVec(vec2(v2));
+        //         printVec(vec2(v3));
+        //         printVec(p);
+        //         assert(false);
+        //     }
+        // } else if (dist[1] > dist[0] && dist[1] > dist[2]) {
+        //     if (fabs(values[1]) > fabs(values[0]) && fabs(values[1]) > fabs(values[2])) {
+        //         printVec(vec2(v1));
+        //         printVec(vec2(v2));
+        //         printVec(vec2(v3));
+        //         printVec(p);
+        //         assert(false);
+        //     }
+        // } else {
+        //     if (fabs(values[2]) > fabs(values[1]) && fabs(values[2]) > fabs(values[0])) {
+        //         printVec(vec2(v1));
+        //         printVec(vec2(v2));
+        //         printVec(vec2(v3));
+        //         printVec(p);
+        //         assert(false);
+        //     }
+        // }
+    }
+
+    /**
+ * @brief rasterize BottomFlatTriangle: v2 is top unique and v1.x > v0.x
+ */
+
+    void fillBottomFlatTriangleBary(const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
+        assert(fabs(v1.v.position.y - v0.v.position.y) < 0.01);
+        assert(v1.v.position.x >= v0.v.position.x);
+
+        const double m0 = (double)(v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
+        const double m1 = (double)(v2.v.position.x - v1.v.position.x) / (v2.v.position.y - v1.v.position.y);
+
+        const int yStart = (int)ceil(v0.v.position.y - 0.5f);
+        const int yEnd = (int)ceil(v2.v.position.y - 0.5f); // the scanline AFTER the last line drawn
+
+        const double unit0 = (v2.v.position.y - v0.v.position.y) / (yEnd - yStart);
+        double u0 = 0;
+
+        Vertex2 vx2;
+        std::array<float, 3> coefficients;
+
+        for (int y = yStart; y < yEnd && y < fboCPU->ymax; ++y, u0 += unit0) {
+            if (y <= fboCPU->ymin) {
+                continue;
+            }
+            const double px0 = m0 * (double(y) + 0.5 - v0.v.position.y) + v0.v.position.x;
+            const double px1 = m1 * (double(y) + 0.5 - v1.v.position.y) + v1.v.position.x;
+
+            const int xStart = (int)ceil(px0 - 0.5);
+            const int xEnd = (int)ceil(px1 - 0.5);
+
+            const double unit2 = (px1 - px0) / (xEnd - xStart);
+            double u2 = 0;
+
+            for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
+                if (x <= fboCPU->xmin) {
+                    continue;
+                }
+                const vec2 pos(px0 + u2, v0.v.position.y + u0);
+                calculateBarycentricCoordinates(pos, v0.v.position, v1.v.position, v2.v.position, coefficients);
+
+                double z = 1 / (coefficients[0] * v0.v.position.z + coefficients[1] * v1.v.position.z + coefficients[2] * v2.v.position.z);
+#ifdef MULTITHREADED
+                const std::lock_guard<std::mutex> lock(fboCPUMutex);
+#endif
+                auto gotz = getpixelZ_adjusted(x, y);
+                if (gotz < z) {
+                    vx2 = v0 * coefficients[0] + v1 * coefficients[1] + v2 * coefficients[2];
+                    vx2.v.texCoord /= vx2.v.position.z;
+                    vx2.v.normal /= vx2.v.position.z;
+                    vx2.extraInfoAboutVertex /= vx2.v.position.z;
+                    putpixel_adjusted(x, y, z, getcolor(vx2, mesh));
+                }
+            }
+        }
+    }
+
+    void fillTopFlatTriangleBary(const Vertex2 &v0, const Vertex2 &v1, const Vertex2 &v2, Mesh *mesh) {
+        assert(fabs(v2.v.position.y - v1.v.position.y) < 0.01);
+        assert(v2.v.position.x >= v1.v.position.x);
+        // calulcate slopes in screen space
+        const double m0 = (v1.v.position.x - v0.v.position.x) / (v1.v.position.y - v0.v.position.y);
+        const double m1 = (v2.v.position.x - v0.v.position.x) / (v2.v.position.y - v0.v.position.y);
+
+        // calculate start and end scanlines
+        const int yStart = (int)ceil(v0.v.position.y - 0.5);
+        const int yEnd = (int)ceil(v2.v.position.y - 0.5); // the scanline AFTER the last line drawn
+
+        const double unit0 = (v2.v.position.y - v0.v.position.y) / (yEnd - yStart);
+        double u0 = 0;
+
+        Vertex2 vx2;
+        std::array<float, 3> coefficients;
+
+        for (int y = yStart; y < yEnd && y < fboCPU->ymax; ++y, u0 += unit0) {
+            if (y <= fboCPU->ymin) {
+                continue;
+            }
+            const double px0 = m0 * (double(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+            const double px1 = m1 * (double(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
+
+            const int xStart = (int)ceil(px0 - 0.5);
+            const int xEnd = (int)ceil(px1 - 0.5);
+
+            const double unit2 = (px1 - px0) / (xEnd - xStart);
+            double u2 = 0;
+
+            for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
+                if (x <= fboCPU->xmin) {
+                    continue;
+                }
+                const vec2 pos(px0 + u2, v0.v.position.y + u0);
+                calculateBarycentricCoordinates(pos, v0.v.position, v1.v.position, v2.v.position, coefficients);
+
+                double z = 1 / (coefficients[0] * v0.v.position.z + coefficients[1] * v1.v.position.z + coefficients[2] * v2.v.position.z);
+#ifdef MULTITHREADED
+                const std::lock_guard<std::mutex> lock(fboCPUMutex);
+#endif
+                auto gotz = getpixelZ_adjusted(x, y);
+                if (gotz < z) {
+                    vx2 = v0 * coefficients[0] + v1 * coefficients[1] + v2 * coefficients[2];
+                    vx2.v.texCoord /= vx2.v.position.z;
+                    vx2.v.normal /= vx2.v.position.z;
+                    vx2.extraInfoAboutVertex /= vx2.v.position.z;
+                    putpixel_adjusted(x, y, z, getcolor(vx2, mesh));
+                }
+            }
+        }
+    }
+
+    void rasterizeTrianglesHelper(std::tuple<std::array<Vertex2, 3>, Mesh *> &tris) {
+        auto &v0 = std::get<0>(tris)[0];
+        auto &v1 = std::get<0>(tris)[1];
+        auto &v2 = std::get<0>(tris)[2];
+        const auto &mesh = std::get<1>(tris);
+
+        //sorting vertices by y
+        if (v1.v.position.y < v0.v.position.y) {
+            std::swap(v0, v1);
+        }
+        if (v2.v.position.y < v1.v.position.y) {
+            std::swap(v1, v2);
+        }
+        if (v1.v.position.y < v0.v.position.y) {
+            std::swap(v0, v1);
+        }
+
+        if (v0.v.position.y == v1.v.position.y) // natural flat bottom
+        {
+            if (v1.v.position.x < v0.v.position.x) {
+                std::swap(v0, v1);
+            }
+            fillBottomFlatTriangleBary(v0, v1, v2, mesh);
+        } else if (v1.v.position.y == v2.v.position.y) // natural flat top
+        {
+            if (v2.v.position.x < v1.v.position.x) {
+                std::swap(v1, v2);
+            }
+            fillTopFlatTriangleBary(v0, v1, v2, mesh);
+        } else // general triangle
+        {
+            assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
+            // find splitting vertex
+            const double alphaSplit = (v1.v.position.y - v0.v.position.y) / (v2.v.position.y - v0.v.position.y);
+            const auto vi = v0 + (v2 - v0) * alphaSplit;
+
+            if (v1.v.position.x < vi.v.position.x) // major left
+            {
+                fillTopFlatTriangleBary(v0, v1, vi, mesh);
+                fillBottomFlatTriangleBary(v1, vi, v2, mesh);
+            } else // major right
+            {
+                fillTopFlatTriangleBary(v0, vi, v1, mesh);
+                fillBottomFlatTriangleBary(vi, v1, v2, mesh);
+            }
+            // draw_bresenham_adjusted(roundfloat(vi.v.position.x), roundfloat(vi.v.position.y), roundfloat(v1.v.position.x), roundfloat(v1.v.position.y), color(0, 255, 0));
+        }
+    }
+
     /**
  * @brief helper function to rasterize triangles in vector of triangles.
  */
     void rasterizeTriangles() {
-
 #ifdef MULTITHREADED
         pool.parallelize_loop(0, triangles.size(), [&](const unsigned int start, const unsigned int end) {
             for (unsigned int i = start; i < end; i++) {
-                auto &tris = triangles[i];
-                auto &v0 = std::get<0>(tris)[0];
-                auto &v1 = std::get<0>(tris)[1];
-                auto &v2 = std::get<0>(tris)[2];
-                const auto &mesh = std::get<1>(tris);
-
-                //sorting vertices by y
-                if (v1.v.position.y < v0.v.position.y) {
-                    std::swap(v0, v1);
-                }
-                if (v2.v.position.y < v1.v.position.y) {
-                    std::swap(v1, v2);
-                }
-                if (v1.v.position.y < v0.v.position.y) {
-                    std::swap(v0, v1);
-                }
-
-                if (v0.v.position.y == v1.v.position.y) // natural flat bottom
-                {
-                    // sorting bottom vertices by x
-                    if (v1.v.position.x < v0.v.position.x) {
-                        std::swap(v0, v1);
-                    }
-                    fillBottomFlatTriangle(v0, v1, v2, mesh);
-                } else if (v1.v.position.y == v2.v.position.y) // natural flat top
-                {
-                    // sorting top vertices by x
-                    if (v2.v.position.x < v1.v.position.x) {
-                        std::swap(v1, v2);
-                    }
-                    fillTopFlatTriangle(v0, v1, v2, mesh);
-                } else // general triangle
-                {
-                    assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
-                    // find splitting vertex
-                    const float alphaSplit = (v1.v.position.y - v0.v.position.y) / (v2.v.position.y - v0.v.position.y);
-                    const auto vi = v0 + (v2 - v0) * alphaSplit;
-
-                    if (v1.v.position.x < vi.v.position.x) // major left
-                    {
-                        fillTopFlatTriangle(v0, v1, vi, mesh);
-                        fillBottomFlatTriangle(v1, vi, v2, mesh);
-                    } else // major right
-                    {
-                        fillTopFlatTriangle(v0, vi, v1, mesh);
-                        fillBottomFlatTriangle(vi, v1, v2, mesh);
-                    }
-                }
+                rasterizeTrianglesHelper(triangles[i]);
             }
         });
 
 #else
-        int i = 0;
         for (auto &tris : triangles) {
-            // auto tris = triangles[0];
-            auto &v0 = std::get<0>(tris)[0];
-            auto &v1 = std::get<0>(tris)[1];
-            auto &v2 = std::get<0>(tris)[2];
-            const auto &mesh = std::get<1>(tris);
-
-            //sorting vertices by y
-            if (v1.v.position.y < v0.v.position.y) {
-                std::swap(v0, v1);
-            }
-            if (v2.v.position.y < v1.v.position.y) {
-                std::swap(v1, v2);
-            }
-            if (v1.v.position.y < v0.v.position.y) {
-                std::swap(v0, v1);
-            }
-
-            if (v0.v.position.y == v1.v.position.y) // natural flat bottom
-            {
-                // sorting bottom vertices by x
-                if (v1.v.position.x < v0.v.position.x) {
-                    std::swap(v0, v1);
-                }
-                fillBottomFlatTriangle(v0, v1, v2, mesh);
-            } else if (v1.v.position.y == v2.v.position.y) // natural flat top
-            {
-                // sorting top vertices by x
-                if (v2.v.position.x < v1.v.position.x) {
-                    std::swap(v1, v2);
-                }
-                fillTopFlatTriangle(v0, v1, v2, mesh);
-            } else // general triangle
-            {
-                assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
-                // find splitting vertex
-                const float alphaSplit = (v1.v.position.y - v0.v.position.y) / (v2.v.position.y - v0.v.position.y);
-                const auto vi = v0 + (v2 - v0) * alphaSplit;
-
-                if (v1.v.position.x < vi.v.position.x) // major left
-                {
-                    fillTopFlatTriangle(v0, v1, vi, mesh);
-                    fillBottomFlatTriangle(v1, vi, v2, mesh);
-                } else // major right
-                {
-                    fillTopFlatTriangle(v0, vi, v1, mesh);
-                    fillBottomFlatTriangle(vi, v1, v2, mesh);
-                }
-            }
+            rasterizeTrianglesHelper(tris);
         }
 #endif
     }
@@ -852,8 +964,8 @@ struct engine {
  * @brief fill intensity information for each vertex needed for gouraud shading
  */
 #ifndef PHONG_SHADING
-    void fillExtraInformationForGoraudShading(Vertex &v, EXTRA_VERTEX_INFO &vertPos) {
-        auto viewDir = (cam->eye - vertPos.x).normalize();
+    void fillExtraInformationForGoraudShading(Vertex &v, EXTRA_VERTEX_INFO &vertPos) const {
+        const auto viewDir = (cam->eye - vertPos.x).normalize();
         for (auto &light : pointLights) {
             float dist = vec3::dist(vertPos.x, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));

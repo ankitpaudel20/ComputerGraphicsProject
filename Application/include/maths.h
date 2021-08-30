@@ -31,6 +31,7 @@ struct vec2_T {
     vec2_T(const glm::vec2 &in) : x(in.x), y(in.y) {}
     vec2_T(glm::vec2 &in) : x(in.x), y(in.y) {}
     vec2_T(const vec3_T<T> &in) : x(in.x), y(in.y) {}
+    vec2_T(const vec4_T<T> &in) : x(in.x), y(in.y) {}
 
     template <class U>
     vec2_T(const vec2_T<U> &in) : x(in.x), y(in.y) {}

@@ -49,7 +49,7 @@ const std::string pathDelemeter("/");
 #endif
 
 #define PHONG_SHADING
-#define MULTITHREADED
+// #define MULTITHREADED
 
 #define vec3 vec3
 

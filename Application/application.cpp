@@ -7,7 +7,7 @@
 #include "core.h"
 #include "transformations.h"
 #include "camera.h"
-#include "engine1.h"
+#include "engine.h"
 #include "model.h"
 
 mat4f translate3d;
@@ -141,14 +141,19 @@ void processHoldEvent(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
         cam1.newDelYaw(cam1.sensitivity * deltatime * factor);
     }
-    //if (glfwGetKey(window, GLFW_KEY_KP_0) == GLFW_PRESS) {
-    //    graphicsEngine->nearPlane -= 0.1;
-    //    if (graphicsEngine->nearPlane < 0.01)
-    //        graphicsEngine->nearPlane = 0.01;
-    //}
-    //if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS) {
-    //    graphicsEngine->nearPlane += 0.1;
-    //}
+    if (glfwGetKey(window, GLFW_KEY_KP_0) == GLFW_PRESS) {
+        graphicsEngine->nearPlane -= 0.1;
+        if (graphicsEngine->nearPlane < 0.01)
+            graphicsEngine->nearPlane = 0.01;
+        // graphicsEngine->lightRenderDistance -= 0.1;
+        // if (graphicsEngine->lightRenderDistance < 0.01)
+        //     graphicsEngine->lightRenderDistance = 0.01;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS) {
+        graphicsEngine->nearPlane += 0.1;
+        // graphicsEngine->lightRenderDistance += 0.1;
+    }
 }
 
 static void cursor_position_callback(GLFWwindow *window, double x, double y) {
@@ -265,7 +270,7 @@ int main(int argc, char **argv) {
     // auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football_real = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
     // auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
-    auto city = Model::loadModel_obj(path + "/city/city_with_lamp_new.obj", "city");
+    auto city = Model::loadModel_obj(path + "/city/house.obj", "city");
     // auto texturedSquare = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
     // rootNode.children["city"] = city;
 
@@ -313,11 +318,11 @@ int main(int argc, char **argv) {
         fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / deltatime));
         glfwSetWindowTitle(window, fpsString.c_str());
 
-        std::cout << "camera Eye: " << cam1.eye << std::endl;
-        std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        // std::cout << "camera Eye: " << cam1.eye << std::endl;
+        // std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
 
-        printf("\033[F");
-        printf("\033[F");
+        // printf("\033[F");
+        // printf("\033[F");
 
         graphicsEngine->clear();
 
@@ -331,7 +336,7 @@ int main(int argc, char **argv) {
         for (auto &mesh : city->meshes) {
             graphicsEngine->currentMesh = mesh;
             if (mesh->doLightCalculations && mesh->draw) {
-                // if (mesh->name.find("lightCube") != std::string::npos)
+                // if (mesh->name.find("Plane.1552") != std::string::npos)
                 graphicsEngine->makeRequiredTriangles(mesh->m_vertices, mesh->m_indices, mesh->matModel);
             }
         }

@@ -449,3 +449,5 @@ x64/
 Application/Debug/
 Application/x64/
 docs/
+*.blend
+*.blend1
