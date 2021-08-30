@@ -6,6 +6,7 @@ var structvec2___t =
     [ "vec2_T", "structvec2___t.html#a4ead60439d49796e9634f5033fb33941", null ],
     [ "vec2_T", "structvec2___t.html#a1efb46003fe7b512cc14a030efb1994c", null ],
     [ "vec2_T", "structvec2___t.html#a151204c09689cbaac8799554b68a5683", null ],
+    [ "vec2_T", "structvec2___t.html#aad199c4f0379f0112331fc0de646c044", null ],
     [ "vec2_T", "structvec2___t.html#ac43bd986dff1f6a3cf060a9889665b0e", null ],
     [ "getmag", "structvec2___t.html#a673b489ae024057d4f9e80dab0a2188d", null ],
     [ "normalize", "structvec2___t.html#ab1995cf5fc484f56b5e224027a743b5a", null ],
