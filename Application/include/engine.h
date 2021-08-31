@@ -357,21 +357,21 @@ struct engine {
  * @brief fill triangles array by doing required clipping and culling
  */
     void makeRequiredTriangles(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const mat4f &modelmat) {
-        auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
-        auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
-#ifdef MULTITHREADED
-        pool.parallelize_loop(0, indices.size() / 3, [&](const unsigned int start, const unsigned int end) {
-            for (unsigned int i = start; i < end; i++) {
-                Vertex points[3] = {vertices[indices[i * 3]], vertices[indices[i * 3 + 1]], vertices[indices[i * 3 + 2]]};
-                makeRequiredTrianglesHelper(points, modelmat, view, per);
-            }
-        });
-#else
+        const auto view = trans::lookAt(cam->eye, cam->eye + cam->getViewDir(), cam->getUp());
+        const auto per = trans::persp(fboCPU->x_size, fboCPU->y_size, cam->FOV);
+        // #ifdef MULTITHREADED
+        //         pool.parallelize_loop(0, indices.size() / 3, [&](const unsigned int start, const unsigned int end) {
+        //             for (unsigned int i = start; i < end; i++) {
+        //                 std::array<Vertex, 3> points = {vertices[indices[i * 3]], vertices[indices[i * 3 + 1]], vertices[indices[i * 3 + 2]]};
+        //                 makeRequiredTrianglesHelper(points, modelmat, view, per);
+        //             }
+        //         });
+        // #else
+        // #endif
         for (size_t i = 0; i < indices.size() / 3; i++) {
             std::array<Vertex, 3> points = {vertices[indices[i * 3]], vertices[indices[i * 3 + 1]], vertices[indices[i * 3 + 2]]};
             makeRequiredTrianglesHelper(points, modelmat, view, per);
         }
-#endif
 
         // printf("triangle_count: %d\n", triangles.size());
         // printf("\033[F");
@@ -508,6 +508,7 @@ struct engine {
         points[1].normal = modelmat * points[1].normal;
         points[2].position = modelviewTransformed[2];
         points[2].normal = modelmat * points[2].normal;
+
         vec4 centroid = (points[0].position + points[1].position + points[2].position) / 3;
 
         if (cullBackface && vec3::dot(view * points[0].normal, (vec3)centroid) > 0) {
@@ -781,7 +782,7 @@ struct engine {
             const int xStart = (int)ceil(px0 - 0.5f);
             const int xEnd = (int)ceil(px1 - 0.5f); // the pixel AFTER the last pixel drawn
 
-            const double unit2 = 1.0 / (xEnd - xStart);
+            const double unit2 = 1.0 / (px1 - px0);
             double u2 = 0;
             diff2 = vx1 - vx0;
 
@@ -1033,7 +1034,7 @@ struct engine {
             float dist = vec3::dist(vertPos.x, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
             const vec3 lightDir = vec3::normalize(light.getpos() - vertPos.x);
-            vertPos = {{0}, {0}, {0}};
+            vertPos = {vec3(0), vec3(0), (0)};
             if (int_by_at > 0.01) {
                 const float diff = max(vec3::dot(v.normal, lightDir), 0.0);
                 const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);

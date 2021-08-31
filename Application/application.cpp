@@ -270,8 +270,8 @@ int main(int argc, char **argv) {
     // auto texturedSquare = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
     // rootNode.children["city"] = city;
 
-    cam1.eye = vec3(-2.36445, 2.10356, -3.63178);
-    cam1.changeDir(vec3(0.630748, -0.385089, 0.673694));
+    cam1.eye = vec3(-12.8432, 31.9937, -68.8763);
+    cam1.changeDir(vec3(0.141717, -0.510119, 0.848348));
     // graphicsEngine->nearPlane = 1;
     Material m;
     m.diffuseColor = color(255, 0, 0);
@@ -279,10 +279,12 @@ int main(int argc, char **argv) {
     graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(-vec3(std::sin(60), std::cos(60), 0).normalize(), 1, color(255));
     graphicsEngine->ambientLightIntensity = 0;
+    // graphicsEngine->wireframe = true;
+    graphicsEngine->setTime(0);
 
     int lightNumber = 0;
     for (auto &mesh : city->meshes) {
-        if (mesh->name.find("lightCube") != std::string::npos && lightNumber < 5) {
+        if (mesh->name.find("lightCube") != std::string::npos) {
             const vec3 center = getCenterOfMass(mesh->m_vertices.data(), mesh->m_vertices.size());
             for (auto &vertex : mesh->m_vertices) {
                 auto debugTranslate = trans::translate(-center);
@@ -315,12 +317,11 @@ int main(int argc, char **argv) {
         fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / deltatime));
         glfwSetWindowTitle(window, fpsString.c_str());
 
-        // std::cout << "camera Eye: " << cam1.eye << std::endl;
-        // std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        std::cout << "camera Eye: " << cam1.eye << std::endl;
+        std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
 
-        // printf("\033[F");
-        // printf("\033[F");
-
+        printf("\033[F");
+        printf("\033[F");
         graphicsEngine->clear();
 
         //for (auto &mesh : lightmodel->meshes) {
