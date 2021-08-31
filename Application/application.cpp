@@ -207,7 +207,7 @@ float gameTime = 12.f;
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     auto eng = (engine *)glfwGetWindowUserPointer(window);
     gameTime += yoffset;
-    // eng->setTime(gameTime >= 24 ? 0 : gameTime);
+    eng->setTime(gameTime >= 24 || gameTime <= 0 ? 0 : gameTime);
 }
 
 vec3 getCenterOfMass(const Vertex *vertices, const unsigned int size) {
@@ -216,11 +216,6 @@ vec3 getCenterOfMass(const Vertex *vertices, const unsigned int size) {
         center += vertices[i].position;
     }
     return center / size;
-}
-
-float getAmbientIntensity(float time) {
-    assert(time >= 0.f && time < 24.f);
-    return (1 - sinf(M_PI / 12 * (time + 6.f))) / 2.f;
 }
 
 int main(int argc, char **argv) {
@@ -246,6 +241,7 @@ int main(int argc, char **argv) {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     glfwMakeContextCurrent(window);
 
@@ -284,15 +280,16 @@ int main(int argc, char **argv) {
     graphicsEngine->dirlight = dirLight(-vec3(std::sin(60), std::cos(60), 0).normalize(), 1, color(255));
     graphicsEngine->ambientLightIntensity = 0;
 
+    int lightNumber = 0;
     for (auto &mesh : city->meshes) {
-        printf("meshname %s \n", mesh->name.c_str());
-        if (mesh->name.find("lightCube") != std::string::npos) {
+        if (mesh->name.find("lightCube") != std::string::npos && lightNumber < 5) {
             const vec3 center = getCenterOfMass(mesh->m_vertices.data(), mesh->m_vertices.size());
             for (auto &vertex : mesh->m_vertices) {
                 auto debugTranslate = trans::translate(-center);
                 vertex.position = debugTranslate * vec4(vertex.position, 1);
             }
             graphicsEngine->pointLights.emplace_back(center, 1, mesh);
+            lightNumber++;
         }
     }
 

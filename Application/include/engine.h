@@ -326,15 +326,15 @@ struct engine {
             return col;
         }
         // col = color(vec3(v.v.texCoord.x, v.v.texCoord.y, 1));
-        return col;
-        color result;
+        // return col;
+        color result(0, 0, 0, 255);
 #ifdef PHONG_SHADING
         const auto viewDir = (cam->eye - v.extraInfoAboutVertex).normalize();
         for (auto &light : pointLights) {
             const float test = vec3::dist(cam->eye, light.getpos());
-            if (test > lightRenderDistance) {
-                continue;
-            }
+            // if (test > lightRenderDistance) {
+            //     continue;
+            // }
             float dist = vec3::dist(v.extraInfoAboutVertex, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
             if (int_by_at > 0.01) {
@@ -377,7 +377,67 @@ struct engine {
         // printf("\033[F");
     }
 
+    void setTime(float time) {
+        assert(time >= 0.f && time < 24.f);
+        dirlight.intensity = 0.7666921f * exp(-pow((time - 12.4125f) / (3.047894f), 2.f) / 2.f);
+        ambientLightIntensity = dirlight.intensity * 0.5;
+        const uint8_t min = floor(time), max = ceil(time);
+        float alpha;
+        if (min == max)
+            alpha = 0;
+        else
+            alpha = (max - time) / (max - min);
+
+        float green = greenTimeMap[min] + alpha * (greenTimeMap[max] - greenTimeMap[min]);
+        float blue = blueTimeMap[min] + alpha * (blueTimeMap[max] - blueTimeMap[min]);
+        ambientLightColor = color(vec3(1, green, blue));
+        const float t = M_PI * sin(M_PI * time / 24);
+        dirlight.direction = vec3(sin(t), -cos(t), 0);
+        dirlight.direction.normalize();
+
+        printf("time: %f\n", time);
+        printf("ambientlight color: (%d,%d,%d)\n", ambientLightColor.r(), ambientLightColor.g(), ambientLightColor.b());
+        printf("dirlight intensity: %f\n", dirlight.intensity);
+        printVec(dirlight.direction);
+
+        printf("\033[F");
+        printf("\033[F");
+        printf("\033[F");
+        printf("\033[F");
+    }
+
   private:
+    std::unordered_map<uint8_t, float>
+        greenTimeMap = {{0, 0}, {1, 0.1}, {2, 0.3}, {3, 0.3}, {4, 0.35}, {5, 0.4}, {6, 0.5}, {7, 0.55}, {8, 0.6}, {9, 1}, {10, 1}, {11, 1}, {12, 1}, {13, 1}, {14, 1}, {15, 1}, {16, 1}, {17, 0.8}, {18, 0.5}, {19, 0.4}, {20, 0.3}, {21, 0.25}, {22, 0.1}, {23, 0.06}, {24, 0}},
+        blueTimeMap = {
+            {0, 0},
+            {1, 0},
+            {2, 0},
+            {3, 0.05},
+            {4, 0.06},
+            {5, 0.1},
+            {6, 0.15},
+            {7, 0.25},
+            {8, 0.35},
+            {9, 0.75},
+            {10, 0.8},
+            {11, 1},
+            {12, 1},
+            {13, 1},
+            {14, 1},
+            {15, 1},
+            {16, 0.8},
+            {17, 0.6},
+            {18, 0.4},
+            {19, 0.1},
+            {20, 0.01},
+            {21, 0},
+            {22, 0},
+            {23, 0},
+            {24, 0}
+
+    };
+
     static inline float max(const float &first, const float &second) {
         return first > second ? first : second;
     }
@@ -448,8 +508,9 @@ struct engine {
         points[1].normal = modelmat * points[1].normal;
         points[2].position = modelviewTransformed[2];
         points[2].normal = modelmat * points[2].normal;
+        vec4 centroid = (points[0].position + points[1].position + points[2].position) / 3;
 
-        if (cullBackface && vec3::dot(view * points[0].normal, points[0].position) > 0) {
+        if (cullBackface && vec3::dot(view * points[0].normal, (vec3)centroid) > 0) {
             return;
         }
 
@@ -637,37 +698,39 @@ struct engine {
         const double m1 = (v2.v.position.x - v1.v.position.x) / (v2.v.position.y - v1.v.position.y);
 
         // calculate start and end scanlines
-        const int yStart = (int)ceil(v0.v.position.y - 0.5f);
+        int yStart = (int)ceil(v0.v.position.y - 0.5f);
         const int yEnd = (int)ceil(v2.v.position.y - 0.5f); // the scanline AFTER the last line drawn
 
-        const double unit0 = 1.f / (v2.v.position.y - v0.v.position.y), unit1 = 1.f / (v2.v.position.y - v1.v.position.y);
-        double u0 = 0, u1 = 0;
+        const double unit0 = 1.f / (v2.v.position.y - v0.v.position.y);
+        double u0 = 0;
 
         Vertex2 diff0 = v2 - v0, diff1 = v2 - v1, diff2;
         Vertex2 vx0, vx1, vx2;
 
-        for (int y = yStart; y < yEnd && y < fboCPU->ymax; ++y, u0 += unit0, u1 += unit1) {
-            if (y <= fboCPU->ymin) {
-                continue;
-            }
+        if (yStart <= fboCPU->ymin) {
+            u0 = unit0 * (fboCPU->ymin - yStart + 1);
+            yStart = fboCPU->ymin + 1;
+        }
+        for (int y = yStart; y < yEnd && y < fboCPU->ymax; ++y, u0 += unit0) {
             const double px0 = m0 * (double(y) + 0.5f - v0.v.position.y) + v0.v.position.x;
             const double px1 = m1 * (double(y) + 0.5f - v1.v.position.y) + v1.v.position.x;
 
             vx0 = v0 + diff0 * u0;
-            vx1 = v1 + diff1 * u1;
+            vx1 = v1 + diff1 * u0;
 
             // calculate start and end pixels
-            const int xStart = (int)ceil(px0 - 0.5f);
+            int xStart = (int)ceil(px0 - 0.5f);
             const int xEnd = (int)ceil(px1 - 0.5f); // the pixel AFTER the last pixel drawn
 
-            const double unit2 = 1.f / (xEnd - xStart);
+            const double unit2 = 1.f / (px1 - px0);
             double u2 = 0;
             diff2 = vx1 - vx0;
 
+            if (xStart <= fboCPU->xmin) {
+                u2 = unit2 * (fboCPU->xmin - xStart + 1);
+                xStart = fboCPU->xmin + 1;
+            }
             for (int x = xStart; x < xEnd && x < fboCPU->xmax; x++, u2 += unit2) {
-                if (x <= fboCPU->xmin) {
-                    continue;
-                }
                 const double z = 1 / (vx0.v.position.z + (diff2.v.position.z) * u2);
 #ifdef MULTITHREADED
                 const std::lock_guard<std::mutex> lock(fboCPUMutex);
@@ -915,13 +978,13 @@ struct engine {
             if (v1.v.position.x < v0.v.position.x) {
                 std::swap(v0, v1);
             }
-            fillBottomFlatTriangleBary(v0, v1, v2, mesh);
+            fillBottomFlatTriangle(v0, v1, v2, mesh);
         } else if (v1.v.position.y == v2.v.position.y) // natural flat top
         {
             if (v2.v.position.x < v1.v.position.x) {
                 std::swap(v1, v2);
             }
-            fillTopFlatTriangleBary(v0, v1, v2, mesh);
+            fillTopFlatTriangle(v0, v1, v2, mesh);
         } else // general triangle
         {
             assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
@@ -931,12 +994,12 @@ struct engine {
 
             if (v1.v.position.x < vi.v.position.x) // major left
             {
-                fillTopFlatTriangleBary(v0, v1, vi, mesh);
-                fillBottomFlatTriangleBary(v1, vi, v2, mesh);
+                fillTopFlatTriangle(v0, v1, vi, mesh);
+                fillBottomFlatTriangle(v1, vi, v2, mesh);
             } else // major right
             {
-                fillTopFlatTriangleBary(v0, vi, v1, mesh);
-                fillBottomFlatTriangleBary(vi, v1, v2, mesh);
+                fillTopFlatTriangle(v0, vi, v1, mesh);
+                fillBottomFlatTriangle(vi, v1, v2, mesh);
             }
             // draw_bresenham_adjusted(roundfloat(vi.v.position.x), roundfloat(vi.v.position.y), roundfloat(v1.v.position.x), roundfloat(v1.v.position.y), color(0, 255, 0));
         }
