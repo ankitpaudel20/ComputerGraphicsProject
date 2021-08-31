@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['radian_0',['radian',['../maths_8h.html#aa52047fa73f3873c1bcc71e42df28b94',1,'maths.h']]],
-  ['rotation_1',['rotation',['../structdrawable.html#af859dd3e8a9a01d71078d0169611e298',1,'drawable::rotation()'],['../structnode.html#a9dd338da62b27d5139e175dc06dd914c',1,'node::rotation()']]],
-  ['running_2',['running',['../classthread__pool.html#a25218460dba3f28dd14cade108ccbaa1',1,'thread_pool']]]
+  ['quadratic_0',['quadratic',['../structpoint_light.html#a7cfdfb70d606f083de17f4bacdf983bc',1,'pointLight']]],
+  ['queue_5fmutex_1',['queue_mutex',['../classthread__pool.html#afdf641af037cd483998f0f830d7db21f',1,'thread_pool']]]
 ];

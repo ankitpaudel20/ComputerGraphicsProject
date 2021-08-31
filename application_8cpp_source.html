@@ -304,7 +304,7 @@ $(document).ready(function(){initNavTree('application_8cpp_source.html',''); ini
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno"><a class="line" href="application_8cpp.html#a06ad2502008f16fbcf01dfaa7f7bc9ea">  207</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="application_8cpp.html#a06ad2502008f16fbcf01dfaa7f7bc9ea">scroll_callback</a>(GLFWwindow *window, <span class="keywordtype">double</span> xoffset, <span class="keywordtype">double</span> yoffset) {</div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keyword">auto</span> eng = (<a class="code hl_struct" href="structengine.html">engine</a> *)glfwGetWindowUserPointer(window);</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <a class="code hl_variable" href="application_8cpp.html#af95d699c398ab417930417c6ee263737">gameTime</a> += yoffset;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="comment">// eng-&gt;setTime(gameTime &gt;= 24 ? 0 : gameTime);</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    eng-&gt;setTime(<a class="code hl_variable" href="application_8cpp.html#af95d699c398ab417930417c6ee263737">gameTime</a> &gt;= 24 || <a class="code hl_variable" href="application_8cpp.html#af95d699c398ab417930417c6ee263737">gameTime</a> &lt;= 0 ? 0 : <a class="code hl_variable" href="application_8cpp.html#af95d699c398ab417930417c6ee263737">gameTime</a>);</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>}</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno"><a class="line" href="application_8cpp.html#aa0147e155473fc8b08d4c0e4b006a24f">  213</a></span><a class="code hl_class" href="structvec3___t.html">vec3</a> <a class="code hl_function" href="application_8cpp.html#aa0147e155473fc8b08d4c0e4b006a24f">getCenterOfMass</a>(<span class="keyword">const</span> <a class="code hl_struct" href="struct_vertex.html">Vertex</a> *vertices, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> size) {</div>
@@ -315,159 +315,155 @@ $(document).ready(function(){initNavTree('application_8cpp_source.html',''); ini
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keywordflow">return</span> center / size;</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>}</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno"><a class="line" href="application_8cpp.html#a12763b715b4ef1963bd6197d774bc846">  221</a></span><span class="keywordtype">float</span> <a class="code hl_function" href="application_8cpp.html#a12763b715b4ef1963bd6197d774bc846">getAmbientIntensity</a>(<span class="keywordtype">float</span> time) {</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    assert(time &gt;= 0.f &amp;&amp; time &lt; 24.f);</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keywordflow">return</span> (1 - sinf(M_PI / 12 * (time + 6.f))) / 2.f;</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>}</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno"><a class="line" href="application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">  226</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">main</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    <span class="keyword">auto</span> threads = std::thread::hardware_concurrency();</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    GLFWwindow *window;</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordflow">if</span> (!glfwInit())</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>        <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    glfwSetErrorCallback(error_callback);</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    window = glfwCreateWindow(640, 480, <span class="stringliteral">&quot;main&quot;</span>, NULL, NULL);</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordflow">if</span> (!(window)) {</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>        glfwTerminate();</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>        <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    }</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    glfwSetKeyCallback(window, <a class="code hl_function" href="application_8cpp.html#a286930f4e8ede059b83ff6eafa2ff718">key_callback</a>);</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    glfwSetCursorPosCallback(window, cursor_position_callback);</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    glfwSetMouseButtonCallback(window, <a class="code hl_function" href="application_8cpp.html#a5515d805e76ce6728de3c0dc5e187c86">mouse_button_callback</a>);</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    glfwMakeContextCurrent(window);</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    GLenum err = glewInit();</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keywordflow">if</span> (GLEW_OK != err) {</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>        fprintf(stderr, <span class="stringliteral">&quot;GLEW Error: %s\n&quot;</span>, glewGetErrorString(err));</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    }</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    glfwSwapInterval(1);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno"><a class="line" href="application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">  221</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">main</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keyword">auto</span> threads = std::thread::hardware_concurrency();</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    GLFWwindow *window;</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keywordflow">if</span> (!glfwInit())</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    glfwSetErrorCallback(error_callback);</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    window = glfwCreateWindow(640, 480, <span class="stringliteral">&quot;main&quot;</span>, NULL, NULL);</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keywordflow">if</span> (!(window)) {</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>        glfwTerminate();</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    }</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    glfwSetKeyCallback(window, <a class="code hl_function" href="application_8cpp.html#a286930f4e8ede059b83ff6eafa2ff718">key_callback</a>);</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    glfwSetCursorPosCallback(window, cursor_position_callback);</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    glfwSetMouseButtonCallback(window, <a class="code hl_function" href="application_8cpp.html#a5515d805e76ce6728de3c0dc5e187c86">mouse_button_callback</a>);</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    glfwSetScrollCallback(window, <a class="code hl_function" href="application_8cpp.html#a06ad2502008f16fbcf01dfaa7f7bc9ea">scroll_callback</a>);</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    glfwMakeContextCurrent(window);</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    GLenum err = glewInit();</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordflow">if</span> (GLEW_OK != err) {</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>        fprintf(stderr, <span class="stringliteral">&quot;GLEW Error: %s\n&quot;</span>, glewGetErrorString(err));</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    }</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    glfwSwapInterval(1);</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    glfwGetFramebufferSize(window, &amp;<a class="code hl_variable" href="application_8cpp.html#a0e2e740afd510cfe652a1836ffbad209">window_width</a>, &amp;<a class="code hl_variable" href="application_8cpp.html#aca33f926b061680d857699a22f676418">window_height</a>);</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a> = <span class="keyword">new</span> <a class="code hl_struct" href="structengine.html">engine</a>(<a class="code hl_variable" href="application_8cpp.html#a0e2e740afd510cfe652a1836ffbad209">window_width</a>, <a class="code hl_variable" href="application_8cpp.html#aca33f926b061680d857699a22f676418">window_height</a>);</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    glfwSetWindowUserPointer(window, <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>);</div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    glfwGetFramebufferSize(window, &amp;<a class="code hl_variable" href="application_8cpp.html#a0e2e740afd510cfe652a1836ffbad209">window_width</a>, &amp;<a class="code hl_variable" href="application_8cpp.html#aca33f926b061680d857699a22f676418">window_height</a>);</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a> = <span class="keyword">new</span> <a class="code hl_struct" href="structengine.html">engine</a>(<a class="code hl_variable" href="application_8cpp.html#a0e2e740afd510cfe652a1836ffbad209">window_width</a>, <a class="code hl_variable" href="application_8cpp.html#aca33f926b061680d857699a22f676418">window_height</a>);</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    glfwSetWindowUserPointer(window, <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>);</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keyword">auto</span> path = searchRes();</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <a class="code hl_struct" href="structnode.html">node</a> rootNode;</div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keyword">auto</span> path = searchRes();</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="comment">// auto lightmodel = Model::loadModel_obj(path + &quot;/sphere.obj&quot;, &quot;light&quot;);</span></div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <a class="code hl_struct" href="structnode.html">node</a> rootNode;</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="comment">// auto lightmodel = Model::loadModel_obj(path + &quot;/sphere.obj&quot;, &quot;light&quot;);</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">// auto colorCube = Model::loadModel_obj(path + &quot;/color/testColored.obj&quot;, &quot;color&quot;);</span></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="comment">// auto textureBox = Model::loadModel_obj(path + &quot;/Crate/Crate1.obj&quot;, &quot;texturebox&quot;);</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="comment">// auto football_real = Model::loadModel_obj(path + &quot;/Football/Football_LowPoly.obj&quot;, &quot;football&quot;);</span></div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="comment">// auto stupa = Model::loadModel_obj(path + &quot;/swayambhunath/swayambhunath.obj&quot;, &quot;city&quot;);</span></div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keyword">auto</span> city = <a class="code hl_function" href="namespace_model.html#a335f683e57701d8f97d0d4388a0f7939">Model::loadModel_obj</a>(path + <span class="stringliteral">&quot;/city/house.obj&quot;</span>, <span class="stringliteral">&quot;city&quot;</span>);</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="comment">// auto texturedSquare = Model::loadModel_obj(path + &quot;/texturedSquare.obj&quot;, &quot;city&quot;);</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="comment">// rootNode.children[&quot;city&quot;] = city;</span></div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <a class="code hl_variable" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>.<a class="code hl_variable" href="classcamera.html#a410971f4ac8e73534a48556c17c27052">eye</a> = <a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(-2.36445, 2.10356, -3.63178);</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <a class="code hl_variable" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>.<a class="code hl_function" href="classcamera.html#a467d0446f04add0222266604ef9c7f6c">changeDir</a>(<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(0.630748, -0.385089, 0.673694));</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="comment">// graphicsEngine-&gt;nearPlane = 1;</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <a class="code hl_struct" href="struct_material.html">Material</a> m;</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    m.<a class="code hl_variable" href="struct_material.html#a747632f8b6f821b068b01db0a8c592cd">diffuseColor</a> = <a class="code hl_struct" href="structcolor.html">color</a>(255, 0, 0);</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#a6f9dd3ab9157db6b786d6b9d07a9c238">cullBackface</a> = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#a590aa29b56b0fc5fa12e209137cfe32a">cam</a> = &amp;<a class="code hl_variable" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>;</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#ad429a04d52e1fce8312767d252f29568">dirlight</a> = <a class="code hl_struct" href="structdir_light.html">dirLight</a>(-<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(std::sin(60), std::cos(60), 0).normalize(), 1, <a class="code hl_struct" href="structcolor.html">color</a>(255));</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#aceb5611a19a7d272d13398af5e701d2e">ambientLightIntensity</a> = 0;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>        printf(<span class="stringliteral">&quot;meshname %s \n&quot;</span>, mesh-&gt;name.c_str());</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>        <span class="keywordflow">if</span> (mesh-&gt;name.find(<span class="stringliteral">&quot;lightCube&quot;</span>) != std::string::npos) {</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            <span class="keyword">const</span> <a class="code hl_class" href="structvec3___t.html">vec3</a> center = <a class="code hl_function" href="application_8cpp.html#aa0147e155473fc8b08d4c0e4b006a24f">getCenterOfMass</a>(mesh-&gt;m_vertices.data(), mesh-&gt;m_vertices.size());</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;vertex : mesh-&gt;m_vertices) {</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>                <span class="keyword">auto</span> debugTranslate = trans::translate(-center);</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>                vertex.position = debugTranslate * <a class="code hl_typedef" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>(vertex.position, 1);</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>            }</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>            <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#aa0cca56319f092902a3bf7cf7bebc5a2">pointLights</a>.emplace_back(center, 1, mesh);</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>        }</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    }</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="comment">// auto colorCube = Model::loadModel_obj(path + &quot;/color/testColored.obj&quot;, &quot;color&quot;);</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="comment">// auto textureBox = Model::loadModel_obj(path + &quot;/Crate/Crate1.obj&quot;, &quot;texturebox&quot;);</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="comment">// auto football_real = Model::loadModel_obj(path + &quot;/Football/Football_LowPoly.obj&quot;, &quot;football&quot;);</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="comment">// auto stupa = Model::loadModel_obj(path + &quot;/swayambhunath/swayambhunath.obj&quot;, &quot;city&quot;);</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keyword">auto</span> city = <a class="code hl_function" href="namespace_model.html#a335f683e57701d8f97d0d4388a0f7939">Model::loadModel_obj</a>(path + <span class="stringliteral">&quot;/city/house.obj&quot;</span>, <span class="stringliteral">&quot;city&quot;</span>);</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="comment">// auto texturedSquare = Model::loadModel_obj(path + &quot;/texturedSquare.obj&quot;, &quot;city&quot;);</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="comment">// rootNode.children[&quot;city&quot;] = city;</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <a class="code hl_variable" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>.<a class="code hl_variable" href="classcamera.html#a410971f4ac8e73534a48556c17c27052">eye</a> = <a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(-2.36445, 2.10356, -3.63178);</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <a class="code hl_variable" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>.<a class="code hl_function" href="classcamera.html#a467d0446f04add0222266604ef9c7f6c">changeDir</a>(<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(0.630748, -0.385089, 0.673694));</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="comment">// graphicsEngine-&gt;nearPlane = 1;</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <a class="code hl_struct" href="struct_material.html">Material</a> m;</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    m.<a class="code hl_variable" href="struct_material.html#a747632f8b6f821b068b01db0a8c592cd">diffuseColor</a> = <a class="code hl_struct" href="structcolor.html">color</a>(255, 0, 0);</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#a6f9dd3ab9157db6b786d6b9d07a9c238">cullBackface</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#a590aa29b56b0fc5fa12e209137cfe32a">cam</a> = &amp;<a class="code hl_variable" href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a>;</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#ad429a04d52e1fce8312767d252f29568">dirlight</a> = <a class="code hl_struct" href="structdir_light.html">dirLight</a>(-<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(std::sin(60), std::cos(60), 0).normalize(), 1, <a class="code hl_struct" href="structcolor.html">color</a>(255));</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#aceb5611a19a7d272d13398af5e701d2e">ambientLightIntensity</a> = 0;</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="keywordtype">int</span> lightNumber = 0;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>        <span class="keywordflow">if</span> (mesh-&gt;name.find(<span class="stringliteral">&quot;lightCube&quot;</span>) != std::string::npos &amp;&amp; lightNumber &lt; 5) {</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            <span class="keyword">const</span> <a class="code hl_class" href="structvec3___t.html">vec3</a> center = <a class="code hl_function" href="application_8cpp.html#aa0147e155473fc8b08d4c0e4b006a24f">getCenterOfMass</a>(mesh-&gt;m_vertices.data(), mesh-&gt;m_vertices.size());</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;vertex : mesh-&gt;m_vertices) {</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                <span class="keyword">auto</span> debugTranslate = trans::translate(-center);</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                vertex.position = debugTranslate * <a class="code hl_typedef" href="maths_8h.html#a27555478b6d1e15dfcfc2e3f56af597d">vec4</a>(vertex.position, 1);</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            }</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>            <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#aa0cca56319f092902a3bf7cf7bebc5a2">pointLights</a>.emplace_back(center, 1, mesh);</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>            lightNumber++;</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>        }</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    }</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="comment">// graphicsEngine-&gt;pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3, lightmodel-&gt;meshes.back());</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="comment">// graphicsEngine-&gt;pointLights.back().setScale(vec3(0.5));</span></div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="comment">// graphicsEngine-&gt;pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3, lightmodel-&gt;meshes.back());</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="comment">// graphicsEngine-&gt;pointLights.back().setScale(vec3(0.5));</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keyword">auto</span> lastframe = std::chrono::high_resolution_clock::now();</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    std::string fpsString = <span class="stringliteral">&quot;FPS: &quot;</span>;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keyword">const</span> <span class="keyword">auto</span> place = fpsString.find_first_of(<span class="stringliteral">&quot; &quot;</span>) + 1;</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="keywordflow">while</span> (!glfwWindowShouldClose(window)) {</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>        <a class="code hl_variable" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a> = std::chrono::duration_cast&lt;std::chrono::microseconds&gt;(std::chrono::high_resolution_clock::now() - lastframe).count();</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>        lastframe = std::chrono::high_resolution_clock::now();</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>        <span class="comment">// graphicsEngine-&gt;pointLights.back().setpos(graphicsEngine-&gt;cam-&gt;eye);</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keyword">auto</span> lastframe = std::chrono::high_resolution_clock::now();</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    std::string fpsString = <span class="stringliteral">&quot;FPS: &quot;</span>;</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keyword">const</span> <span class="keyword">auto</span> place = fpsString.find_first_of(<span class="stringliteral">&quot; &quot;</span>) + 1;</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keywordflow">while</span> (!glfwWindowShouldClose(window)) {</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        <a class="code hl_variable" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a> = std::chrono::duration_cast&lt;std::chrono::microseconds&gt;(std::chrono::high_resolution_clock::now() - lastframe).count();</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>        lastframe = std::chrono::high_resolution_clock::now();</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>        <span class="comment">// graphicsEngine-&gt;pointLights.back().setpos(graphicsEngine-&gt;cam-&gt;eye);</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>        glfwPollEvents();</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>        <a class="code hl_function" href="application_8cpp.html#a9e7d2ab43fd2c72f7ac16ab894e4f3e2">processHoldEvent</a>(window);</div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>        glfwPollEvents();</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>        <a class="code hl_function" href="application_8cpp.html#a9e7d2ab43fd2c72f7ac16ab894e4f3e2">processHoldEvent</a>(window);</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>        <a class="code hl_variable" href="application_8cpp.html#a48dc0386e0afcf9887f873c27449af60">translate3d</a> = trans::translate(<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(5, 0, -5));</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>        <a class="code hl_variable" href="application_8cpp.html#a98a62cdd01e76dd1ee33c687f9f93c8e">scale3d</a> = trans::scaling3d(<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(0.5));</div>
 <div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>        <a class="code hl_variable" href="application_8cpp.html#a48dc0386e0afcf9887f873c27449af60">translate3d</a> = trans::translate(<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(5, 0, -5));</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>        <a class="code hl_variable" href="application_8cpp.html#a98a62cdd01e76dd1ee33c687f9f93c8e">scale3d</a> = trans::scaling3d(<a class="code hl_typedef" href="maths_8h.html#aaabb17836430fad1b95a0b393dc3d89d">vec3</a>(0.5));</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>        fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / <a class="code hl_variable" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a>));</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>        glfwSetWindowTitle(window, fpsString.c_str());</div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>        fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / <a class="code hl_variable" href="application_8cpp.html#ad067893f3c3e13874f3159b02a6693b8">deltatime</a>));</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>        glfwSetWindowTitle(window, fpsString.c_str());</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>        <span class="comment">// std::cout &lt;&lt; &quot;camera Eye: &quot; &lt;&lt; cam1.eye &lt;&lt; std::endl;</span></div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>        <span class="comment">// std::cout &lt;&lt; &quot;camera viewdir: &quot; &lt;&lt; cam1.getViewDir() &lt;&lt; std::endl;</span></div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>        <span class="comment">// std::cout &lt;&lt; &quot;camera Eye: &quot; &lt;&lt; cam1.eye &lt;&lt; std::endl;</span></div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>        <span class="comment">// std::cout &lt;&lt; &quot;camera viewdir: &quot; &lt;&lt; cam1.getViewDir() &lt;&lt; std::endl;</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>        <span class="comment">// printf(&quot;\033[F&quot;);</span></div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_function" href="structengine.html#a3e46acad5b405a88de5daaddfd4d2da4">clear</a>();</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        <span class="comment">//for (auto &amp;mesh : lightmodel-&gt;meshes) {</span></div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        <span class="comment">//    graphicsEngine-&gt;currentMesh = mesh;</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>        <span class="comment">//    if (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</span></div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>        <span class="comment">//        // graphicsEngine-&gt;makeRequiredTriangles(mesh-&gt;m_vertices, mesh-&gt;m_indices, mat4f());</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>        <span class="comment">//    }</span></div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>        <span class="comment">//}</span></div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>            <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#a4b82a7fcf51264a12749e6ae64137987">currentMesh</a> = mesh;</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>            <span class="keywordflow">if</span> (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                <span class="comment">// if (mesh-&gt;name.find(&quot;Plane.1552&quot;) != std::string::npos)</span></div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_function" href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">makeRequiredTriangles</a>(mesh-&gt;m_vertices, mesh-&gt;m_indices, mesh-&gt;matModel);</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>            }</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>        }</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>        <span class="comment">// graphicsEngine-&gt;currentMesh = texturedSquare-&gt;meshes[0];</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>        <span class="comment">// if (texturedSquare-&gt;meshes[0]-&gt;doLightCalculations &amp;&amp; texturedSquare-&gt;meshes[0]-&gt;draw) {</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>        <span class="comment">//     graphicsEngine-&gt;makeRequiredTriangles(texturedSquare-&gt;meshes[0]-&gt;m_vertices, texturedSquare-&gt;meshes[0]-&gt;m_indices, mat4f());</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>        <span class="comment">// }</span></div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> </div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <span class="comment">// graphicsEngine-&gt;currentMesh = textureBox-&gt;meshes[0];</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>        <span class="comment">// if (textureBox-&gt;meshes[0]-&gt;doLightCalculations &amp;&amp; textureBox-&gt;meshes[0]-&gt;draw) {</span></div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>        <span class="comment">//     graphicsEngine-&gt;makeRequiredTriangles(textureBox-&gt;meshes[0]-&gt;m_vertices, textureBox-&gt;meshes[0]-&gt;m_indices, trans::scaling3d(vec3(2)));</span></div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>        <span class="comment">// }</span></div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span> </div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;light : <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#aa0cca56319f092902a3bf7cf7bebc5a2">pointLights</a>) {</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>            light.draw(*<a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>);</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>        }</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>        <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_function" href="structengine.html#a7f3244be45685880daaa54fb60b65e2a">draw</a>();</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>        glfwSwapBuffers(window);</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    }</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keyword">delete</span> <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>;</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    glfwDestroyWindow(window);</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    glfwTerminate();</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>}</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>        <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_function" href="structengine.html#a3e46acad5b405a88de5daaddfd4d2da4">clear</a>();</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>        <span class="comment">//for (auto &amp;mesh : lightmodel-&gt;meshes) {</span></div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        <span class="comment">//    graphicsEngine-&gt;currentMesh = mesh;</span></div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        <span class="comment">//    if (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</span></div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        <span class="comment">//        // graphicsEngine-&gt;makeRequiredTriangles(mesh-&gt;m_vertices, mesh-&gt;m_indices, mat4f());</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        <span class="comment">//    }</span></div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>        <span class="comment">//}</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;mesh : city-&gt;meshes) {</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>            <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#a4b82a7fcf51264a12749e6ae64137987">currentMesh</a> = mesh;</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>            <span class="keywordflow">if</span> (mesh-&gt;doLightCalculations &amp;&amp; mesh-&gt;draw) {</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>                <span class="comment">// if (mesh-&gt;name.find(&quot;Plane.1552&quot;) != std::string::npos)</span></div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>                <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_function" href="structengine.html#a167673374ef52813c65b9c2ee37f01d3">makeRequiredTriangles</a>(mesh-&gt;m_vertices, mesh-&gt;m_indices, mesh-&gt;matModel);</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>            }</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>        }</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>        <span class="comment">// graphicsEngine-&gt;currentMesh = texturedSquare-&gt;meshes[0];</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>        <span class="comment">// if (texturedSquare-&gt;meshes[0]-&gt;doLightCalculations &amp;&amp; texturedSquare-&gt;meshes[0]-&gt;draw) {</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>        <span class="comment">//     graphicsEngine-&gt;makeRequiredTriangles(texturedSquare-&gt;meshes[0]-&gt;m_vertices, texturedSquare-&gt;meshes[0]-&gt;m_indices, mat4f());</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>        <span class="comment">// }</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>        <span class="comment">// graphicsEngine-&gt;currentMesh = textureBox-&gt;meshes[0];</span></div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>        <span class="comment">// if (textureBox-&gt;meshes[0]-&gt;doLightCalculations &amp;&amp; textureBox-&gt;meshes[0]-&gt;draw) {</span></div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>        <span class="comment">//     graphicsEngine-&gt;makeRequiredTriangles(textureBox-&gt;meshes[0]-&gt;m_vertices, textureBox-&gt;meshes[0]-&gt;m_indices, trans::scaling3d(vec3(2)));</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <span class="comment">// }</span></div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;light : <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_variable" href="structengine.html#aa0cca56319f092902a3bf7cf7bebc5a2">pointLights</a>) {</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>            light.draw(*<a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>);</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>        }</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>        <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>-&gt;<a class="code hl_function" href="structengine.html#a7f3244be45685880daaa54fb60b65e2a">draw</a>();</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>        glfwSwapBuffers(window);</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    }</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keyword">delete</span> <a class="code hl_variable" href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a>;</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    glfwDestroyWindow(window);</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    glfwTerminate();</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>}</div>
 <div class="ttc" id="aapplication_8cpp_html_a06ad2502008f16fbcf01dfaa7f7bc9ea"><div class="ttname"><a href="application_8cpp.html#a06ad2502008f16fbcf01dfaa7f7bc9ea">scroll_callback</a></div><div class="ttdeci">void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00207">application.cpp:207</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a0e2e740afd510cfe652a1836ffbad209"><div class="ttname"><a href="application_8cpp.html#a0e2e740afd510cfe652a1836ffbad209">window_width</a></div><div class="ttdeci">int window_width</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00175">application.cpp:175</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a0e5acbac3aa178a043875f440484e779"><div class="ttname"><a href="application_8cpp.html#a0e5acbac3aa178a043875f440484e779">axes_endpoints</a></div><div class="ttdeci">const std::vector&lt; vec4 &gt; axes_endpoints</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00025">application.cpp:25</a></div></div>
-<div class="ttc" id="aapplication_8cpp_html_a12763b715b4ef1963bd6197d774bc846"><div class="ttname"><a href="application_8cpp.html#a12763b715b4ef1963bd6197d774bc846">getAmbientIntensity</a></div><div class="ttdeci">float getAmbientIntensity(float time)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00221">application.cpp:221</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a286930f4e8ede059b83ff6eafa2ff718"><div class="ttname"><a href="application_8cpp.html#a286930f4e8ede059b83ff6eafa2ff718">key_callback</a></div><div class="ttdeci">void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00043">application.cpp:43</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a2a8617ee6ce8b612edbfa022358e2a45"><div class="ttname"><a href="application_8cpp.html#a2a8617ee6ce8b612edbfa022358e2a45">square</a></div><div class="ttdeci">const std::vector&lt; Vertex &gt; square</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00019">application.cpp:19</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a2e3818999e735656a67846afd93042b6"><div class="ttname"><a href="application_8cpp.html#a2e3818999e735656a67846afd93042b6">graphicsEngine</a></div><div class="ttdeci">engine * graphicsEngine</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00041">application.cpp:41</a></div></div>
-<div class="ttc" id="aapplication_8cpp_html_a3c04138a5bfe5d72780bb7e82a18e627"><div class="ttname"><a href="application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">main</a></div><div class="ttdeci">int main(int argc, char **argv)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00226">application.cpp:226</a></div></div>
+<div class="ttc" id="aapplication_8cpp_html_a3c04138a5bfe5d72780bb7e82a18e627"><div class="ttname"><a href="application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">main</a></div><div class="ttdeci">int main(int argc, char **argv)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00221">application.cpp:221</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a48dc0386e0afcf9887f873c27449af60"><div class="ttname"><a href="application_8cpp.html#a48dc0386e0afcf9887f873c27449af60">translate3d</a></div><div class="ttdeci">mat4f translate3d</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00013">application.cpp:13</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a5515d805e76ce6728de3c0dc5e187c86"><div class="ttname"><a href="application_8cpp.html#a5515d805e76ce6728de3c0dc5e187c86">mouse_button_callback</a></div><div class="ttdeci">void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00196">application.cpp:196</a></div></div>
 <div class="ttc" id="aapplication_8cpp_html_a5685796ceec109235de8239351f6ecd3"><div class="ttname"><a href="application_8cpp.html#a5685796ceec109235de8239351f6ecd3">cam1</a></div><div class="ttdeci">camera cam1</div><div class="ttdef"><b>Definition:</b> <a href="application_8cpp_source.html#l00015">application.cpp:15</a></div></div>

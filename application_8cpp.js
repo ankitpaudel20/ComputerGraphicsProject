@@ -1,7 +1,6 @@
 var application_8cpp =
 [
     [ "_USE_MATH_DEFINES", "application_8cpp.html#a525335710b53cb064ca56b936120431e", null ],
-    [ "getAmbientIntensity", "application_8cpp.html#a12763b715b4ef1963bd6197d774bc846", null ],
     [ "getCenterOfMass", "application_8cpp.html#aa0147e155473fc8b08d4c0e4b006a24f", null ],
     [ "key_callback", "application_8cpp.html#a286930f4e8ede059b83ff6eafa2ff718", null ],
     [ "main", "application_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627", null ],

@@ -1,12 +1,17 @@
 var searchData=
 [
-  ['tasks_0',['tasks',['../classthread__pool.html#a0aef9354f74dba9b469084ba17feb5e1',1,'thread_pool']]],
-  ['tasks_5ftotal_1',['tasks_total',['../classthread__pool.html#aaadd54679f33196ff289db30604a0032',1,'thread_pool']]],
-  ['tex_2',['tex',['../structengine.html#ab2319926351e2eaa8675a07bb4f81f55',1,'engine']]],
-  ['texcoord_3',['texCoord',['../struct_vertex.html#a47f371218dc1f2ccab5427b37ce3aa22',1,'Vertex']]],
-  ['thread_5fcount_4',['thread_count',['../classthread__pool.html#a4eb87a055bf8762d9a6186d06db2730f',1,'thread_pool']]],
-  ['threads_5',['threads',['../classthread__pool.html#a59c590c4b97bb05c59c22c40bbac43ed',1,'thread_pool']]],
-  ['translate3d_6',['translate3d',['../application_8cpp.html#a48dc0386e0afcf9887f873c27449af60',1,'application.cpp']]],
-  ['translation_7',['translation',['../structdrawable.html#ad19c6f1041c974561296a02c6a3178f6',1,'drawable::translation()'],['../structnode.html#a8dd7294130fe7519acb476cb93df2ccf',1,'node::translation()']]],
-  ['triangles_8',['triangles',['../structengine.html#a598b7c1e5ea40d7248ebf2b28713f6fa',1,'engine']]]
+  ['scale3d_0',['scale3d',['../application_8cpp.html#a98a62cdd01e76dd1ee33c687f9f93c8e',1,'application.cpp']]],
+  ['scaling_1',['scaling',['../structdrawable.html#a89208ba02e3cd1b00e12e288d1ed815b',1,'drawable::scaling()'],['../structnode.html#abe7208c5dc75cd6f7757177de3edd5a0',1,'node::scaling()']]],
+  ['sensitivity_2',['sensitivity',['../classcamera.html#aabcfc8e9ed3fb248a681c290ceb8bfd8',1,'camera']]],
+  ['shader_3',['shader',['../structengine.html#a695e18ab595f86f2479948f4b3921945',1,'engine']]],
+  ['shininess_4',['shininess',['../struct_material.html#a9dc184c883ec135ace28c1917af3fe84',1,'Material']]],
+  ['sleep_5fduration_5',['sleep_duration',['../classthread__pool.html#aa0bd5e834e1c8358cd24d2c5743b95a8',1,'thread_pool']]],
+  ['specular_6',['specular',['../struct_material.html#aafda887405ece36967eba9d0c18ffca7',1,'Material']]],
+  ['specularcolor_7',['specularColor',['../struct_material.html#afb6b943cbefcc7d6c1ded32f46cb27ea',1,'Material']]],
+  ['specularstrength_8',['SpecularStrength',['../struct_material.html#a345cec47003704e30eb2210c76eab8ee',1,'Material']]],
+  ['speed_9',['speed',['../classcamera.html#a500d6d93c3272e3dc8ce957ec9b3d9e7',1,'camera']]],
+  ['square_10',['square',['../application_8cpp.html#a2a8617ee6ce8b612edbfa022358e2a45',1,'application.cpp']]],
+  ['square_5findices_11',['square_indices',['../application_8cpp.html#aa57e588afa4e551cde788439bb779773',1,'application.cpp']]],
+  ['start_5ftime_12',['start_time',['../classtimer.html#aa706ffb768e4a329a9ab45b4a2b8d7eb',1,'timer']]],
+  ['stream_5fmutex_13',['stream_mutex',['../classsynced__stream.html#a5749c758142c8fb2c97ca8975b75fae9',1,'synced_stream']]]
 ];

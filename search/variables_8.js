@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['lightrenderdistance_0',['lightRenderDistance',['../structengine.html#a4a200997b5ab9730c367f1a073bc41b0',1,'engine']]],
-  ['linear_1',['linear',['../structpoint_light.html#ac98185569f638380b3254b85467bbfb7',1,'pointLight']]]
+  ['ibo_0',['ibo',['../structengine.html#a44c9ceefdba683c5e50537c347b77a45',1,'engine']]],
+  ['id_1',['id',['../struct_material.html#a3c350361ffe39076a51722fff3346781',1,'Material']]],
+  ['indices_2',['indices',['../structengine.html#a97669bcdfc54fbc336bc686a41187611',1,'engine']]],
+  ['intensity_3',['intensity',['../structdir_light.html#a820b3feda24a38220de9273039426a52',1,'dirLight::intensity()'],['../structpoint_light.html#a66e0dac9c5d75e37d133a4f297e82b66',1,'pointLight::intensity()']]]
 ];
