@@ -161,7 +161,7 @@ template <class T>
 struct vec3_T {
     T x, y, z;
 
-    vec3_T() { x = y = z = 0; }
+    vec3_T() { x = y = z = T(0); }
     explicit vec3_T(T a) : x(a), y(a), z(a) {}
     vec3_T(T a, T b, T c) : x(a), y(b), z(c) {}
     vec3_T(const glm::vec3 &in) : x(in.x), y(in.y), z(in.z) {}

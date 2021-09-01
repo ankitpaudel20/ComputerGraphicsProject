@@ -343,7 +343,7 @@ struct engine {
         }
         result += CalcDirLight(v.v.normal, viewDir, col, &mesh->material);
 #else
-        result += col * (v.extraInfoAboutVertex.x);
+        // result += col * (v.extraInfoAboutVertex.x);
         result += col * (v.extraInfoAboutVertex.y);
         result += color(v.extraInfoAboutVertex.z);
 #endif
@@ -1030,18 +1030,18 @@ struct engine {
 #ifndef PHONG_SHADING
     void fillExtraInformationForGoraudShading(Vertex &v, EXTRA_VERTEX_INFO &vertPos) const {
         const auto viewDir = (cam->eye - vertPos.x).normalize();
+        vertPos = EXTRA_VERTEX_INFO(vec3(0), vec3(0), vec3(0));
         for (auto &light : pointLights) {
             float dist = vec3::dist(vertPos.x, light.getpos());
             float int_by_at = light.intensity / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
             const vec3 lightDir = vec3::normalize(light.getpos() - vertPos.x);
-            vertPos = {vec3(0), vec3(0), (0)};
-            if (int_by_at > 0.01) {
+            if (int_by_at > 0.000001) {
                 const float diff = max(vec3::dot(v.normal, lightDir), 0.0);
                 const vec3 halfwayDir = vec3::normalize(lightDir + viewDir);
                 const float spec = std::pow(max(vec3::dot(v.normal, halfwayDir), 0.0), currentMesh->material.shininess);
-                vertPos.x += light.get_ambient_color().getcolorVec3() * currentMesh->material.AmbientStrength * int_by_at;
-                vertPos.y += light.get_diffuse_color().getcolorVec3() * currentMesh->material.DiffuseStrength * diff * int_by_at;
-                vertPos.z += light.get_diffuse_color().getcolorVec3() * currentMesh->material.SpecularStrength * spec * int_by_at;
+                vertPos.x += light.get_ambient_color().getcolorVec3() * currentMesh->material.AmbientStrength * light.intensity * int_by_at;
+                vertPos.y += light.get_diffuse_color().getcolorVec3() * currentMesh->material.DiffuseStrength * light.intensity * diff * int_by_at;
+                vertPos.z += light.get_diffuse_color().getcolorVec3() * currentMesh->material.SpecularStrength * light.intensity * spec * int_by_at;
             }
         }
     }

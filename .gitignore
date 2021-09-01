@@ -440,6 +440,8 @@ FodyWeavers.xsd
 build/
 out/
 cmake-build-debug/
+cmake-build-release/
+cmake-build-relwithdebinfo/
 .idea/
 .vscode/
 .vs/
