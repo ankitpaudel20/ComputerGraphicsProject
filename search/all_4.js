@@ -14,13 +14,11 @@ var searchData=
   ['direction_11',['direction',['../structdir_light.html#a75fdae0c145f8a114d0aa795596aedd7',1,'dirLight']]],
   ['dirlight_12',['dirlight',['../structengine.html#ad429a04d52e1fce8312767d252f29568',1,'engine']]],
   ['dirlight_13',['dirLight',['../structdir_light.html#a72eaedbee0d64add5cd33c4adee43b04',1,'dirLight::dirLight()'],['../structdir_light.html',1,'dirLight']]],
-  ['dist_14',['dist',['../structvec2___t.html#a67d814ccf677f38ef5b73aafb0266833',1,'vec2_T::dist()'],['../structvec4___t.html#a5d5b38079b079f971d0460defe08852a',1,'vec4_T::dist()'],['../structvec3___t.html#a8f16261450801ef416890ade7e05efdc',1,'vec3_T::dist()']]],
+  ['dist_14',['dist',['../structvec2___t.html#a67d814ccf677f38ef5b73aafb0266833',1,'vec2_T::dist()'],['../structvec3___t.html#a8f16261450801ef416890ade7e05efdc',1,'vec3_T::dist()'],['../structvec4___t.html#a5d5b38079b079f971d0460defe08852a',1,'vec4_T::dist()']]],
   ['dolightcalculations_15',['doLightCalculations',['../structdrawable.html#a90cd62c7da943b55063bdde98e2439fa',1,'drawable']]],
   ['dot_16',['dot',['../structvec2___t.html#aa6f184df215b382341b69511263bb75e',1,'vec2_T::dot()'],['../structvec3___t.html#a33b4e6f1d2301d11a73b334ad57e2325',1,'vec3_T::dot()'],['../structvec4___t.html#a0ad2d68d71de79669763dfa6a66c39e8',1,'vec4_T::dot()']]],
-  ['draw_17',['draw',['../structnode.html#a1b7192b30b711196dd7cb0efd21adab4',1,'node::draw()'],['../structengine.html#a7f3244be45685880daaa54fb60b65e2a',1,'engine::draw()'],['../structengine.html#a7f3244be45685880daaa54fb60b65e2a',1,'engine::draw()'],['../structdrawable.html#aa630d5857ad25d32c5bd50864b9546c3',1,'drawable::draw()']]],
-  ['draw_5fbresenham_5fadjusted_18',['draw_bresenham_adjusted',['../structengine.html#a480de39f213a6a6121074a6c0797758d',1,'engine::draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &amp;col=color(0))'],['../structengine.html#a480de39f213a6a6121074a6c0797758d',1,'engine::draw_bresenham_adjusted(int x1, int y1, int x2, int y2, const color &amp;col=color(0))']]],
+  ['draw_17',['draw',['../structdrawable.html#aa630d5857ad25d32c5bd50864b9546c3',1,'drawable::draw()'],['../structengine.html#a7f3244be45685880daaa54fb60b65e2a',1,'engine::draw()'],['../structnode.html#a1b7192b30b711196dd7cb0efd21adab4',1,'node::draw()']]],
+  ['draw_5fbresenham_5fadjusted_18',['draw_bresenham_adjusted',['../structengine.html#a480de39f213a6a6121074a6c0797758d',1,'engine']]],
   ['drawable_19',['drawable',['../structdrawable.html#ab2d91bb30ad16e1b9d5c5cd27adb7014',1,'drawable::drawable()=default'],['../structdrawable.html#afb64e541ec53ff2264b0ddcc2b0a1644',1,'drawable::drawable(const std::vector&lt; T &gt; &amp;vertices, std::vector&lt; unsigned &gt; indices, const std::string &amp;n)'],['../structdrawable.html',1,'drawable&lt; T &gt;']]],
-  ['drawable_2eh_20',['drawable.h',['../drawable_8h.html',1,'']]],
-  ['drawlines_21',['drawLines',['../structengine.html#a83610c933a9276a16cd656d49a021e1b',1,'engine']]],
-  ['drawlinestrip_22',['drawLinestrip',['../structengine.html#ab9ac5ddb2ae5eaf6154cf0f318b33eb1',1,'engine']]]
+  ['drawable_2eh_20',['drawable.h',['../drawable_8h.html',1,'']]]
 ];

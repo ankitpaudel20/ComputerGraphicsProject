@@ -3,6 +3,7 @@ var core_8h =
     [ "Vertex", "struct_vertex.html", "struct_vertex" ],
     [ "color", "structcolor.html", "structcolor" ],
     [ "dirLight", "structdir_light.html", "structdir_light" ],
+    [ "_USE_MATH_DEFINES", "core_8h.html#a525335710b53cb064ca56b936120431e", null ],
     [ "ASSERT", "core_8h.html#aca68c0d4ac8df0838e209fb5300f7be3", null ],
     [ "DEBUG_BREAK", "core_8h.html#a3d93354890ac62b45842cac3737212c4", null ],
     [ "GLcall", "core_8h.html#a66f3cd543bb8c0e9377d45b494166685", null ],

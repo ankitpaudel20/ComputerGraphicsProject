@@ -9,5 +9,5 @@ var searchData=
   ['println_6',['println',['../classsynced__stream.html#abfbe6102c9d87b93bfd7d0c755debdac',1,'synced_stream']]],
   ['processholdevent_7',['processHoldEvent',['../application_8cpp.html#a9e7d2ab43fd2c72f7ac16ab894e4f3e2',1,'application.cpp']]],
   ['push_5ftask_8',['push_task',['../classthread__pool.html#a3e9d8436b3eb525ae5fee597740a86f4',1,'thread_pool::push_task(const F &amp;task)'],['../classthread__pool.html#ae37f7cf895480503583a852c30947794',1,'thread_pool::push_task(const F &amp;task, const A &amp;...args)']]],
-  ['putpixel_5fadjusted_9',['putpixel_adjusted',['../structengine.html#a7ca3a5b616dbaeabecb9f1c3f63a0c31',1,'engine::putpixel_adjusted(int x, int y, float z, const color &amp;col=color(255))'],['../structengine.html#a7ca3a5b616dbaeabecb9f1c3f63a0c31',1,'engine::putpixel_adjusted(int x, int y, float z, const color &amp;col=color(255))']]]
+  ['putpixel_5fadjusted_9',['putpixel_adjusted',['../structengine.html#a7ca3a5b616dbaeabecb9f1c3f63a0c31',1,'engine']]]
 ];
