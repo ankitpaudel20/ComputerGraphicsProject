@@ -9,6 +9,7 @@ var core_8h =
     [ "GLcall_P", "core_8h.html#ab6255d1e6246a657a8a762b04e3069b3", null ],
     [ "MDEBUG", "core_8h.html#ad769dc7be0dc5189e019d56664a18655", null ],
     [ "PHONG_SHADING", "core_8h.html#ac49fc61cf04be8e724c6515470348f51", null ],
+    [ "USEBARYCENTRIC", "core_8h.html#a9af259f420331019cb1b2a8c6c54934c", null ],
     [ "vec3", "core_8h.html#af6d272d078cf83bdcc1e6fd4ea439515", null ],
     [ "uint", "core_8h.html#a91ad9478d81a7aaf2593e8d9c3d06a14", null ],
     [ "GLClearError", "core_8h.html#a6103a9a9cceabf330103f2502f088649", null ],
