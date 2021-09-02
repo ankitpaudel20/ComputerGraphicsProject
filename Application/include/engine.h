@@ -313,6 +313,8 @@ struct engine {
  */
     color getcolor(const Vertex2 &v, Mesh *mesh) const {
         color col;
+
+        //check if texture exists
         if (mesh->material.diffuse.w) {
             float intpart;
             int tx = roundfloat(std::modf(v.v.texCoord.x, &intpart) * (mesh->material.diffuse.w - 1));
@@ -380,7 +382,7 @@ struct engine {
     void setTime(float time) {
         assert(time >= 0.f && time < 24.f);
         dirlight.intensity = 0.7666921f * exp(-pow((time - 12.4125f) / (3.047894f), 2.f) / 2.f);
-        ambientLightIntensity = dirlight.intensity * 0.5;
+        ambientLightIntensity = dirlight.intensity;
         const uint8_t min = floor(time), max = ceil(time);
         float alpha;
         if (min == max)
@@ -395,48 +397,21 @@ struct engine {
         dirlight.direction = vec3(sin(t), -cos(t), 0);
         dirlight.direction.normalize();
 
-        printf("time: %f\n", time);
-        printf("ambientlight color: (%d,%d,%d)\n", ambientLightColor.r(), ambientLightColor.g(), ambientLightColor.b());
-        printf("dirlight intensity: %f\n", dirlight.intensity);
-        printVec(dirlight.direction);
+        // printf("time: %f\n", time);
+        // printf("ambientlight color: (%d,%d,%d)\n", ambientLightColor.r(), ambientLightColor.g(), ambientLightColor.b());
+        // printf("dirlight intensity: %f\n", dirlight.intensity);
+        // printVec(dirlight.direction);
 
-        printf("\033[F");
-        printf("\033[F");
-        printf("\033[F");
-        printf("\033[F");
+        // printf("\033[F");
+        // printf("\033[F");
+        // printf("\033[F");
+        // printf("\033[F");
     }
 
   private:
     std::unordered_map<uint8_t, float>
         greenTimeMap = {{0, 0}, {1, 0.1}, {2, 0.3}, {3, 0.3}, {4, 0.35}, {5, 0.4}, {6, 0.5}, {7, 0.55}, {8, 0.6}, {9, 1}, {10, 1}, {11, 1}, {12, 1}, {13, 1}, {14, 1}, {15, 1}, {16, 1}, {17, 0.8}, {18, 0.5}, {19, 0.4}, {20, 0.3}, {21, 0.25}, {22, 0.1}, {23, 0.06}, {24, 0}},
-        blueTimeMap = {
-            {0, 0},
-            {1, 0},
-            {2, 0},
-            {3, 0.05},
-            {4, 0.06},
-            {5, 0.1},
-            {6, 0.15},
-            {7, 0.25},
-            {8, 0.35},
-            {9, 0.75},
-            {10, 0.8},
-            {11, 1},
-            {12, 1},
-            {13, 1},
-            {14, 1},
-            {15, 1},
-            {16, 0.8},
-            {17, 0.6},
-            {18, 0.4},
-            {19, 0.1},
-            {20, 0.01},
-            {21, 0},
-            {22, 0},
-            {23, 0},
-            {24, 0}
-
-    };
+        blueTimeMap = {{0, 0}, {1, 0}, {2, 0}, {3, 0.05}, {4, 0.06}, {5, 0.1}, {6, 0.15}, {7, 0.25}, {8, 0.35}, {9, 0.75}, {10, 0.8}, {11, 1}, {12, 1}, {13, 1}, {14, 1}, {15, 1}, {16, 0.8}, {17, 0.6}, {18, 0.4}, {19, 0.1}, {20, 0.01}, {21, 0}, {22, 0}, {23, 0}, {24, 0}};
 
     static inline float max(const float &first, const float &second) {
         return first > second ? first : second;
@@ -941,7 +916,7 @@ struct engine {
                 const vec2 pos(px0 + u2, v0.v.position.y + u0);
                 calculateBarycentricCoordinates(pos, v0.v.position, v1.v.position, v2.v.position, coefficients);
 
-                double z = 1 / (coefficients[0] * v0.v.position.z + coefficients[1] * v1.v.position.z + coefficients[2] * v2.v.position.z);
+                const double z = 1 / (coefficients[0] * v0.v.position.z + coefficients[1] * v1.v.position.z + coefficients[2] * v2.v.position.z);
 #ifdef MULTITHREADED
                 const std::lock_guard<std::mutex> lock(fboCPUMutex);
 #endif
@@ -979,13 +954,21 @@ struct engine {
             if (v1.v.position.x < v0.v.position.x) {
                 std::swap(v0, v1);
             }
+#ifdef USEBARYCENTRIC
+            fillBottomFlatTriangleBary(v0, v1, v2, mesh);
+#else
             fillBottomFlatTriangle(v0, v1, v2, mesh);
+#endif
         } else if (v1.v.position.y == v2.v.position.y) // natural flat top
         {
             if (v2.v.position.x < v1.v.position.x) {
                 std::swap(v1, v2);
             }
+#ifdef USEBARYCENTRIC
+            fillTopFlatTriangleBary(v0, v1, v2, mesh);
+#else
             fillTopFlatTriangle(v0, v1, v2, mesh);
+#endif
         } else // general triangle
         {
             assert(v2.v.position.y > v1.v.position.y && v1.v.position.y > v0.v.position.y);
@@ -993,6 +976,17 @@ struct engine {
             const double alphaSplit = (v1.v.position.y - v0.v.position.y) / (v2.v.position.y - v0.v.position.y);
             const auto vi = v0 + (v2 - v0) * alphaSplit;
 
+#ifdef USEBARYCENTRIC
+            if (v1.v.position.x < vi.v.position.x) // major left
+            {
+                fillTopFlatTriangleBary(v0, v1, vi, mesh);
+                fillBottomFlatTriangleBary(v1, vi, v2, mesh);
+            } else // major right
+            {
+                fillTopFlatTriangleBary(v0, vi, v1, mesh);
+                fillBottomFlatTriangleBary(vi, v1, v2, mesh);
+            }
+#else
             if (v1.v.position.x < vi.v.position.x) // major left
             {
                 fillTopFlatTriangle(v0, v1, vi, mesh);
@@ -1002,6 +996,7 @@ struct engine {
                 fillTopFlatTriangle(v0, vi, v1, mesh);
                 fillBottomFlatTriangle(vi, v1, v2, mesh);
             }
+#endif
             // draw_bresenham_adjusted(roundfloat(vi.v.position.x), roundfloat(vi.v.position.y), roundfloat(v1.v.position.x), roundfloat(v1.v.position.y), color(0, 255, 0));
         }
     }

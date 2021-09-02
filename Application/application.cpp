@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
     // auto textureBox = Model::loadModel_obj(path + "/Crate/Crate1.obj", "texturebox");
     // auto football_real = Model::loadModel_obj(path + "/Football/Football_LowPoly.obj", "football");
     // auto stupa = Model::loadModel_obj(path + "/swayambhunath/swayambhunath.obj", "city");
-    auto city = Model::loadModel_obj(path + "/city/house.obj", "city");
+    auto city = Model::loadModel_obj(path + "/city/citymodified.obj", "city");
     // auto texturedSquare = Model::loadModel_obj(path + "/texturedSquare.obj", "city");
     // rootNode.children["city"] = city;
 
@@ -275,7 +275,7 @@ int main(int argc, char **argv) {
     // graphicsEngine->nearPlane = 1;
     Material m;
     m.diffuseColor = color(255, 0, 0);
-    graphicsEngine->cullBackface = false;
+    graphicsEngine->cullBackface = true;
     graphicsEngine->cam = &cam1;
     graphicsEngine->dirlight = dirLight(-vec3(std::sin(60), std::cos(60), 0).normalize(), 1, color(255));
     graphicsEngine->ambientLightIntensity = 0;
@@ -288,11 +288,11 @@ int main(int argc, char **argv) {
             const vec3 center = getCenterOfMass(mesh->m_vertices.data(), mesh->m_vertices.size());
             for (auto &vertex : mesh->m_vertices) {
                 auto debugTranslate = trans::translate(-center);
-                vertex.position = debugTranslate * vec4(vertex.position, 1);
+                vertex.position = debugTranslate * vertex.position;
             }
-            graphicsEngine->pointLights.emplace_back(center, 1, mesh);
-            lightNumber++;
+            graphicsEngine->pointLights.emplace_back(center, 1.5, mesh, color(rand() % 255u, rand() % 255u, rand() % 255u, 255));
         }
+        lightNumber++;
     }
 
     // graphicsEngine->pointLights.emplace_back(vec3(0.670566, 1.62085, 0.872629), 3, lightmodel->meshes.back());
@@ -317,11 +317,11 @@ int main(int argc, char **argv) {
         fpsString.replace(fpsString.begin() + place, fpsString.end(), std::to_string(1e6 / deltatime));
         glfwSetWindowTitle(window, fpsString.c_str());
 
-        std::cout << "camera Eye: " << cam1.eye << std::endl;
-        std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
+        // std::cout << "camera Eye: " << cam1.eye << std::endl;
+        // std::cout << "camera viewdir: " << cam1.getViewDir() << std::endl;
 
-        printf("\033[F");
-        printf("\033[F");
+        // printf("\033[F");
+        // printf("\033[F");
         graphicsEngine->clear();
 
         //for (auto &mesh : lightmodel->meshes) {
